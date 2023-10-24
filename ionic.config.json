@@ -1,0 +1,7 @@
+{
+  "name": "com.pp.tn",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "custom"
+}
