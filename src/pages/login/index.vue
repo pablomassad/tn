@@ -42,10 +42,12 @@ const validateDocument = async () => {
     margin: auto;
     width: 70vw;
     max-width: 500px;
+    box-shadow: 10px 10px 20px #004180;
+    border-radius: 20px;
 }
 
 .backLogin {
-    background: linear-gradient(#a9b0ff, #303294);
+    background: linear-gradient(#1c87dd, #023055);
     margin: 0;
     padding: 0;
 }
