@@ -4,9 +4,12 @@
             <img src="images/tn.png" class="logo">
         </div>
         <div class="matrix" v-if="lotes">
-            <div v-for="(unit, i) in lotes" :key="unit" class="lote" @click="selectLote(unit, i)" :class="{'selLote': (appStore.state.selLote?.id == (i + 1))}">
+            <div v-for="(unit, i) in lotes" :key="unit" class="lote" @click="selectLote(unit)" :class="{'selLote': (appStore.state.selLote?.id == (i + 1))}">
                 <div class="numLote">{{ i + 1 }}</div>
             </div>
+        </div>
+        <div class="owner">
+            {{ owner }}
         </div>
         <div class="grdLogin">
             <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" @keyup.enter="validateLote" class="doc" />
@@ -24,14 +27,14 @@ import { ui } from 'fwk-q-ui'
 const router = useRouter()
 const lotes = ref()
 const pwd = ref()
+const owner = ref()
 
 onMounted(async () => {
     lotes.value = await appStore.actions.getLotes()
     if (appStore.state.selLote) validateLote()
 })
-const selectLote = (lote, i) => {
-    console.log('i: ', i)
-    appStore.set.selLote(lote)
+const selectLote = async (lote) => {
+    owner.value = await appStore.actions.findOwner(lote)
 }
 const validateLote = async () => {
     const data = await appStore.actions.validateLote()
@@ -101,6 +104,14 @@ const validateLote = async () => {
     border-radius: 20px;
 }
 
+.owner {
+    color: white;
+    text-shadow: 1px 1px 1px black;
+    font-size: 20px;
+    text-align: center;
+    margin-top: 30px;
+}
+
 .backLogin {
     background: linear-gradient(#1c87dd, #023055);
     margin: 0;
@@ -117,7 +128,7 @@ const validateLote = async () => {
     width: 300px;
     margin: auto;
     column-gap: 10px;
-    margin-top: 60px;
+    margin-top: 30px;
 }
 
 .doc {
