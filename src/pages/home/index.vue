@@ -1,36 +1,6 @@
 <template>
-    <div class="backIntegralmente" v-if="appStore.state.userData?.length">
-        <q-carousel v-model="activeIndex" transition-prev="jump-right" transition-next="jump-left" swipeable animated control-color="blue-8" navigation class="carousel" @change="onChange">
-            <q-carousel-slide v-for="(v, i) in appStore.state.userData" :key="i" :name="v.Patente">
-                <div class="grdTitle">
-                    <div></div>
-                    <div v-if="v.Patente.length === 6">
-                        <img src="images/patVieja.jpg" class="patViejaImg" />
-                        <div class="patVieja">
-                            <div>{{ v.Patente.substr(0, 3) }}</div>
-                            <div>{{ v.Patente.substr(3, 3) }}</div>
-                        </div>
-                    </div>
-                    <div v-if="v.Patente.length !== 6">
-                        <img src="images/patNueva.png" class="patNuevaImg" />
-                        <div class="patNueva">
-                            <div>{{ v.Patente.substr(0, 2) }}</div>
-                            <div>{{ v.Patente.substr(2, 3) }}</div>
-                            <div>{{ v.Patente.substr(5, 2) }}</div>
-                        </div>
-                    </div>
-                    <div></div>
-                </div>
-                <div class="title">POLIZA SEGURO AUTOMOTOR</div>
-                <CardList :objectToMap="v" split defValue='' class="cardList" no-padding>
-                </CardList>
-            </q-carousel-slide>
-        </q-carousel>
-
-        <div class="notificaciones">
-            <q-btn round color="blue-9" icon="mail" class="btnMensajes" @click="gotoMensajes"></q-btn>
-            <div class="contadorMensajes" v-if="unreadCounter > 0">{{ unreadCounter }}</div>
-        </div>
+    <div class="backIntegralmente">
+        HOLA
     </div>
 </template>
 
@@ -38,37 +8,26 @@
 import { ref, onMounted, computed, defineComponent, reactive } from 'vue'
 import appStore from '../appStore'
 import { useRouter } from 'vue-router'
-import CardList from 'src/components/fwk-q-cardlist/index.vue'
 
 const router = useRouter()
-const activeIndex = ref(0)
-
-const unreadCounter = computed(() => {
-    if (!appStore.state.notificaciones) return 0
-    const result = appStore.state.notificaciones.filter(x => !x.fhLectura)
-    return result.length
-})
+const lotes = ref()
 
 onMounted(async () => {
     // ui.actions.setTitle('Informacion')
-    await appStore.actions.getSettings()
-
-    if (!appStore.state.document) {
-        router.push('/login')
-    } else {
-        await appStore.actions.subscribeToFCM()
-        await appStore.actions.getDataByUser()
-        await appStore.actions.getNotificacionesByUser()
-        activeIndex.value = appStore.state.userData[0].Patente
-        appStore.actions.updateNotifications('fhRecepcion')
-    }
+    await appStore.actions.initApp()
+    // await appStore.actions.createLotesCol()
+    router.push('/login')
+    // if (!appStore.state.loginOK) {
+    //    router.push('/login')
+    // } else {
+    //    await appStore.actions.subscribeToFCM()
+    //    await appStore.actions.getDataByUser()
+    //    await appStore.actions.getNotificacionesByUser()
+    //    activeIndex.value = appStore.state.userData[0].Patente
+    //    appStore.actions.updateNotifications('fhRecepcion')
+    // }
 })
-const gotoMensajes = () => {
-    router.push('/notificaciones')
-}
-const onChange = (ev) => {
-    console.log('onChange slide:', ev)
-}
+
 </script>
 
 <style scoped>

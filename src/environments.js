@@ -3,14 +3,15 @@ export const ENVIRONMENTS = {
     versionName: '1.00.62',
     productName: 'TN',
     packageName: 'com.pp.tn',
+    lugar: 'terranostra',
     appName: 'tn',
     firebase: {
-        apiKey: 'AIzaSyD0vRD2y_CQaK9_n8jT7gzpmPIcr_SXf8w',
-        authDomain: 'pp-tn-6078f.firebaseapp.com',
-        projectId: 'pp-tn-6078f',
-        storageBucket: 'pp-tn-6078f.appspot.com',
-        messagingSenderId: '578961223658',
-        appId: '1:578961223658:web:04b61ead4e5d94577f0c93',
-        measurementId: 'G-6NEGB5NZ3Y'
+        apiKey: 'AIzaSyCXiL1WY2gDC3nAa55grw1Dv71aqEuSo1Q',
+        authDomain: 'pp-security-tracker.firebaseapp.com',
+        projectId: 'pp-security-tracker',
+        storageBucket: 'pp-security-tracker.appspot.com',
+        messagingSenderId: '678840774599',
+        appId: '1:678840774599:web:68214f3f2065aa4c0733e2',
+        measurementId: 'G-VC7ZR0XNDH'
     }
 }
