@@ -37,12 +37,14 @@ const selectLote = async (lote) => {
     owner.value = await appStore.actions.findOwner(lote)
 }
 const validateLote = async () => {
-    const data = await appStore.actions.validateLote()
-    if (data.length) {
-        router.go(-1)
-    } else {
-        ui.actions.notify('No se ha podido validar el lote. Por favor comunicarse con TN.', 'error')
-    }
+    appStore.set.loginOK(true)
+    router.go(-1)
+    // const data = await appStore.actions.validateLote()
+    // if (data.length) {
+    //    router.go(-1)
+    // } else {
+    //    ui.actions.notify('No se ha podido validar el lote. Por favor comunicarse con TN.', 'error')
+    // }
 }
 </script>
 

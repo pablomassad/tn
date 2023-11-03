@@ -10,12 +10,24 @@ const state = reactive({
     path: undefined,
     config: undefined,
     selLote: undefined,
-    document: LocalStorage.getItem('TN_lote')
+    document: LocalStorage.getItem('TN_lote'),
+    loginOK: false,
+    expensas: [
+        { expensa: 'Octubre 2023', importe: 54750.0, interes: 0, saldo: 0, estado: false },
+        { expensa: 'Setiembre 2023', importe: 53550.0, interes: 0, saldo: 0, estado: true },
+        { expensa: 'Agosto 2023', importe: 49100.0, interes: 0, saldo: 0, estado: true },
+        { expensa: 'Julio 2023', importe: 25680.0, interes: 0, saldo: 0, estado: true },
+        { expensa: 'junio 2023', importe: 24876.0, interes: 0, saldo: 0, estado: true }
+    ]
 })
 const set = {
     settings (o) {
         console.log('store set.settings:', o)
         state.settings = o
+    },
+    loginOK (o) {
+        console.log('store set.loginOK:', o)
+        state.loginOK = o
     },
     selLote (l) {
         console.log('store set.selLote:', l)
