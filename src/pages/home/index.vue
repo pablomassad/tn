@@ -41,19 +41,7 @@
                 </div>
             </template>
             <template #default>
-                <q-input outlined dense v-model="fechaComprobante" label="Fecha de comprobante" readonly bg-color="white" class="datehour">
-                    <template v-slot:prepend>
-                        <q-icon name="event" class="cursor-pointer">
-                        </q-icon>
-                    </template>
-                    <q-popup-proxy cover transition-show="scale" transition-hide="scale">
-                        <q-date v-model="fechaComprobante" mask="appStore.state.formatDay" :locale="myLocale" :options="minDayTo">
-                            <div class="row items-center justify-end">
-                                <q-btn v-close-popup label="Close" color="primary" flat />
-                            </div>
-                        </q-date>
-                    </q-popup-proxy>
-                </q-input>
+                <q-input flat dense clearable v-model="fechaComprobante" label="Fecha de comprobante" @click="selectFecha()" />
                 <q-input type="number" v-model="comprobante" label="Nro. de comprobante" />
                 <q-input type="number" v-model="importe" label="Importe pagado" />
             </template>
@@ -64,6 +52,11 @@
                 </div>
             </template>
         </ConfirmDialog>
+        <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
+            <div>
+                <q-date v-model="data.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="data.myLocale" />
+            </div>
+        </ModalPanel>
     </div>
 </template>
 
@@ -71,12 +64,32 @@
 import { ref, onMounted, computed, defineComponent, reactive } from 'vue'
 import appStore from '../appStore'
 import { useRouter } from 'vue-router'
+import ModalPanel from './ModalPanel.vue'
+import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import { InputTextPro } from 'fwk-q-inputs'
 
 const router = useRouter()
 const showForm = ref(false)
-const fechaComprobante = ref()
+const fechaComprobante = ref(moment().format('DD-MM-YYYY'))
+const showFecha = ref(false)
+const data = reactive({
+    selectedDate: '',
+    datePickerTitle: '',
+    myLocale: {
+        days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split(
+            '_'
+        ),
+        daysShort: 'Dom_Lun_Mar_Mié_Jue_Vie_Sáb'.split('_'),
+        months: 'Enero_Febrero_Marzo_Abril_Mayo_Junio_Julio_Agosto_Septiembre_Octubre_Noviembre_Diciembre'.split(
+            '_'
+        ),
+        monthsShort:
+            'Ene_Feb_Mar_Abr_May_Jun_Jul_Ago_Sep_Oct_Nov_Dic'.split(
+                '_'
+            ),
+        firstDayOfWeek: 1
+    }
+})
 
 onMounted(async () => {
     // ui.actions.setTitle('Informacion')
@@ -99,6 +112,16 @@ const showInfo = () => {
 }
 const accept = () => {
     showForm.value = false
+}
+const selectFecha = () => {
+    data.selectedDate = fechaComprobante.value
+    showFecha.value = true
+}
+const onFechaOKClick = () => {
+    showFecha.value = false
+    fechaComprobante.value = data.selectedDate
+        ? data.selectedDate
+        : fechaComprobante.value
 }
 
 </script>

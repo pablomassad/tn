@@ -60,14 +60,14 @@ const logout = () => {
     left: 0;
     right: 0;
     width: 145px;
-    height: 65px;
+    height: 76px;
     overflow: hidden;
     margin: auto;
     z-index: 10000;
 }
 
 .logo {
-    width: 150px;
+    width: 100px;
 }
 
 .menuRow {
