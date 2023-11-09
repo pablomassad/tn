@@ -48,7 +48,7 @@ const searchUpdates = () => {
     } else { ui.actions.notify('No hay nuevas actualizaciones!', 'info', { position: 'center' }) }
 }
 const logout = () => {
-    LocalStorage.set('TN_doc', '')
+    LocalStorage.set('TN_selUnit', '')
     window.location.reload()
 }
 </script>
@@ -57,12 +57,9 @@ const logout = () => {
 .logoFrame {
     position: fixed;
     top: -12px;
-    left: 0;
-    right: 0;
     width: 145px;
     height: 76px;
     overflow: hidden;
-    margin: auto;
     z-index: 10000;
 }
 

@@ -3,17 +3,11 @@
         <div class="logoFrame">
             <img src="images/tn.png" class="logo">
         </div>
-        <div class="matrix" v-if="lotes">
-            <div v-for="(unit, i) in lotes" :key="unit" class="lote" @click="selectLote(unit)" :class="{'selLote': (appStore.state.selLote?.id == (i + 1))}">
-                <div class="numLote">{{ i + 1 }}</div>
-            </div>
-        </div>
-        <div class="owner">
-            {{ owner }}
-        </div>
         <div class="grdLogin">
-            <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" @keyup.enter="validateLote" class="doc" />
-            <q-btn color="blue-8" icon="login" @click="validateLote" class="login" :disable="!appStore.state.selLote" />
+            <q-select filled bg-color="white" :options="options" behavior="menu" label="Seleccione propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="selUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit"></q-select>
+            <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" class="doc" @keyup.enter="login" />
+            <q-input v-if="selUnit && !selUnit.pwd" color="black" bg-color="white" type="password" filled v-model="pwdCopy" label="Ingrese nuevamente" @keyup.enter="login" class="doc" />
+            <q-btn color="blue-8" icon="login" @click="login" class="login" :disable="!selUnit" :label="lblLogin" />
         </div>
     </div>
 </template>
@@ -25,26 +19,48 @@ import { useRouter } from 'vue-router'
 import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
-const lotes = ref()
 const pwd = ref()
-const owner = ref()
+const pwdCopy = ref()
+const selUnit = ref()
+const options = ref()
+const lblLogin = ref('Login')
 
 onMounted(async () => {
-    lotes.value = await appStore.actions.getLotes()
-    if (appStore.state.selLote) validateLote()
+    await appStore.actions.getUnits()
+    if (appStore.state.selUnit) router.go(-1)
 })
-const selectLote = async (lote) => {
-    owner.value = await appStore.actions.findOwner(lote)
+const filterFn = (val, update) => {
+    if (val === '') {
+        update(() => {
+            options.value = appStore.state.units
+        })
+        return
+    }
+    update(() => {
+        const needle = val.toLowerCase()
+        options.value = appStore.state.units.filter(item => item.ownerNames.toLowerCase().indexOf(needle) > -1)
+    })
 }
-const validateLote = async () => {
-    appStore.set.loginOK(true)
-    router.go(-1)
-    // const data = await appStore.actions.validateLote()
-    // if (data.length) {
-    //    router.go(-1)
-    // } else {
-    //    ui.actions.notify('No se ha podido validar el lote. Por favor comunicarse con TN.', 'error')
-    // }
+const onSelUnit = (e) => {
+    console.log(e.id)
+    selUnit.value = e
+    if (!selUnit.value.pwd) {
+        ui.actions.notify('Bienvenido!. Ingrese una contraseña.', 'info')
+        lblLogin.value = 'Registrarse'
+    }
+}
+const login = async () => {
+    if (!selUnit.value.pwd) {
+        if (pwd.value !== pwdCopy.value) {
+            ui.actions.notify('Las contraseñas no coinciden!, vuelva a intentarlo.', 'warning')
+            return
+        }
+        await appStore.actions.updateUnit(selUnit.value, pwd.value)
+    }
+    const data = await appStore.actions.login(selUnit.value, pwd.value)
+    if (data) {
+        router.go(-1)
+    }
 }
 </script>
 
@@ -90,8 +106,11 @@ const validateLote = async () => {
 .logoFrame {
     position: relative;
     width: 100%;
-    padding-top: 15%;
-    height: 45vw;
+    padding-top: 72%;
+
+    @media screen and(min-width: 720px) {
+        padding-top: 550px;
+    }
 }
 
 .logo {
@@ -106,14 +125,6 @@ const validateLote = async () => {
     border-radius: 20px;
 }
 
-.owner {
-    color: white;
-    text-shadow: 1px 1px 1px black;
-    font-size: 20px;
-    text-align: center;
-    margin-top: 30px;
-}
-
 .backLogin {
     background: linear-gradient(#1c87dd, #023055);
     margin: 0;
@@ -125,11 +136,11 @@ const validateLote = async () => {
 
 .grdLogin {
     display: grid;
-    grid-template-columns: 1fr 50px;
     align-items: center;
-    width: 300px;
+    max-width: 340px;
+    width: 100%;
     margin: auto;
-    column-gap: 10px;
+    row-gap: 10px;
     margin-top: 30px;
 }
 
@@ -141,10 +152,10 @@ const validateLote = async () => {
 .login {
     height: 50px;
 }
-
-@media screen and(min-width: 800px) {
-    .logoFrame {
-        height: 360px;
-    }
-}
 </style>
+
+<!--<div class="matrix" v-if="lotes && false">
+            <div v-for="(unit, i) in lotes" :key="unit" class="lote" @click="selectLote(unit)" :class="{'selLote': (appStore.state.selLote?.id == (i + 1))}">
+                <div class="numLote">{{ i + 1 }}</div>
+            </div>
+        </div>-->

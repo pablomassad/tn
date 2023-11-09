@@ -7,11 +7,10 @@ import { ENVIRONMENTS } from 'src/environments'
 fb.initFirebase(ENVIRONMENTS.firebase)
 
 const state = reactive({
+    settings: undefined,
     path: undefined,
-    config: undefined,
-    selLote: undefined,
-    document: LocalStorage.getItem('TN_lote'),
-    loginOK: false,
+    units: undefined,
+    selUnit: LocalStorage.getItem('TN_selUnit'),
     expensas: [
         { expensa: 'Octubre 2023', importe: 54750.0, interes: 0, saldo: 0, estado: false },
         { expensa: 'Setiembre 2023', importe: 53550.0, interes: 0, saldo: 0, estado: true },
@@ -21,50 +20,61 @@ const state = reactive({
     ]
 })
 const set = {
-    settings (o) {
-        console.log('store set.settings:', o)
-        state.settings = o
+    selUnit (o) {
+        console.log('store set.selUnit:', o)
+        state.selUnit = o
+        LocalStorage.set('TN_selUnit', o)
     },
-    loginOK (o) {
-        console.log('store set.loginOK:', o)
-        state.loginOK = o
-    },
-    selLote (l) {
-        console.log('store set.selLote:', l)
-        state.selLote = l
+    units (u) {
+        console.log('store units:', u)
+        state.units = u
     },
     path (p) {
         console.log('store set path:', p)
         state.path = p
     },
-    config (cfg) {
-        console.log('store config:', cfg)
-        state.config = cfg
+    settings (cfg) {
+        console.log('store settings:', cfg)
+        state.settings = cfg
     }
 }
 const actions = {
-    async initApp () {
-        const setting = await fb.getDocument('settings', ENVIRONMENTS.lugar)
-        set.config(setting)
+    async getSettings () {
+        const cfg = await fb.getDocument('settings', ENVIRONMENTS.lugar)
+        set.settings(cfg)
         set.path(`settings/${ENVIRONMENTS.lugar}`)
     },
-    async findOwner (lote) {
-        set.selLote(lote)
-        const units = await fb.getCollectionFlex(`${state.path}/units`, { field: 'id', val: lote.unitId })
-        return units[0].ownerNames
+    async getUnits () {
+        const units = await fb.getCollection(`${state.path}/units`)
+        set.units(units)
+        return units
+    },
+    async updateUnit (unit, pwd) {
+        set.selUnit(unit)
+        state.selUnit = { ...state.selUnit, pwd }
+        ui.actions.showLoading()
+        await fb.setDocument(`${state.path}/units`, state.selUnit, state.selUnit.id)
+        ui.actions.hideLoading()
+    },
+    async login (unit, pwd) {
+        if (state.selUnit.pwd === pwd) {
+            ui.actions.showLoading()
+            set.selUnit(unit)
+            await fb.setDocument(`${state.path}/units`, unit, unit.id)
+            ui.actions.hideLoading()
+            ui.actions.notify('Bienvenido ' + unit.ownerNames, 'success')
+            return true
+        } else { ui.actions.notify('Contraseña incorrecta!. Intente nuevamente o comunicarse con el administrador', 'error') }
     },
     async subscribeToFCM () {
         const vapidKey = 'BP6nPflTuZhSgdqiyDaPMLxYy3o2gvcMM_oUl1NFP-CkMIgnAiXfOKeOhrNbjhCUOKVNEosPR4U9j2t_NSLhjy4'
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     },
-    async getLotes () {
-        const path = `${state.path}/lotes`
-        console.log('path:', path)
-        const result = await fb.getCollection(path)
-        const sorted = result.sort((a, b) => Number(a.id) - Number(b.id))
-        return sorted
+    async uploadFile (file, fn) {
+        await fb.uploadFile(file, fn)
+        console.log('store uploadFile finished:', fn)
     },
-    async validateLote (lote) {
+    async validateOwner (lote) {
         console.log('store validateLote:', lote)
     }
 }
@@ -85,4 +95,11 @@ export default {
 //        await fb.setDocument(path, lote, lote.id)
 //        console.log('lote creado:', lote)
 //    }
+// },
+//    async getLotes() {
+//    const path = `${state.path}/lotes`
+//    console.log('path:', path)
+//    const result = await fb.getCollection(path)
+//    const sorted = result.sort((a, b) => Number(a.id) - Number(b.id))
+//    return sorted
 // },
