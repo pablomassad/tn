@@ -1,12 +1,12 @@
 <template>
-    <div class="">
+    <div class="" v-if="appStore.state.selUnit">
         <div class="userForm">
             <div class="label">Propietario: </div>
-            <div class="value">Pablo Massad, Patricia Gonzalez Villar</div>
+            <div class="value">{{ appStore.state.selUnit.ownerNames }}</div>
             <div class="label">Unidad: </div>
-            <div class="value">23</div>
+            <div class="value">{{ appStore.state.id }}</div>
             <div class="label">CUIT: </div>
-            <div class="value">3420340901230901</div>
+            <div class="value">34901230901</div>
             <div class="label">Deuda: </div>
             <div class="value">$0</div>
         </div>
@@ -16,22 +16,41 @@
                 <div class="precio">Importe</div>
                 <div class="interes">Interes</div>
                 <div class="interes">Saldo</div>
-                <div style="text-align: center;">Bajar expensa</div>
+                <div style="text-align: center;">Descargar</div>
                 <div style="text-align: center;">Comprobantes</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(item, index) in appStore.state.expensas" :key="index" class="rowExpensa">
-                <div>{{ item.expensa }}</div>
-                <div class="precio">{{ item.importe.toFixed(2) }}</div>
-                <div class="interes">{{ item.interes.toFixed(2) }}</div>
-                <div class="interes">{{ item.saldo.toFixed(2) }}</div>
-                <div class="btn">
-                    <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
+            <div v-for="(item, index) in localExpenses" :key="index">
+                <div class="rowExpensa">
+                    <div>{{ item.expName }}</div>
+                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                    <div class="interes">{{ item.interest.toFixed(2) }}</div>
+                    <div class="interes">{{ item.balance.toFixed(2) }}</div>
+                    <div class="btn">
+                        <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
+                    </div>
+                    <div class="btn" @click="toggleDetail(item)" :class="{pressed: item.showDetail}">
+                        <q-icon name="upload_file" class="btnIcon"></q-icon>
+                    </div>
+                    <div class="estado" :class="{pagado: item.status}"></div>
                 </div>
-                <div class="btn" @click="showInfo">
-                    <q-icon name="upload_file" class="btnIcon"></q-icon>
+                <div class="grdComps" v-if="item.showDetail">
+                    <div class="rowComp encabezado">
+                        <div class="centro">Fecha</div>
+                        <div class="importe">Importe</div>
+                        <div class="centro">Ver</div>
+                        <div class="centro">Estado</div>
+                    </div>
+                    <div v-for="(item, index) in item.comps" :key="index" class="rowComp">
+                        <div class="centro">{{ moment(item.datetime).format('DD/MM/YY') }}</div>
+                        <div class="importe">{{ item.amount.toFixed(2) }}</div>
+                        <div class="btn" @click="viewComp(item)">
+                            <q-icon name="visibility" class="btnIcon"></q-icon>
+                        </div>
+                        <div class="estado" :class="{valid: item.checked}"></div>
+                    </div>
+                    <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
                 </div>
-                <div class="estado" :class="{pagado: item.estado}"></div>
             </div>
         </div>
         <Comprobantes ref="refComp" />
@@ -39,19 +58,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import Comprobantes from './Comprobantes/index.vue'
+import moment from 'moment'
 
 const router = useRouter()
 const refComp = ref()
+const localExpenses = ref()
+const selExpense = ref()
 
 onMounted(async () => {
     await appStore.actions.getSettings()
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
+        const expenses = await appStore.actions.getExpenses()
+        localExpenses.value = JSON.parse(JSON.stringify(expenses))
         // await appStore.actions.subscribeToFCM()
         // await appStore.actions.getDataByUser()
         // await appStore.actions.getNotificacionesByUser()
@@ -61,8 +85,18 @@ onMounted(async () => {
 const download = () => {
     console.log('bajar arhivo expensas')
 }
-const showInfo = () => {
-    refComp.value.show()
+const toggleDetail = async (exp) => {
+    exp.showDetail = !exp.showDetail
+    exp.comps = await appStore.actions.getCompsByExp(exp.id)
+    if (exp.showDetail) {
+        selExpense.value = exp
+    }
+}
+const addComp = () => {
+    refComp.value.show(selExpense.value)
+}
+const viewComp = (cp) => {
+    refComp.value.show(selExpense.value, cp)
 }
 
 </script>
@@ -81,6 +115,12 @@ const showInfo = () => {
     max-width: 720px;
 }
 
+.addBtn {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
 .matrix {
     background-color: white;
     max-width: 720px;
@@ -93,6 +133,18 @@ const showInfo = () => {
 .label {
     font-weight: bold;
     font-size: 20px;
+}
+
+.valid {
+    background-color: green;
+}
+
+.importe {
+    text-align: right;
+}
+
+.centro {
+    text-align: center;
 }
 
 .precio {
@@ -114,12 +166,31 @@ const showInfo = () => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 100px 80px 70px 70px 90px 90px 100px;
+    grid-template-columns: 110px 80px 70px 70px 90px 90px 40px;
     align-items: center;
     width: 720px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
+}
+
+.grdComps {
+    padding: 20px;
+    width: 100%;
+    position: relative;
+    background: lightgray;
+}
+
+.rowComp {
+    display: grid;
+    grid-template-columns: 70px 80px 60px 40px;
+    align-items: center;
+    width: 340px;
+    background: white;
+    column-gap: 20px;
+    padding: 5px 15px;
+    border-bottom: 1px solid gray;
+    margin: auto;
 }
 
 .encabezado {
@@ -143,7 +214,13 @@ const showInfo = () => {
     padding: 5px;
     font-size: 20px;
     color: white;
-    text-shadow: 1px 1px 1px black;
+}
+
+.pressed {
+    box-shadow: inset 1px 1px 3px !important;
+    text-shadow: none !important;
+    padding-top: 1px;
+    background-color: rgb(89, 112, 155) !important;
 }
 
 .btn {
@@ -154,6 +231,7 @@ const showInfo = () => {
     width: 30px;
     height: 30px;
     margin: 5px;
+    text-shadow: 1px 1px 1px black;
 }
 
 .dialogTitle {
