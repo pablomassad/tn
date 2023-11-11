@@ -11,7 +11,7 @@
                     <q-input flat dense clearable v-model="comp.date" label="Fecha de comprobante" @click="selectFecha()" />
                     <div class="rowAmAt">
                         <q-input type="number" v-model="comp.amount" label="Importe pagado" />
-                        <div></div>
+                        <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
                         <q-btn v-if="!attFile && !comp.attachmentUrl" glossy color="primary" icon="attachment" @click="attachComp">Adjuntar comprobante</q-btn>
                         <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
                     </div>
@@ -74,7 +74,8 @@ const save = async () => {
     onAcceptDialog.value = async () => {
         await appStore.actions.saveComp(exp.value.id, comp, attFile.value)
         exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
-        showForm.value = false
+        showConfirm.value = false
+        onClose()
     }
     onCancelDialog.value = () => {
         showConfirm.value = false
@@ -84,8 +85,10 @@ const remove = () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere eliminar el comprobante?'
     onAcceptDialog.value = async () => {
-        appStore.actions.removeComp(exp.value.id, comp)
+        await appStore.actions.removeComp(exp.value.id, comp)
+        exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
+        onClose()
     }
     onCancelDialog.value = () => {
         showConfirm.value = false
@@ -118,6 +121,7 @@ const show = async (expense, cp) => {
     exp.value = expense
     showForm.value = true
     if (cp) {
+        comp.id = cp.id
         comp.date = cp.date
         comp.amount = cp.amount
         comp.attachmentUrl = cp.attachmentUrl

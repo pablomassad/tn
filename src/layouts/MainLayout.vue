@@ -2,11 +2,23 @@
     <Layout isRoot>
         <template #drawer>
             <q-separator />
-            <div class="menuRow" @click="searchUpdates()">
+            <div class="menuRow" @click="gotoExpenses()">
                 <q-icon name="update" class="iconMenu" />
-                <div class="rowText">Buscar actualización</div>
+                <div class="rowText">Expensas</div>
             </div>
             <q-separator />
+            <div class="menuRow" @click="gotoTickets()">
+                <q-icon name="request_quote" class="iconMenu" />
+                <div class="rowText">Rendición de gastos</div>
+            </div>
+            <q-separator />
+            <div v-if="main.state.isMobile">
+                <div class="menuRow" @click="searchUpdates()">
+                    <q-icon name="update" class="iconMenu" />
+                    <div class="rowText">Buscar actualización</div>
+                </div>
+                <q-separator />
+            </div>
             <div class="menuRow" @click="logout()">
                 <q-icon name="logout" class="iconMenu" />
                 <div class="rowText">Salir</div>
@@ -29,12 +41,20 @@ import { ENVIRONMENTS } from 'src/environments'
 import { LocalStorage } from 'quasar'
 import { ui } from 'fwk-q-ui'
 import { main } from 'fwk-q-main'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const prompt = ref(false)
 const dialogMessage = ref('')
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
+const gotoExpenses = () => {
+    router.push('/expenses')
+}
+const gotoTickets = () => {
+    router.push('/tickets')
+}
 const searchUpdates = () => {
     if (ENVIRONMENTS.versionName < appStore.state.settings.version || !main.state.isMobile) {
         prompt.value = true

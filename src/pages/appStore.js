@@ -93,20 +93,26 @@ const actions = {
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     },
     async saveComp (expId, comp, file) {
-        console.log('store saveComp:', file.name, comp)
+        console.log('store saveComp:', comp)
         ui.actions.showLoading()
-        const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
-        console.log('sto folder:', folder)
-        const url = await fb.uploadFile(file, folder)
-        comp.attachmentUrl = url
+        if (file) {
+            const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
+            console.log('sto folder:', folder)
+            const url = await fb.uploadFile(file, folder)
+            comp.attachmentUrl = url
+        }
         comp.amount = Number(comp.amount)
         comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-        await fb.setDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp, comp.datetime.toString())
+        const id = comp.id || comp.datetime.toString()
+        console.log('save comp:', id)
+        await fb.setDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp, id)
         ui.actions.hideLoading()
     },
     async removeComp (expId, comp) {
         console.log('store removeComp:', comp.id)
+        ui.actions.showLoading()
         await fb.deleteDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+        ui.actions.hideLoading()
     },
     async validateOwner (lote) {
         console.log('store validateLote:', lote)

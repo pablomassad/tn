@@ -15,16 +15,18 @@
                 <div>Expensa</div>
                 <div class="precio">Importe</div>
                 <div class="interes">Interes</div>
-                <div class="interes">Saldo</div>
+                <div class="interes">Monto Pagado</div>
+                <div class="interes">Deuda</div>
                 <div style="text-align: center;">Descargar</div>
-                <div style="text-align: center;">Comprobantes</div>
+                <div style="text-align: center;">Detalle</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(item, index) in localExpenses" :key="index">
+            <div v-for="(item) in localExpenses" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
                     <div class="interes">{{ item.interest.toFixed(2) }}</div>
+                    <div class="interes">{{ item.totComps?.toFixed(2) }}</div>
                     <div class="interes">{{ item.balance.toFixed(2) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
@@ -34,20 +36,24 @@
                     </div>
                     <div class="estado" :class="{pagado: item.status}"></div>
                 </div>
-                <div class="grdComps" v-if="item.showDetail">
+                <div class="grdComps" v-if="item.showDetail && item.comps">
                     <div class="rowComp encabezado">
                         <div class="centro">Fecha</div>
                         <div class="importe">Importe</div>
                         <div class="centro">Ver</div>
-                        <div class="centro">Estado</div>
+                        <div class="centro">Confirmado</div>
                     </div>
-                    <div v-for="(item, index) in item.comps" :key="index" class="rowComp">
-                        <div class="centro">{{ moment(item.datetime).format('DD/MM/YY') }}</div>
-                        <div class="importe">{{ item.amount.toFixed(2) }}</div>
+                    <div v-for="(cp) in item.comps" :key="cp" class="rowComp">
+                        <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
+                        <div class="importe">{{ cp.amount.toFixed(2) }}</div>
                         <div class="btn" @click="viewComp(item)">
                             <q-icon name="visibility" class="btnIcon"></q-icon>
                         </div>
-                        <div class="estado" :class="{valid: item.checked}"></div>
+                        <div class="estado" :class="{valid: cp.checked}"></div>
+                    </div>
+                    <div class="rowComp total">
+                        <div class="centro">TOTAL</div>
+                        <div class="importe">{{ sumComps(item).toFixed(2) }}</div>
                     </div>
                     <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
                 </div>
@@ -98,6 +104,10 @@ const addComp = () => {
 const viewComp = (cp) => {
     refComp.value.show(selExpense.value, cp)
 }
+const sumComps = (exp) => {
+    const total = exp.comps.reduce((sum, o) => sum + o.amount, 0)
+    return total
+}
 
 </script>
 
@@ -115,6 +125,11 @@ const viewComp = (cp) => {
     max-width: 720px;
 }
 
+.total {
+    background: lightyellow !important;
+    font-weight: bold;
+}
+
 .addBtn {
     position: absolute;
     right: 10px;
@@ -123,11 +138,21 @@ const viewComp = (cp) => {
 
 .matrix {
     background-color: white;
-    max-width: 720px;
+    max-width: 800px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
+}
+
+.rowExpensa {
+    display: grid;
+    grid-template-columns: 110px 80px 70px 70px 70px 90px 90px 40px;
+    align-items: center;
+    width: 800px;
+    column-gap: 20px;
+    padding: 5px 15px;
+    border-bottom: 1px solid gray;
 }
 
 .label {
@@ -164,16 +189,6 @@ const viewComp = (cp) => {
     margin: 20px;
 }
 
-.rowExpensa {
-    display: grid;
-    grid-template-columns: 110px 80px 70px 70px 90px 90px 40px;
-    align-items: center;
-    width: 720px;
-    column-gap: 20px;
-    padding: 5px 15px;
-    border-bottom: 1px solid gray;
-}
-
 .grdComps {
     padding: 20px;
     width: 100%;
@@ -183,7 +198,7 @@ const viewComp = (cp) => {
 
 .rowComp {
     display: grid;
-    grid-template-columns: 70px 80px 60px 40px;
+    grid-template-columns: 70px 80px 60px 70px;
     align-items: center;
     width: 340px;
     background: white;

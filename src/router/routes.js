@@ -1,5 +1,6 @@
 import { main } from 'fwk-q-main'
-import Home from '../pages/home/index.vue'
+import Expenses from '../pages/expenses/index.vue'
+import Tickets from '../pages/tickets/index.vue'
 import Login from '../pages/login/index.vue'
 
 const routes = [
@@ -7,7 +8,8 @@ const routes = [
         path: '/',
         component: () => import('layouts/MainLayout.vue'),
         children: [
-            { path: '/home', component: Home }
+            { path: '/expenses', component: Expenses },
+            { path: '/tickets', component: Tickets }
         ]
     },
     { path: '/login', component: Login },
