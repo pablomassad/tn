@@ -9,7 +9,7 @@
             <q-separator />
             <div class="menuRow" @click="gotoTickets()">
                 <q-icon name="request_quote" class="iconMenu" />
-                <div class="rowText">Rendición de gastos</div>
+                <div class="rowText">Gastos</div>
             </div>
             <q-separator />
             <div v-if="main.state.isMobile">
@@ -77,7 +77,8 @@ const logout = () => {
 .logoFrame {
     position: fixed;
     top: -12px;
-    width: 145px;
+    right: 62px;
+    width: 100px;
     height: 76px;
     overflow: hidden;
     z-index: 10000;

@@ -6,6 +6,7 @@
 import { onMounted, watch } from 'vue'
 import { main } from 'fwk-q-main'
 import { useRouter } from 'vue-router'
+import appStore from 'src/pages/appStore'
 import { ENVIRONMENTS } from './environments'
 
 const router = useRouter()
@@ -19,7 +20,7 @@ onMounted(() => {
             isMobile: false,
             appname: 'tn',
             origApp: 'tn',
-            tool: '/expenses'
+            tool: '/tickets'
         }
     }
     main.actions.init(ENVIRONMENTS, pl, true)
@@ -27,6 +28,7 @@ onMounted(() => {
 
 watch(() => main.state.info, async (newVal, oldVal) => {
     console.log('watch main.state.info...', newVal)
+    await appStore.actions.getSettings()
     router.push(newVal.tool)
 })
 </script>

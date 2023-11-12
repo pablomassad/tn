@@ -49,7 +49,7 @@
                         <div class="btn" @click="viewComp(item)">
                             <q-icon name="visibility" class="btnIcon"></q-icon>
                         </div>
-                        <div class="estado" :class="{valid: cp.checked}"></div>
+                        <q-icon :name="cp.checked ? 'task_alt' : 'radio_button_unchecked'" class="chkStatus" :class="{chkValid: cp.checked}"></q-icon>
                     </div>
                     <div class="rowComp total">
                         <div class="centro">TOTAL</div>
@@ -69,6 +69,7 @@ import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import Comprobantes from './Comprobantes/index.vue'
 import moment from 'moment'
+import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
 const refComp = ref()
@@ -76,7 +77,7 @@ const localExpenses = ref()
 const selExpense = ref()
 
 onMounted(async () => {
-    await appStore.actions.getSettings()
+    ui.actions.setTitle('Expensas')
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
@@ -160,8 +161,16 @@ const sumComps = (exp) => {
     font-size: 20px;
 }
 
-.valid {
-    background-color: green;
+.chkStatus {
+    color: red;
+    font-size: 25px;
+    text-shadow: 1px 1px 1px black;
+    font-weight: bold;
+    justify-self: center;
+}
+
+.chkValid {
+    color: green;
 }
 
 .importe {
@@ -200,7 +209,7 @@ const sumComps = (exp) => {
     display: grid;
     grid-template-columns: 70px 80px 60px 70px;
     align-items: center;
-    width: 340px;
+    width: 364px;
     background: white;
     column-gap: 20px;
     padding: 5px 15px;

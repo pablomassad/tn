@@ -12,9 +12,9 @@
                     <q-icon name="person" class="avatarIcon" />
                     <slot name="states">
                     </slot>
-                    <q-menu transition-show="jump-down" transition-hide="jump-up" fit style="width='200px'">
+                    <q-menu transition-show="jump-down" transition-hide="jump-up" fit :style="{width: '220px', zIndex: '10000'}">
                         <q-item-section v-close-popup>
-                            <toggle-dark-mode v-if="!disableDark" :mode="darkmode" label="Modo Oscuro" @change="toggleMode"></toggle-dark-mode>
+                            <!--<toggle-dark-mode v-if="!disableDark" :mode="darkmode" label="Modo Oscuro" @change="toggleMode"></toggle-dark-mode>-->
                             <slot name="drawer">
                             </slot>
                             <div class="env">v{{ main.state.environment.versionName }}</div>
@@ -179,6 +179,8 @@ const setMockMode = () => {
     font-weight: bold;
     padding: 0px;
     display: flex;
+    padding-top: 4px;
+    font-size: 30px;
 }
 
 .mockModeOn {

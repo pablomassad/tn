@@ -3,21 +3,19 @@
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="formDialog" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
-                    Expensa {{ exp.expName }}
+                    Ticket: {{ tk.title }}
                 </div>
             </template>
             <template #default>
                 <div class="grdForm">
-                    <q-input flat dense clearable v-model="comp.date" label="Fecha de comprobante" @click="selectFecha()" />
+                    <q-input flat dense clearable v-model="tk.datetime" label="Fecha del Ticket" @click="selectFecha()" />
                     <div class="rowAmAt">
-                        <q-input type="number" v-model="comp.amount" label="Importe pagado" />
-                        <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
-                        <q-btn v-if="!attFile && !comp.attachmentUrl" glossy color="primary" icon="attachment" @click="attachComp">Adjuntar comprobante</q-btn>
-                        <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
+                        <q-input type="number" v-model="tk.amount" label="Importe pagado" />
+                        <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
+                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
                     </div>
-                    <q-input v-model="comp.description" filled type="textarea" label="Descripción" class="description" />
-                    <q-checkbox v-if="appStore.state.master" v-model="comp.checked" keep-color :color="(comp.checked ? 'green' : 'red')" />
-
+                    <q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />
+                    <q-checkbox v-if="appStore.state.master" v-model="tk.checked" keep-color :color="(tk.checked ? 'green' : 'red')" />
                 </div>
             </template>
             <template #footer>
@@ -39,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
 import ModalPanel from './ModalPanel.vue'
 import moment from 'moment'
@@ -54,11 +52,11 @@ const onCancelDialog = ref()
 
 const exp = ref({})
 const attFile = ref()
-const comp = reactive({
+const tk = reactive({
     date: moment().format('DD-MM-YYYY'),
     amount: 0,
     attachmentUrl: '',
-    description: '',
+    comment: '',
     checked: false
 })
 const showFecha = ref(false)
@@ -68,13 +66,13 @@ const dtPicker = reactive({
 })
 
 onMounted(async () => {
-    console.log('COMPROBANTES onMounted')
+    console.log('TICKET onMounted')
 })
 const save = async () => {
     showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
+    confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.saveComp(exp.value.id, comp, attFile.value)
+        await appStore.actions.saveTicket(exp.value.id, tk, attFile.value)
         exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
@@ -85,9 +83,9 @@ const save = async () => {
 }
 const remove = () => {
     showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere eliminar el comprobante?'
+    confirmMessage.value = 'Esta seguro que quiere eliminar el ticket?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.removeComp(exp.value.id, comp)
+        await appStore.actions.removeTicket(exp.value.id, tk)
         exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
@@ -96,20 +94,20 @@ const remove = () => {
         showConfirm.value = false
     }
 }
-const viewComp = async () => {
-    console.log('view comprobante:', comp.attachmentUrl)
+const viewTicket = async () => {
+    console.log('view ticket:', tk.attachmentUrl)
 }
 const selectFecha = () => {
-    dtPicker.selectedDate = comp.date
+    dtPicker.selectedDate = tk.date
     showFecha.value = true
 }
 const onFechaOKClick = () => {
     showFecha.value = false
-    comp.date = dtPicker.selectedDate
+    tk.date = dtPicker.selectedDate
         ? dtPicker.selectedDate
-        : comp.date
+        : tk.date
 }
-const attachComp = () => {
+const attachTicket = () => {
     refAttachment.value.click()
 }
 const onUploadAttachment = async (e) => {
@@ -119,16 +117,17 @@ const onUploadAttachment = async (e) => {
 const onClose = () => {
     showForm.value = false
 }
-const show = async (expense, cp) => {
-    exp.value = expense
+const show = async (t) => {
+    tk.value = t
     showForm.value = true
-    if (cp) {
-        comp.id = cp.id
-        comp.date = cp.date
-        comp.amount = cp.amount
-        comp.attachmentUrl = cp.attachmentUrl
-        comp.description = cp.description
-        comp.checked = cp.checked
+    if (t) {
+        tk.id = t.id
+        tk.date = t.date
+        tk.title = t.title
+        tk.amount = t.amount
+        tk.attachmentUrl = t.attachmentUrl
+        tk.comment = t.comment
+        tk.checked = t.checked
     }
 }
 defineExpose({ show })
@@ -151,12 +150,6 @@ defineExpose({ show })
 .grdForm {
     display: grid;
     row-gap: 10px;
-}
-
-.compForm {
-    margin: 16px;
-    padding: 16px;
-    box-shadow: inset 1px 1px 5px gray;
 }
 
 .rowAmAt {
