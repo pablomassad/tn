@@ -8,7 +8,7 @@ import moment from 'moment'
 fb.initFirebase(ENVIRONMENTS.firebase)
 
 const state = reactive({
-    master: false,
+    master: true,
     settings: undefined,
     path: undefined,
     units: undefined,
@@ -94,70 +94,78 @@ const actions = {
         const vapidKey = 'BP6nPflTuZhSgdqiyDaPMLxYy3o2gvcMM_oUl1NFP-CkMIgnAiXfOKeOhrNbjhCUOKVNEosPR4U9j2t_NSLhjy4'
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     },
-    async getCompsByExp (expId) {
-        const path = `${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`
-        console.log('comps path:', path)
-        const comps = await fb.getCollection(path)
-        set.comps(comps)
-        return comps
-    },
-    async saveComp (expId, comp, file) {
-        console.log('store saveComp:', comp)
-        ui.actions.showLoading()
-        if (file) {
-            const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
-            console.log('sto folder:', folder)
-            const url = await fb.uploadFile(file, folder)
-            comp.attachmentUrl = url
+    expenses: {
+        async getExpensesByUnit () {
+            const result = await fb.getCollection(`${state.path}/units/${state.selUnit.id}/expenses`)
+            set.expenses(result)
+            return result
+        },
+        async getCompsByExp (expId) {
+            const path = `${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`
+            console.log('comps path:', path)
+            const comps = await fb.getCollection(path)
+            set.comps(comps)
+            return comps
+        },
+        async saveComp (expId, comp, file) {
+            console.log('store saveComp:', comp)
+            ui.actions.showLoading()
+            if (file) {
+                const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
+                console.log('sto folder:', folder)
+                const url = await fb.uploadFile(file, folder)
+                comp.attachmentUrl = url
+            }
+            comp.amount = Number(comp.amount)
+            comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
+            const id = comp.id || comp.datetime.toString()
+            console.log('save comp:', id)
+            await fb.setDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp, id)
+            ui.actions.hideLoading()
+        },
+        async removeComp (expId, comp) {
+            console.log('store removeComp:', comp.id)
+            ui.actions.showLoading()
+            await fb.deleteDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+            ui.actions.hideLoading()
         }
-        comp.amount = Number(comp.amount)
-        comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-        const id = comp.id || comp.datetime.toString()
-        console.log('save comp:', id)
-        await fb.setDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp, id)
-        ui.actions.hideLoading()
     },
-    async removeComp (expId, comp) {
-        console.log('store removeComp:', comp.id)
-        ui.actions.showLoading()
-        await fb.deleteDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
-        ui.actions.hideLoading()
-    },
-    async getTicketsByUnit () {
-        const path = `${state.path}/tickets`
-        const tks = await fb.getCollection(path)
-        console.log('store getTicketByUnit:', tks)
-        return tks
-    },
-    async saveTicket (tk, file) {
-        console.log('store saveTicket:', tk)
-        ui.actions.showLoading()
-        if (file) {
-            const folder = `tickets/attachments/${file.name}`
-            console.log('sto folder:', folder)
-            const url = await fb.uploadFile(file, folder)
-            tk.attachmentUrl = url
+    tickets: {
+        async getTicketsByUnit () {
+            const path = `${state.path}/tickets`
+            const tks = await fb.getCollection(path)
+            console.log('store getTicketByUnit:', tks)
+            return tks
+        },
+        async save (tk, file) {
+            console.log('store saveTicket:', tk)
+            ui.actions.showLoading()
+            if (file) {
+                const folder = `tickets/attachments/${file.name}`
+                console.log('sto folder:', folder)
+                const url = await fb.uploadFile(file, folder)
+                tk.attachmentUrl = url
+            }
+            tk.amount = Number(tk.amount)
+            tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
+            const id = tk.id || tk.datetime.toString()
+            console.log('save ticket:', id)
+            await fb.setDocument(`${state.path}/tickets`, tk, id)
+            ui.actions.hideLoading()
+        },
+        async remove (tk) {
+            console.log('store removeTicket:', tk.id)
+            ui.actions.showLoading()
+            await fb.deleteDocument(`${state.path}/tickets`, tk.id)
+            ui.actions.hideLoading()
         }
-        tk.amount = Number(tk.amount)
-        tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-        const id = tk.id || tk.datetime.toString()
-        console.log('save ticket:', id)
-        await fb.setDocument(`${state.path}/tickets`, tk, id)
-        ui.actions.hideLoading()
     },
-    async removeTicket (tk) {
-        console.log('store removeTicket:', tk.id)
-        ui.actions.showLoading()
-        await fb.deleteDocument(`${state.path}/tickets`, tk.id)
-        ui.actions.hideLoading()
-    },
-    async validateOwner (lote) {
-        console.log('store validateLote:', lote)
-    },
-    async getExpenses () {
-        const result = await fb.getCollection(`${state.path}/units/${state.selUnit.id}/expenses`)
-        set.expenses(result)
-        return result
+    admin: {
+        async getExpenses () {
+            const result = await fb.getCollection(`${state.path}/expenses`)
+            set.expenses(result)
+            return result
+        }
     }
 }
 

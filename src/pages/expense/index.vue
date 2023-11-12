@@ -1,32 +1,21 @@
 <template>
     <div>
-        <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="formDialog" bg-color="white">
-            <template #header>
-                <div class="dialogTitle">
-                    Ticket: {{ tk.title }}
-                </div>
-            </template>
-            <template #default>
-                <div class="grdForm">
-                    <q-input type="text" v-model="tk.title" label="Ingrese título" />
-                    <div class="rowDtAmAt">
-                        <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" />
-                        <q-input type="number" v-model="tk.amount" label="Importe pagado" />
-                        <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
-                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
-                    </div>
-                    <q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />
-                    <q-checkbox v-if="appStore.state.master" v-model="tk.checked" keep-color :color="(tk.checked ? 'green' : 'red')" />
-                </div>
-            </template>
-            <template #footer>
-                <div class="btnContainer">
-                    <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
-                    <q-btn glossy color="primary" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
-                    <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
-                </div>
-            </template>
-        </ConfirmDialog>
+        <div class="grdForm">
+            <q-input type="text" v-model="tk.title" label="Ingrese título" />
+            <div class="rowDtAmAt">
+                <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" />
+                <q-input type="number" v-model="tk.amount" label="Importe pagado" />
+                <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
+                <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
+            </div>
+            <q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />
+            <q-checkbox v-if="appStore.state.master" v-model="tk.checked" keep-color :color="(tk.checked ? 'green' : 'red')" />
+        </div>
+        <div class="btnContainer">
+            <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
+            <q-btn glossy color="primary" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
+            <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
+        </div>
         <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
             <div>
                 <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
@@ -79,7 +68,7 @@ const save = async () => {
         if (!tk.title) ui.actions.notify('El titulo es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
         await appStore.actions.tickets.save(tk, attFile.value)
-        // exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
+        exp.value.comps = await appStore.actions.expenses.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
     }
@@ -91,7 +80,7 @@ const remove = () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere eliminar el ticket?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.tickets.remove(tk)
+        await appStore.actions.tickets.remove(exp.value.id, tk)
         exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()

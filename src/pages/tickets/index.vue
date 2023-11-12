@@ -20,7 +20,10 @@
                     <div class="btn" @click="viewTicket(item)">
                         <q-icon name="visibility" class="btnIcon"></q-icon>
                     </div>
-                    <div class="estado" :class="{pagado: item.checked}"></div>
+                    <div class="status" :class="{pagado: item.checked}">
+                        <q-icon v-if="item.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
+                        <q-icon v-if="!item.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
+                    </div>
                 </div>
             </div>
             <div class="rowTicket total">
@@ -28,8 +31,8 @@
                 <div></div>
                 <div class="precio">{{ sumTickets(localTickets).toFixed(2) }}</div>
             </div>
+            <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
-        <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         <Ticket ref="refTicket" />
     </div>
 </template>
@@ -40,6 +43,7 @@ import appStore from 'src/pages/appStore'
 import moment from 'moment'
 import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
+import { isNotEmittedStatement } from 'typescript'
 
 const localTickets = ref([])
 const refTicket = ref()
@@ -49,7 +53,7 @@ console.log('Tickets CONSTRUCTOR ################')
 onMounted(async () => {
     console.log('Tickets onMounted')
     ui.actions.setTitle('Gastos')
-    localTickets.value = JSON.parse(JSON.stringify(await appStore.actions.getTicketsByUnit()))
+    localTickets.value = JSON.parse(JSON.stringify(await appStore.actions.tickets.getTicketsByUnit()))
 })
 
 const download = (tk) => {
@@ -71,8 +75,9 @@ const addTicket = () => {
 
 <style scoped>
 .matrix {
+    position: relative;
     background-color: white;
-    max-width: 600px;
+    max-width: 540px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -87,12 +92,16 @@ const addTicket = () => {
 
 .rowTicket {
     display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 90px;
+    grid-template-columns: 110px 80px 70px 70px 20px 80px;
     align-items: center;
-    width: 600px;
+    width: 540px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
+}
+
+.status {
+    justify-self: center;
 }
 
 .btn {
@@ -104,6 +113,11 @@ const addTicket = () => {
     height: 30px;
     margin: 5px;
     text-shadow: 1px 1px 1px black;
+}
+
+.btnStatus {
+    font-size: 30px;
+    justify-self: center;
 }
 
 .btnIcon {
@@ -132,12 +146,15 @@ const addTicket = () => {
 }
 
 .total {
+    position: relative;
     background: lightyellow !important;
     font-weight: bold;
+    height: 60px;
 }
 
 .addBtn {
-    position: relative;
-    right: 0px;
+    position: absolute;
+    right: 13px;
+    bottom: 10px;
 }
 </style>

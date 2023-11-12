@@ -54,8 +54,8 @@
                     <div class="rowComp total">
                         <div class="centro">TOTAL</div>
                         <div class="importe">{{ sumComps(item).toFixed(2) }}</div>
+                        <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
                     </div>
-                    <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
                 </div>
             </div>
         </div>
@@ -81,7 +81,7 @@ onMounted(async () => {
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
-        const expenses = await appStore.actions.getExpenses()
+        const expenses = await appStore.actions.expenses.getExpensesByUnit()
         localExpenses.value = JSON.parse(JSON.stringify(expenses))
         // await appStore.actions.subscribeToFCM()
         // await appStore.actions.getDataByUser()
@@ -94,7 +94,7 @@ const download = () => {
 }
 const toggleDetail = async (exp) => {
     exp.showDetail = !exp.showDetail
-    exp.comps = await appStore.actions.getCompsByExp(exp.id)
+    exp.comps = await appStore.actions.expenses.getCompsByExp(exp.id)
     if (exp.showDetail) {
         selExpense.value = exp
     }
@@ -127,14 +127,17 @@ const sumComps = (exp) => {
 }
 
 .total {
+    position: relative;
     background: lightyellow !important;
     font-weight: bold;
+    height: 60px;
 }
 
 .addBtn {
     position: absolute;
-    right: 10px;
+    right: 22px;
     bottom: 10px;
+
 }
 
 .matrix {
@@ -200,7 +203,6 @@ const sumComps = (exp) => {
 
 .grdComps {
     padding: 20px;
-    width: 100%;
     position: relative;
     background: lightgray;
 }
