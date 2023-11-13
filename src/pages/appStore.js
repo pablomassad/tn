@@ -13,6 +13,7 @@ const state = reactive({
     path: undefined,
     units: undefined,
     selUnit: LocalStorage.getItem('TN_selUnit'),
+    selExpense: undefined,
     expenses: undefined,
     comps: undefined,
     myLocale: {
@@ -35,6 +36,10 @@ const set = {
         console.log('store set.selUnit:', o)
         state.selUnit = o
         LocalStorage.set('TN_selUnit', o)
+    },
+    selExpense (o) {
+        console.log('store set.selExpense:', o)
+        state.selExpense = o
     },
     units (u) {
         console.log('store units:', u)
@@ -118,9 +123,45 @@ const actions = {
             }
             comp.amount = Number(comp.amount)
             comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-            const id = comp.id || comp.datetime.toString()
-            console.log('save comp:', id)
-            await fb.setDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp, id)
+
+            // Se modifica o crea el comprobante del propietario
+            // Se actualiza o inserta el comprobante en la coleccion de comps
+            // Si hubo modificacion del valor del amount, recalcula monto total de comps del propietario
+            // Actualiza la coleccion Expensa del propietario con el total pagado de comps
+            // Recalcula el monto total de pagos de todas las expensas de los propietarios para la Expensa en curso
+            // Actualiza la coleccion Expensa global con el nuevo monto total de pagos de todos los propietarios
+            fb.transaction(async (transaction) => {
+                // Discrimino si inserto o modifico el comp
+                const id = comp.id || new Date().getTime()
+                const compRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, id)
+                console.log('comp.amount:', comp.amount)
+
+                let origAmount = 0
+                if (comp.id) { // Modificacion de comp
+                    const compSnapshot = await transaction.get(compRef)
+                    origAmount = compSnapshot.data().amount
+                    console.log('origAmout:', origAmount)
+                }
+                transaction.set(compRef, comp, { merge: true }) // { amount: origAmount })
+
+                const expensaRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses`, expId)
+                const expensaSnapshot = await transaction.get(expensaRef)
+                const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
+                console.log('newTotal:', newTotal)
+                transaction.update(expensaRef, { paid: newTotal })
+
+                const expGlobablRef = fb.getDocumentRef(`${state.path}/expenses`, expId)
+                const expGlobalSnapshot = await transaction.get(expGlobablRef)
+                const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
+                console.log('newExpTotal:', newTotal)
+                transaction.update(expensaRef, { paid: newExpTotal })
+            }).then(() => {
+                console.log('Transacción completada!')
+                ui.actions.notify('Transacción completada!', 'success')
+            }).catch((error) => {
+                console.log('Transacción fallida: ', error)
+                ui.actions.notify('Transacción fallida!', 'error')
+            })
             ui.actions.hideLoading()
         },
         async removeComp (expId, comp) {

@@ -1,7 +1,26 @@
 <template>
     <div>
-        <div class="grdForm">
-            <q-input type="text" v-model="tk.title" label="Ingrese título" />
+        <div class="matrix">
+            <div class="rowExpensa encabezado">
+                <div class="texto">Concepto</div>
+                <div class="texto">Descripcion</div>
+                <div class="precio">Importe</div>
+                <div class="texto">Comentario</div>
+                <div class="texto"></div>
+            </div>
+            <div v-for="(det) in exp.details" :key="det">
+                <div class="rowExpensa">
+                    <div class="texto">{{ det.concept }}</div>
+                    <div class="texto">{{ det.description }}</div>
+                    <div class="precio">{{ det.amount.toFixed(2) }}</div>
+                    <div class="texto">{{ det.comment }}</div>
+                    <div class="btn" @click="edit(exp)">
+                        <q-icon name="edit" class="btnIcon"></q-icon>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grdExpense">
             <div class="rowDtAmAt">
                 <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" />
                 <q-input type="number" v-model="tk.amount" label="Importe pagado" />
@@ -21,7 +40,6 @@
                 <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
             </div>
         </ModalPanel>
-        <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -34,7 +52,6 @@ import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import { ui } from 'fwk-q-ui'
 
-const refAttachment = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
@@ -57,11 +74,11 @@ const dtPicker = reactive({
 })
 
 onMounted(async () => {
-    console.log('TICKET onMounted')
+    console.log('Expense onMounted')
 })
 const save = async () => {
     showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
+    confirmMessage.value = 'Esta seguro que quiere grabar este item?'
     onAcceptDialog.value = async () => {
         if (!tk.comment) tk.comment = ''
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
@@ -70,7 +87,6 @@ const save = async () => {
         await appStore.actions.tickets.save(tk, attFile.value)
         exp.value.comps = await appStore.actions.expenses.getCompsByExp(exp.value.id)
         showConfirm.value = false
-        onClose()
     }
     onCancelDialog.value = () => {
         showConfirm.value = false
@@ -78,12 +94,11 @@ const save = async () => {
 }
 const remove = () => {
     showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere eliminar el ticket?'
+    confirmMessage.value = 'Esta seguro que quiere eliminar el este item?'
     onAcceptDialog.value = async () => {
         await appStore.actions.tickets.remove(exp.value.id, tk)
         exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
-        onClose()
     }
     onCancelDialog.value = () => {
         showConfirm.value = false
@@ -102,29 +117,6 @@ const onFechaOKClick = () => {
         ? dtPicker.selectedDate
         : tk.date
 }
-const attachTicket = () => {
-    refAttachment.value.click()
-}
-const onUploadAttachment = async (e) => {
-    attFile.value = e.target.files[0]
-    refAttachment.value.value = ''
-}
-const onClose = () => {
-    showForm.value = false
-}
-const show = async (t) => {
-    showForm.value = true
-    if (t) {
-        tk.id = t.id
-        tk.date = t.date
-        tk.title = t.title
-        tk.amount = t.amount
-        tk.attachmentUrl = t.attachmentUrl
-        tk.comment = t.comment
-        tk.checked = t.checked
-    }
-}
-defineExpose({ show })
 </script>
 
 <style scoped>

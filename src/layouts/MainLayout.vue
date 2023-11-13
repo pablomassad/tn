@@ -59,6 +59,9 @@ const gotoExpenses = () => {
 const gotoTickets = () => {
     router.push('/tickets')
 }
+const gotoAdmin = () => {
+    router.push('/admin')
+}
 const searchUpdates = () => {
     if (ENVIRONMENTS.versionName < appStore.state.settings.version || !main.state.isMobile) {
         prompt.value = true
