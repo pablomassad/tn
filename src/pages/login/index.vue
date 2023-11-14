@@ -4,10 +4,10 @@
             <img src="images/tn.png" class="logo">
         </div>
         <div class="grdLogin">
-            <q-select filled bg-color="white" :options="options" behavior="menu" label="Seleccione propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="selUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit"></q-select>
+            <q-select filled bg-color="white" :options="options" behavior="menu" label="Seleccione propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit"></q-select>
             <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" class="doc" @keyup.enter="login" />
-            <q-input v-if="selUnit && !selUnit.pwd" color="black" bg-color="white" type="password" filled v-model="pwdCopy" label="Ingrese nuevamente" @keyup.enter="login" class="doc" />
-            <q-btn color="blue-8" icon="login" @click="login" class="login" :disable="!selUnit" :label="lblLogin" />
+            <q-input v-if="localUnit && !localUnit.pwd" color="black" bg-color="white" type="password" filled v-model="pwdCopy" label="Ingrese nuevamente" @keyup.enter="login" class="doc" />
+            <q-btn color="blue-8" icon="login" @click="login" class="login" :disable="!localUnit" :label="lblLogin" />
         </div>
     </div>
 </template>
@@ -21,7 +21,7 @@ import { ui } from 'fwk-q-ui'
 const router = useRouter()
 const pwd = ref()
 const pwdCopy = ref()
-const selUnit = ref()
+const localUnit = ref()
 const options = ref()
 const lblLogin = ref('Login')
 
@@ -43,21 +43,22 @@ const filterFn = (val, update) => {
 }
 const onSelUnit = (e) => {
     console.log(e.id)
-    selUnit.value = e
-    if (!selUnit.value.pwd) {
+    localUnit.value = e
+    if (!localUnit.value.pwd) {
         ui.actions.notify('Bienvenido!. Ingrese una contraseña.', 'info')
         lblLogin.value = 'Registrarse'
     }
 }
 const login = async () => {
-    if (!selUnit.value.pwd) {
+    appStore.set.selUnit(localUnit.value)
+    if (!localUnit.value.pwd) {
         if (pwd.value !== pwdCopy.value) {
             ui.actions.notify('Las contraseñas no coinciden!, vuelva a intentarlo.', 'warning')
             return
         }
-        await appStore.actions.updateUnit(selUnit.value, pwd.value)
+        await appStore.actions.updateUnit(pwd.value)
     }
-    const data = await appStore.actions.login(selUnit.value, pwd.value)
+    const data = await appStore.actions.login(localUnit.value, pwd.value)
     if (data) {
         router.go(-1)
     }

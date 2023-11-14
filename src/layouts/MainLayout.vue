@@ -11,11 +11,14 @@
                 <q-icon name="request_quote" class="iconMenu" />
                 <div class="rowText">Gastos</div>
             </div>
-            <div v-if="appStore.state.master" class="menuRow" @click="gotoAdmin()">
-                <q-icon name="admin_panel_settings" class="iconMenu" />
-                <div class="rowText">Administración</div>
-            </div>
             <q-separator />
+            <div v-if="appStore.state.master">
+                <div class="menuRow" @click="gotoAdmin()">
+                    <q-icon name="admin_panel_settings" class="iconMenu" />
+                    <div class="rowText">Administración</div>
+                </div>
+                <q-separator />
+            </div>
             <div v-if="main.state.isMobile">
                 <div class="menuRow" @click="searchUpdates()">
                     <q-icon name="update" class="iconMenu" />

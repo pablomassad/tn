@@ -4,8 +4,8 @@
             <div class="rowExpensa encabezado">
                 <div class="texto">Expensa</div>
                 <div class="precio">Importe</div>
-                <div class="interes">Pagado</div>
-                <div class="interes">Deuda</div>
+                <div class="precio">Pagado</div>
+                <div class="precio">Deuda</div>
                 <div style="text-align: center">Descargar</div>
                 <div style="text-align: center">Detalle</div>
                 <div style="text-align: center">Estado</div>
@@ -14,8 +14,8 @@
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
-                    <div class="interes">{{ item.totalPaid.toFixed(2) }}</div>
-                    <div class="interes">{{ item.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ item.paid.toFixed(2) }}</div>
+                    <div class="precio">{{ item.balance.toFixed(2) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
                     </div>
@@ -64,7 +64,7 @@ const sum = (arr) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 650px;
+    max-width: 670px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -79,9 +79,9 @@ const sum = (arr) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 80px 80px 100px 70px 60px 60px 60px;
+    grid-template-columns: 100px 80px 80px 80px 60px 60px 40px;
     align-items: center;
-    width: 650px;
+    width: 670px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;

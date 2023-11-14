@@ -44,6 +44,7 @@ import appStore from 'src/pages/appStore'
 import ModalPanel from './ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
+import { isExportAssignment } from 'typescript'
 
 const refAttachment = ref()
 const showForm = ref(false)
@@ -54,18 +55,20 @@ const onCancelDialog = ref()
 
 const exp = ref({})
 const attFile = ref()
-const comp = reactive({
-    date: moment().format('DD-MM-YYYY'),
-    amount: 0,
-    attachmentUrl: '',
-    description: '',
-    checked: false
-})
 const showFecha = ref(false)
 const dtPicker = reactive({
     selectedDate: '',
     datePickerTitle: ''
 })
+const emptyComp = {
+    date: moment().format('DD-MM-YYYY'),
+    amount: 0,
+    attachmentUrl: '',
+    description: '',
+    payRef: '',
+    checked: false
+}
+const comp = reactive(Object.assign({}, emptyComp))
 
 onMounted(async () => {
     console.log('COMPROBANTES onMounted')
@@ -122,14 +125,8 @@ const onClose = () => {
 const show = async (expense, cp) => {
     exp.value = expense
     showForm.value = true
-    if (cp) {
-        comp.id = cp.id
-        comp.date = cp.date
-        comp.amount = cp.amount
-        comp.attachmentUrl = cp.attachmentUrl
-        comp.description = cp.description
-        comp.checked = cp.checked
-    }
+    const o = cp || emptyComp
+    Object.assign(comp, o)
 }
 defineExpose({ show })
 </script>

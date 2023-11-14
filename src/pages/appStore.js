@@ -78,8 +78,7 @@ const actions = {
         set.units(units)
         return units
     },
-    async updateUnit (unit, pwd) {
-        set.selUnit(unit)
+    async updateUnit (pwd) {
         state.selUnit = { ...state.selUnit, pwd }
         ui.actions.showLoading()
         await fb.setDocument(`${state.path}/units`, state.selUnit, state.selUnit.id)
@@ -107,7 +106,7 @@ const actions = {
         },
         async getCompsByExp (expId) {
             const path = `${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`
-            console.log('comps path:', path)
+            console.log('store expenses.getCompsByExp:', path)
             const comps = await fb.getCollection(path)
             set.comps(comps)
             return comps
@@ -130,37 +129,33 @@ const actions = {
             // Actualiza la coleccion Expensa del propietario con el total pagado de comps
             // Recalcula el monto total de pagos de todas las expensas de los propietarios para la Expensa en curso
             // Actualiza la coleccion Expensa global con el nuevo monto total de pagos de todos los propietarios
-            fb.transaction(async (transaction) => {
-                // Discrimino si inserto o modifico el comp
-                const id = comp.id || new Date().getTime()
-                const compRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, id)
+            await fb.transaction(async (transaction) => {
                 console.log('comp.amount:', comp.amount)
 
+                // LECTURAS PRIMERO
                 let origAmount = 0
+                const compRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
                 if (comp.id) { // Modificacion de comp
                     const compSnapshot = await transaction.get(compRef)
                     origAmount = compSnapshot.data().amount
                     console.log('origAmout:', origAmount)
+                } else {
+                    comp.id = new Date().getTime()
                 }
-                transaction.set(compRef, comp, { merge: true }) // { amount: origAmount })
-
                 const expensaRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses`, expId)
                 const expensaSnapshot = await transaction.get(expensaRef)
                 const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
                 console.log('newTotal:', newTotal)
-                transaction.update(expensaRef, { paid: newTotal })
 
                 const expGlobablRef = fb.getDocumentRef(`${state.path}/expenses`, expId)
                 const expGlobalSnapshot = await transaction.get(expGlobablRef)
                 const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
                 console.log('newExpTotal:', newTotal)
-                transaction.update(expensaRef, { paid: newExpTotal })
-            }).then(() => {
-                console.log('Transacción completada!')
-                ui.actions.notify('Transacción completada!', 'success')
-            }).catch((error) => {
-                console.log('Transacción fallida: ', error)
-                ui.actions.notify('Transacción fallida!', 'error')
+
+                // ESCRITURAS DESPUES
+                transaction.set(compRef, comp, { merge: true }) // { amount: origAmount })
+                transaction.update(expensaRef, { paid: newTotal })
+                transaction.update(expGlobablRef, { paid: newExpTotal })
             })
             ui.actions.hideLoading()
         },

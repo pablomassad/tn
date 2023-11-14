@@ -4,7 +4,7 @@
             <div class="label">Propietario: </div>
             <div class="value">{{ appStore.state.selUnit.ownerNames }}</div>
             <div class="label">Unidad: </div>
-            <div class="value">{{ appStore.state.id }}</div>
+            <div class="value">{{ appStore.state.selUnit.id }}</div>
             <div class="label">CUIT: </div>
             <div class="value">34901230901</div>
             <div class="label">Deuda: </div>
@@ -15,8 +15,8 @@
                 <div>Expensa</div>
                 <div class="precio">Importe</div>
                 <div class="interes">Interes</div>
-                <div class="interes">Monto Pagado</div>
-                <div class="interes">Deuda</div>
+                <div class="precio">Pagado</div>
+                <div class="precio">Deuda</div>
                 <div style="text-align: center;">Descargar</div>
                 <div style="text-align: center;">Detalle</div>
                 <div style="text-align: center;">Estado</div>
@@ -26,8 +26,8 @@
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
                     <div class="interes">{{ item.interest.toFixed(2) }}</div>
-                    <div class="interes">{{ item.totComps?.toFixed(2) }}</div>
-                    <div class="interes">{{ item.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ item.paid?.toFixed(2) }}</div>
+                    <div class="precio">{{ item.balance.toFixed(2) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
                     </div>
@@ -46,7 +46,7 @@
                     <div v-for="(cp) in item.comps" :key="cp" class="rowComp">
                         <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                         <div class="importe">{{ cp.amount.toFixed(2) }}</div>
-                        <div class="btn" @click="viewComp(item)">
+                        <div class="btn" @click="viewComp(cp)">
                             <q-icon name="visibility" class="btnIcon"></q-icon>
                         </div>
                         <q-icon :name="cp.checked ? 'task_alt' : 'radio_button_unchecked'" class="chkStatus" :class="{chkValid: cp.checked}"></q-icon>
