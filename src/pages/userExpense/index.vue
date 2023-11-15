@@ -21,7 +21,7 @@
                 <div style="text-align: center;">Detalle</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(item) in localExpenses" :key="item">
+            <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
@@ -31,19 +31,19 @@
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
                     </div>
-                    <div class="btn" @click="toggleDetail(item)" :class="{pressed: item.showDetail}">
+                    <div class="btn" @click="toggleDetail(item)" :class="{pressed: showDetails[item.id]}">
                         <q-icon name="upload_file" class="btnIcon"></q-icon>
                     </div>
                     <div class="estado" :class="{pagado: item.status}"></div>
                 </div>
-                <div class="grdComps" v-if="item.showDetail && item.comps">
+                <div class="grdComps" v-if="showDetails[item.id] && appStore.state.compsByExp[item.id]">
                     <div class="rowComp encabezado">
                         <div class="centro">Fecha</div>
                         <div class="importe">Importe</div>
                         <div class="centro">Ver</div>
                         <div class="centro">Confirmado</div>
                     </div>
-                    <div v-for="(cp) in item.comps" :key="cp" class="rowComp">
+                    <div v-for="(cp) in appStore.state.compsByExp[item.id]" :key="cp" class="rowComp">
                         <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                         <div class="importe">{{ cp.amount.toFixed(2) }}</div>
                         <div class="btn" @click="viewComp(cp)">
@@ -64,7 +64,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import Comprobantes from './Comprobantes/index.vue'
@@ -73,29 +73,32 @@ import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
 const refComp = ref()
-const localExpenses = ref()
 const selExpense = ref()
+const showDetails = ref({})
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
-        const expenses = await appStore.actions.expenses.getExpensesByUnit()
-        localExpenses.value = JSON.parse(JSON.stringify(expenses))
+        appStore.actions.expenses.monitorExpensesByUnit()
         // await appStore.actions.subscribeToFCM()
         // await appStore.actions.getDataByUser()
         // await appStore.actions.getNotificacionesByUser()
         // activeIndex.value = appStore.state.userData[0].Patente
     }
 })
+onUnmounted(() => {
+    appStore.actions.unsubscribeListeners()
+})
+
 const download = () => {
     console.log('bajar arhivo expensas')
 }
 const toggleDetail = async (exp) => {
-    exp.showDetail = !exp.showDetail
-    exp.comps = await appStore.actions.expenses.getCompsByExp(exp.id)
-    if (exp.showDetail) {
+    showDetails.value[exp.id] = !showDetails.value[exp.id]
+    appStore.actions.expenses.monitorCompsByExp(exp.id)
+    if (showDetails.value[exp.id]) {
         selExpense.value = exp
     }
 }
@@ -106,9 +109,18 @@ const viewComp = (cp) => {
     refComp.value.show(selExpense.value, cp)
 }
 const sumComps = (exp) => {
-    const total = exp.comps.reduce((sum, o) => sum + o.amount, 0)
+    const total = appStore.state.compsByExp[exp.id].reduce((sum, o) => sum + o.amount, 0)
     return total
 }
+watch(() => appStore.state.expenses, (newExps) => {
+    console.log('watch expenses update:', newExps)
+    if (selExpense.value && !newExps.find(doc => doc.id === selExpense.value.id)) {
+        selExpense.value = null
+    }
+})
+// watch(() => appStore.state.compsByExp, (newObj) => {
+//    console.log('watch compsByExp update:', newObj)
+// }, { deep: true })
 
 </script>
 

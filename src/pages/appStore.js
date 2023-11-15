@@ -7,6 +7,8 @@ import moment from 'moment'
 
 fb.initFirebase(ENVIRONMENTS.firebase)
 
+const unsubListeners = []
+
 const state = reactive({
     master: true,
     settings: undefined,
@@ -15,7 +17,8 @@ const state = reactive({
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
     expenses: undefined,
-    comps: undefined,
+    compsByExp: {},
+    unsubListeners: [],
     myLocale: {
         days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split(
             '_'
@@ -53,13 +56,9 @@ const set = {
         })
         state.expenses = exps
     },
-    comps (c) {
-        console.log('store cmps:', c)
-        state.comps = c
-    },
     path (p) {
         console.log('store set path:', p)
-        state.path = p
+        state.place = p
     },
     settings (cfg) {
         console.log('store settings:', cfg)
@@ -74,21 +73,21 @@ const actions = {
         set.path(`settings/${ENVIRONMENTS.lugar}`)
     },
     async getUnits () {
-        const units = await fb.getCollection(`${state.path}/units`)
+        const units = await fb.getCollection(`${state.place}/units`)
         set.units(units)
         return units
     },
     async updateUnit (pwd) {
         state.selUnit = { ...state.selUnit, pwd }
         ui.actions.showLoading()
-        await fb.setDocument(`${state.path}/units`, state.selUnit, state.selUnit.id)
+        await fb.setDocument(`${state.place}/units`, state.selUnit, state.selUnit.id)
         ui.actions.hideLoading()
     },
     async login (unit, pwd) {
         if (state.selUnit.pwd === pwd) {
             ui.actions.showLoading()
             set.selUnit(unit)
-            await fb.setDocument(`${state.path}/units`, unit, unit.id)
+            await fb.setDocument(`${state.place}/units`, unit, unit.id)
             ui.actions.hideLoading()
             ui.actions.notify('Bienvenido ' + unit.ownerNames, 'success')
             return true
@@ -99,17 +98,32 @@ const actions = {
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     },
     expenses: {
-        async getExpensesByUnit () {
-            const result = await fb.getCollection(`${state.path}/units/${state.selUnit.id}/expenses`)
-            set.expenses(result)
-            return result
+        async monitorExpensesByUnit () {
+            const path = `${state.place}/units/${state.selUnit.id}/expenses`
+            const colRef = fb.getCollectionRef(path)
+            const us = fb.onSnapshot(colRef, (querySnapshot) => {
+                const docs = querySnapshot.docs
+                console.log('onSnapshot RT expensesByUnit', docs)
+                const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                set.expenses(exps)
+            })
+            state.unsubListeners.push(us)
         },
-        async getCompsByExp (expId) {
-            const path = `${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`
-            console.log('store expenses.getCompsByExp:', path)
-            const comps = await fb.getCollection(path)
-            set.comps(comps)
-            return comps
+        async monitorCompsByExp (expId) {
+            if (!state.compsByExp[expId]) {
+                const path = `${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`
+                const colRef = fb.getCollectionRef(path)
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
+                    console.log('onSnapshot RT comps', querySnapshot.length)
+                    state.compsByExp[expId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                })
+                state.unsubListeners.push(us)
+            } else { console.log('monitorCompsByExp already EXIST!!!') }
+        },
+        unsubscribeListeners () {
+            console.log('store usubscribeListeners')
+            state.unsubListeners.forEach(us => us())
+            state.unsubListeners = []
         },
         async saveComp (expId, comp, file) {
             console.log('store saveComp:', comp)
@@ -123,18 +137,12 @@ const actions = {
             comp.amount = Number(comp.amount)
             comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
 
-            // Se modifica o crea el comprobante del propietario
-            // Se actualiza o inserta el comprobante en la coleccion de comps
-            // Si hubo modificacion del valor del amount, recalcula monto total de comps del propietario
-            // Actualiza la coleccion Expensa del propietario con el total pagado de comps
-            // Recalcula el monto total de pagos de todas las expensas de los propietarios para la Expensa en curso
-            // Actualiza la coleccion Expensa global con el nuevo monto total de pagos de todos los propietarios
             await fb.transaction(async (transaction) => {
                 console.log('comp.amount:', comp.amount)
 
                 // LECTURAS PRIMERO
                 let origAmount = 0
-                const compRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+                const compRef = fb.getDocumentRef(`${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
                 if (comp.id) { // Modificacion de comp
                     const compSnapshot = await transaction.get(compRef)
                     origAmount = compSnapshot.data().amount
@@ -142,12 +150,12 @@ const actions = {
                 } else {
                     comp.id = new Date().getTime()
                 }
-                const expensaRef = fb.getDocumentRef(`${state.path}/units/${state.selUnit.id}/expenses`, expId)
+                const expensaRef = fb.getDocumentRef(`${state.place}/units/${state.selUnit.id}/expenses`, expId)
                 const expensaSnapshot = await transaction.get(expensaRef)
                 const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
                 console.log('newTotal:', newTotal)
 
-                const expGlobablRef = fb.getDocumentRef(`${state.path}/expenses`, expId)
+                const expGlobablRef = fb.getDocumentRef(`${state.place}/expenses`, expId)
                 const expGlobalSnapshot = await transaction.get(expGlobablRef)
                 const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
                 console.log('newExpTotal:', newTotal)
@@ -162,13 +170,13 @@ const actions = {
         async removeComp (expId, comp) {
             console.log('store removeComp:', comp.id)
             ui.actions.showLoading()
-            await fb.deleteDocument(`${state.path}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+            await fb.deleteDocument(`${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
             ui.actions.hideLoading()
         }
     },
     tickets: {
         async getTicketsByUnit () {
-            const path = `${state.path}/tickets`
+            const path = `${state.place}/tickets`
             const tks = await fb.getCollection(path)
             console.log('store getTicketByUnit:', tks)
             return tks
@@ -186,19 +194,19 @@ const actions = {
             tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
             const id = tk.id || tk.datetime.toString()
             console.log('save ticket:', id)
-            await fb.setDocument(`${state.path}/tickets`, tk, id)
+            await fb.setDocument(`${state.place}/tickets`, tk, id)
             ui.actions.hideLoading()
         },
         async remove (tk) {
             console.log('store removeTicket:', tk.id)
             ui.actions.showLoading()
-            await fb.deleteDocument(`${state.path}/tickets`, tk.id)
+            await fb.deleteDocument(`${state.place}/tickets`, tk.id)
             ui.actions.hideLoading()
         }
     },
     admin: {
         async getExpenses () {
-            const result = await fb.getCollection(`${state.path}/expenses`)
+            const result = await fb.getCollection(`${state.place}/expenses`)
             set.expenses(result)
             return result
         }
@@ -225,13 +233,13 @@ const evalExpName = (expId) => {
 //            id: index.toString(),
 //            unitId: index.toString()
 //        }
-//        const path = `${state.path}/lotes`
+//        const path = `${state.place}/lotes`
 //        await fb.setDocument(path, lote, lote.id)
 //        console.log('lote creado:', lote)
 //    }
 // },
 //    async getLotes() {
-//    const path = `${state.path}/lotes`
+//    const path = `${state.place}/lotes`
 //    console.log('path:', path)
 //    const result = await fb.getCollection(path)
 //    const sorted = result.sort((a, b) => Number(a.id) - Number(b.id))
