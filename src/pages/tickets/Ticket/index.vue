@@ -40,7 +40,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import ModalPanel from './ModalPanel.vue'
+import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import { ui } from 'fwk-q-ui'

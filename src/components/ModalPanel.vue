@@ -4,7 +4,7 @@
             <transition name="modal-animation-inner">
                 <div v-if="modalActive" class="modalInner" v-on:click.stop="prevent">
                     <slot />
-                    <q-btn style="width: 100%" color="primary" label="Aceptar" @click="close" />
+                    <q-btn style="width: 100%" color="primary" label="Aceptar" @click="accept" />
                 </div>
             </transition>
         </div>
@@ -15,6 +15,10 @@
 const props = defineProps(['modalActive'])
 const emit = defineEmits(['close'])
 
+const accept = () => {
+    console.log('accept event')
+    emit('close', true)
+}
 const close = () => {
     console.log('close event')
     emit('close')
@@ -25,10 +29,6 @@ const prevent = (e) => {
 </script >
 
 <style lang="scss">
-.modal {
-    z-index: 10000;
-}
-
 .modal-animation-enter-active,
 .modal-animation-leave-active {
     transition: opacity 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -77,6 +77,9 @@ const prevent = (e) => {
     position: relative;
     box-shadow: 3px 3px 10px;
     border-radius: 10px;
+    background-color: white;
+    z-index: 1000000;
+    min-width: 300px;
 }
 
 .ico {

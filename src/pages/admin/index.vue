@@ -3,19 +3,21 @@
         <div class="matrix">
             <div class="rowExpensa encabezado">
                 <div class="texto">Expensa</div>
-                <div class="precio">Importe</div>
+                <div class="precio">Total</div>
                 <div class="precio">Pagado</div>
-                <div class="precio">Deuda</div>
-                <div style="text-align: center">Descargar</div>
-                <div style="text-align: center">Detalle</div>
-                <div style="text-align: center">Estado</div>
+                <div class="precio">Saldo</div>
+                <div class="precio">Imp.x lote</div>
+                <div class="central">Descargar</div>
+                <div class="central">Detalle</div>
+                <div class="central">Estado</div>
             </div>
-            <div v-for="(item) in localExpenses" :key="item">
+            <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
-                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                    <div class="precio">{{ item.total.toFixed(2) }}</div>
                     <div class="precio">{{ item.paid.toFixed(2) }}</div>
                     <div class="precio">{{ item.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
                     </div>
@@ -25,46 +27,77 @@
                     <div class="estado" :class="{pagado: item.status}"></div>
                 </div>
             </div>
+            <q-btn glossy round color="primary" icon="add" @click="createExp" class="addBtn"></q-btn>
         </div>
+        <ModalPanel :modalActive="showNewExp" @close="onCloseExp">
+            <div class="modalFrame">
+                <q-select :options="appStore.state.years" behavior="menu" label="Seleccione año" v-model="selYear" option-label="name" option-value="id" @update:model-value="onSelYear" class="combo" outlined></q-select>
+                <q-select :options="appStore.state.months" behavior="menu" label="Seleccione mes" v-model="selMonth" option-label="name" option-value="id" @update:model-value="onSelMonth" class="combo" outlined></q-select>
+            </div>
+        </ModalPanel>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import appStore from 'src/pages/appStore'
-import moment from 'moment'
 import { ui } from 'fwk-q-ui'
-import router from 'src/router'
+import ModalPanel from 'src/components/ModalPanel.vue'
+import { LocalStorage } from 'quasar'
+import { useRouter } from 'vue-router'
 
-const localExpenses = ref([])
+const router = useRouter()
 
 console.log('Admin CONSTRUCTOR ################')
+
+const selYear = ref(LocalStorage.getItem('TN_expYear'))
+const selMonth = ref(LocalStorage.getItem('TN_expMonth'))
+const showNewExp = ref(false)
 
 onMounted(async () => {
     console.log('Administración OnMounted')
     ui.actions.setTitle('Administración')
-    localExpenses.value = JSON.parse(JSON.stringify(await appStore.actions.admin.getExpenses()))
+    appStore.actions.admin.monitorExpenses()
 })
+
+const onSelYear = async (e) => {
+    console.log(e.id)
+    selYear.value = e
+    LocalStorage.set('TN_expYear', e)
+}
+const onSelMonth = async (e) => {
+    console.log(e.id)
+    selMonth.value = e
+    LocalStorage.set('TN_expMonth', e)
+}
+const onCloseExp = (e) => {
+    showNewExp.value = false
+    if (e) {
+        appStore.actions.admin.createExpense(selYear.value.name, selMonth.value.id)
+    }
+}
 const download = (exp) => {
 
 }
 const gotoDetails = (exp) => {
     appStore.set.selExpense(exp)
-    router.push('/expense')
+    router.push('/admin/details')
 }
-const sum = (arr) => {
-    if (!arr) return 0
-    const total = arr.reduce((sum, o) => sum + o.amount, 0)
-    return total
+const createExp = () => {
+    showNewExp.value = true
 }
-
 </script>
 
 <style scoped>
+.combo {
+    margin: 16px;
+    z-index: 10000;
+}
+
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 670px;
+    max-width: 750px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -79,9 +112,9 @@ const sum = (arr) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 100px 80px 80px 80px 60px 60px 40px;
+    grid-template-columns: 100px 80px 80px 80px 80px 60px 60px 40px;
     align-items: center;
-    width: 670px;
+    width: 750px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
@@ -132,6 +165,10 @@ const sum = (arr) => {
     text-align: left;
 }
 
+.central {
+    text-align: center;
+}
+
 .total {
     position: relative;
     background: lightyellow !important;
@@ -141,7 +178,11 @@ const sum = (arr) => {
 
 .addBtn {
     position: absolute;
-    right: 13px;
-    bottom: 10px;
+    right: -15px;
+    bottom: -15px;
+}
+
+.modalFrame {
+    padding: 20px;
 }
 </style>

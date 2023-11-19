@@ -1,13 +1,13 @@
 <template>
     <div class="" v-if="appStore.state.selUnit">
         <div class="userForm">
-            <div class="label">Propietario: </div>
+            <div class="label" @click="appStore.actions.moveData()">Propietario: </div>
             <div class="value">{{ appStore.state.selUnit.ownerNames }}</div>
             <div class="label">Unidad: </div>
             <div class="value">{{ appStore.state.selUnit.id }}</div>
             <div class="label">CUIT: </div>
             <div class="value">34901230901</div>
-            <div class="label">Deuda: </div>
+            <div class="label">Saldo: </div>
             <div class="value">$0</div>
         </div>
         <div class="matrix">
@@ -73,11 +73,13 @@ import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
 const refComp = ref()
-const selExpense = ref()
 const showDetails = ref({})
+
+let selExp
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
+    console.log('onMounted UserExpense')
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
@@ -99,14 +101,14 @@ const toggleDetail = async (exp) => {
     showDetails.value[exp.id] = !showDetails.value[exp.id]
     appStore.actions.expenses.monitorCompsByExp(exp.id)
     if (showDetails.value[exp.id]) {
-        selExpense.value = exp
+        selExp = exp
     }
 }
 const addComp = () => {
-    refComp.value.show(selExpense.value)
+    refComp.value.show(selExp)
 }
 const viewComp = (cp) => {
-    refComp.value.show(selExpense.value, cp)
+    refComp.value.show(selExp, cp)
 }
 const sumComps = (exp) => {
     const total = appStore.state.compsByExp[exp.id].reduce((sum, o) => sum + o.amount, 0)
@@ -114,8 +116,8 @@ const sumComps = (exp) => {
 }
 watch(() => appStore.state.expenses, (newExps) => {
     console.log('watch expenses update:', newExps)
-    if (selExpense.value && !newExps.find(doc => doc.id === selExpense.value.id)) {
-        selExpense.value = null
+    if (selExp && !newExps.find(doc => doc.id === selExp.id)) {
+        selExp = null
     }
 })
 // watch(() => appStore.state.compsByExp, (newObj) => {

@@ -9,16 +9,20 @@ fb.initFirebase(ENVIRONMENTS.firebase)
 
 const unsubListeners = []
 
+let usExpenses
+let usDetails
+
 const state = reactive({
     master: true,
     settings: undefined,
-    path: undefined,
     units: undefined,
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
+    details: undefined,
     expenses: undefined,
     compsByExp: {},
     unsubListeners: [],
+    payModes: ['Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
     myLocale: {
         days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split(
             '_'
@@ -32,7 +36,29 @@ const state = reactive({
                 '_'
             ),
         firstDayOfWeek: 1
-    }
+    },
+    years: [
+        { id: 2023, name: '2023' },
+        { id: 2024, name: '2024' },
+        { id: 2025, name: '2025' },
+        { id: 2026, name: '2026' },
+        { id: 2027, name: '2027' },
+        { id: 2028, name: '2028' }
+    ],
+    months: [
+        { id: 1, name: 'enero' },
+        { id: 2, name: 'febrero' },
+        { id: 3, name: 'marzo' },
+        { id: 4, name: 'abril' },
+        { id: 5, name: 'mayo' },
+        { id: 6, name: 'junio' },
+        { id: 7, name: 'julio' },
+        { id: 8, name: 'agosto' },
+        { id: 9, name: 'setiembre' },
+        { id: 10, name: 'octubre' },
+        { id: 11, name: 'noviembre' },
+        { id: 12, name: 'diciembre' }
+    ]
 })
 const set = {
     selUnit (o) {
@@ -44,6 +70,10 @@ const set = {
         console.log('store set.selExpense:', o)
         state.selExpense = o
     },
+    details (o) {
+        console.log('store set.details:', o)
+        state.details = o
+    },
     units (u) {
         console.log('store units:', u)
         state.units = u
@@ -51,14 +81,10 @@ const set = {
     expenses (exps) {
         console.log('store expenses:', exps)
         const arr = exps.map(e => {
-            e.expName = evalExpName(e.id)
+            e.expName = actions.expenses.evalExpName(e.id)
             return e
         })
         state.expenses = exps
-    },
-    path (p) {
-        console.log('store set path:', p)
-        state.place = p
     },
     settings (cfg) {
         console.log('store settings:', cfg)
@@ -66,40 +92,18 @@ const set = {
     }
 }
 const actions = {
-    async getSettings () {
-        console.log('store getSettings')
-        const cfg = await fb.getDocument('settings', ENVIRONMENTS.lugar)
-        set.settings(cfg)
-        set.path(`settings/${ENVIRONMENTS.lugar}`)
-    },
-    async getUnits () {
-        const units = await fb.getCollection(`${state.place}/units`)
-        set.units(units)
-        return units
-    },
-    async updateUnit (pwd) {
-        state.selUnit = { ...state.selUnit, pwd }
-        ui.actions.showLoading()
-        await fb.setDocument(`${state.place}/units`, state.selUnit, state.selUnit.id)
-        ui.actions.hideLoading()
-    },
-    async login (unit, pwd) {
-        if (state.selUnit.pwd === pwd) {
-            ui.actions.showLoading()
-            set.selUnit(unit)
-            await fb.setDocument(`${state.place}/units`, unit, unit.id)
-            ui.actions.hideLoading()
-            ui.actions.notify('Bienvenido ' + unit.ownerNames, 'success')
-            return true
-        } else { ui.actions.notify('Contraseña incorrecta!. Intente nuevamente o comunicarse con el administrador', 'error') }
-    },
-    async subscribeToFCM () {
-        const vapidKey = 'BP6nPflTuZhSgdqiyDaPMLxYy3o2gvcMM_oUl1NFP-CkMIgnAiXfOKeOhrNbjhCUOKVNEosPR4U9j2t_NSLhjy4'
-        await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
-    },
     expenses: {
+        evalExpName (expId) {
+            const year = expId.substr(0, 2)
+            const monthNum = expId.substr(2, 2)
+            const month = state.myLocale.months[monthNum - 1]
+            const expName = `${month} 20${year}`
+            console.log('expName:', expName)
+            return expName
+        },
         async monitorExpensesByUnit () {
-            const path = `${state.place}/units/${state.selUnit.id}/expenses`
+            console.log('store monitorExpensesByUnit')
+            const path = `units/${state.selUnit.id}/expenses`
             const colRef = fb.getCollectionRef(path)
             const us = fb.onSnapshot(colRef, (querySnapshot) => {
                 const docs = querySnapshot.docs
@@ -111,7 +115,7 @@ const actions = {
         },
         async monitorCompsByExp (expId) {
             if (!state.compsByExp[expId]) {
-                const path = `${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`
+                const path = `units/${state.selUnit.id}/expenses/${expId}/comps`
                 const colRef = fb.getCollectionRef(path)
                 const us = fb.onSnapshot(colRef, (querySnapshot) => {
                     console.log('onSnapshot RT comps', querySnapshot.length)
@@ -135,27 +139,26 @@ const actions = {
                 comp.attachmentUrl = url
             }
             comp.amount = Number(comp.amount)
-            comp.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-
             await fb.transaction(async (transaction) => {
                 console.log('comp.amount:', comp.amount)
+                let origAmount = 0
+                let id
+                if (!comp.id) id = new Date().getTime().toString()
 
                 // LECTURAS PRIMERO
-                let origAmount = 0
-                const compRef = fb.getDocumentRef(`${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+                const compRef = fb.getDocumentRef(`units/${state.selUnit.id}/expenses/${expId}/comps`, id)
                 if (comp.id) { // Modificacion de comp
                     const compSnapshot = await transaction.get(compRef)
                     origAmount = compSnapshot.data().amount
                     console.log('origAmout:', origAmount)
-                } else {
-                    comp.id = new Date().getTime()
                 }
-                const expensaRef = fb.getDocumentRef(`${state.place}/units/${state.selUnit.id}/expenses`, expId)
+
+                const expensaRef = fb.getDocumentRef(`units/${state.selUnit.id}/expenses`, expId)
                 const expensaSnapshot = await transaction.get(expensaRef)
                 const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
                 console.log('newTotal:', newTotal)
 
-                const expGlobablRef = fb.getDocumentRef(`${state.place}/expenses`, expId)
+                const expGlobablRef = fb.getDocumentRef('expenses', expId)
                 const expGlobalSnapshot = await transaction.get(expGlobablRef)
                 const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
                 console.log('newExpTotal:', newTotal)
@@ -170,13 +173,13 @@ const actions = {
         async removeComp (expId, comp) {
             console.log('store removeComp:', comp.id)
             ui.actions.showLoading()
-            await fb.deleteDocument(`${state.place}/units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+            await fb.deleteDocument(`units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
             ui.actions.hideLoading()
         }
     },
     tickets: {
         async getTicketsByUnit () {
-            const path = `${state.place}/tickets`
+            const path = 'tickets'
             const tks = await fb.getCollection(path)
             console.log('store getTicketByUnit:', tks)
             return tks
@@ -194,22 +197,108 @@ const actions = {
             tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
             const id = tk.id || tk.datetime.toString()
             console.log('save ticket:', id)
-            await fb.setDocument(`${state.place}/tickets`, tk, id)
+            await fb.setDocument('tickets', tk, id)
             ui.actions.hideLoading()
         },
         async remove (tk) {
             console.log('store removeTicket:', tk.id)
             ui.actions.showLoading()
-            await fb.deleteDocument(`${state.place}/tickets`, tk.id)
+            await fb.deleteDocument('tickets', tk.id)
             ui.actions.hideLoading()
         }
     },
     admin: {
-        async getExpenses () {
-            const result = await fb.getCollection(`${state.place}/expenses`)
-            set.expenses(result)
-            return result
+        async monitorExpenses () {
+            if (!usExpenses) {
+                const colRef = fb.getCollectionRef('expenses')
+                usExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                    const docs = querySnapshot.docs
+                    console.log('onSnapshot RT Expenses', docs)
+                    const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    set.expenses(res)
+                })
+            }
+        },
+        async monitorDetails () {
+            if (!usDetails) {
+                console.log('store monitorDeatils: selExpense:', state.selExpense)
+                const colRef = fb.getCollectionRef('details')
+                usDetails = fb.onSnapshot(colRef, (querySnapshot) => {
+                    const docs = querySnapshot.docs
+                    console.log('onSnapshot RT Details', docs)
+                    const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    set.details(res)
+                })
+            }
+        },
+        async removeDetail (detail) {
+            ui.actions.showLoading()
+            await fb.deleteDocument('details', detail.id)
+            ui.actions.hideLoading()
+        },
+        async createExpense (y, m) {
+            const id = y.substr(2, 2) + String(m).padStart(2, '0')
+            console.log('id:', id)
+            const data = await fb.getDocument('expenses', id)
+            if (data) {
+                ui.actions.notify('La expensa ya existe!', 'info')
+            } else {
+                const o = {
+                    total: 0,
+                    paid: 0,
+                    balance: 0,
+                    amount: 0
+                }
+                await fb.setDocument('expenses', o, id)
+            }
+        },
+        async saveDetail (item) {
+            await fb.setDocument('details', item, item.id)
         }
+    },
+    async moveData () {
+        // const cfg = await fb.getDocument('settings', 'terranostra')
+        // await fb.setDocument('tn', cfg, 'settings')
+
+        // const col = 'timeLogs'
+        // const dbPath = `settings/terranostra/${col}`
+        // console.log('dbPath:', dbPath)
+        // const res = await fb.getCollection(dbPath)
+        // console.log('res:', res.length)
+        // for (const o of res) {
+        //    const moved = await fb.setDocument(col, o, o.id)
+        //    console.log('id:', o.id)
+        // }
+    },
+    async getSettings () {
+        console.log('store getSettings')
+        const cfg = await fb.getDocument('settings', ENVIRONMENTS.lugar)
+        set.settings(cfg)
+    },
+    async getUnits () {
+        const units = await fb.getCollection('units')
+        set.units(units)
+        return units
+    },
+    async updateUnit (pwd) {
+        state.selUnit = { ...state.selUnit, pwd }
+        ui.actions.showLoading()
+        await fb.setDocument('units', state.selUnit, state.selUnit.id)
+        ui.actions.hideLoading()
+    },
+    async login (unit, pwd) {
+        if (state.selUnit.pwd === pwd) {
+            ui.actions.showLoading()
+            set.selUnit(unit)
+            await fb.setDocument('units', unit, unit.id)
+            ui.actions.hideLoading()
+            ui.actions.notify('Bienvenido ' + unit.ownerNames, 'success')
+            return true
+        } else { ui.actions.notify('Contraseña incorrecta!. Intente nuevamente o comunicarse con el administrador', 'error') }
+    },
+    async subscribeToFCM () {
+        const vapidKey = 'BP6nPflTuZhSgdqiyDaPMLxYy3o2gvcMM_oUl1NFP-CkMIgnAiXfOKeOhrNbjhCUOKVNEosPR4U9j2t_NSLhjy4'
+        await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     }
 }
 
@@ -219,27 +308,19 @@ export default {
     actions
 }
 
-const evalExpName = (expId) => {
-    const year = expId.substr(0, 2)
-    const monthNum = expId.substr(2, 2)
-    const month = state.myLocale.months[monthNum - 1]
-    const expName = `${month} 20${year}`
-    console.log('expName:', expName)
-    return expName
-}
 //    async createLotesCol() {
 //    for (let index = 1; index <= 48; index++) {
 //        const lote = {
 //            id: index.toString(),
 //            unitId: index.toString()
 //        }
-//        const path = `${state.place}/lotes`
+//        const path = `lotes`
 //        await fb.setDocument(path, lote, lote.id)
 //        console.log('lote creado:', lote)
 //    }
 // },
 //    async getLotes() {
-//    const path = `${state.place}/lotes`
+//    const path = `lotes`
 //    console.log('path:', path)
 //    const result = await fb.getCollection(path)
 //    const sorted = result.sort((a, b) => Number(a.id) - Number(b.id))

@@ -17,7 +17,6 @@
                     </div>
                     <q-input v-model="comp.description" filled type="textarea" label="Descripción" class="description" />
                     <q-checkbox v-if="appStore.state.master" v-model="comp.checked" keep-color :color="(comp.checked ? 'green' : 'red')" />
-
                 </div>
             </template>
             <template #footer>
@@ -39,12 +38,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, reactive } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import ModalPanel from './ModalPanel.vue'
+import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import { isExportAssignment } from 'typescript'
 
 const refAttachment = ref()
 const showForm = ref(false)
@@ -78,7 +76,6 @@ const save = async () => {
     confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
     onAcceptDialog.value = async () => {
         await appStore.actions.expenses.saveComp(exp.value.id, comp, attFile.value)
-        exp.value.comps = await appStore.actions.expenses.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
     }
@@ -91,7 +88,6 @@ const remove = () => {
     confirmMessage.value = 'Esta seguro que quiere eliminar el comprobante?'
     onAcceptDialog.value = async () => {
         await appStore.actions.expenses.removeComp(exp.value.id, comp)
-        exp.value.comps = await appStore.actions.expenses.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
     }
@@ -127,6 +123,7 @@ const show = async (expense, cp) => {
     showForm.value = true
     const o = cp || emptyComp
     Object.assign(comp, o)
+    attFile.value = undefined
 }
 defineExpose({ show })
 </script>
