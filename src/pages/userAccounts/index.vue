@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="matrix" v-if="appStore.state.tickets">
+        <div class="matrix" v-if="localTickets.length">
             <div class="rowTicket encabezado">
                 <div class="centro">Fecha</div>
                 <div class="texto">Concepto</div>
@@ -10,26 +10,26 @@
                 <div style="text-align: center;">Ver</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(tk) in appStore.state.tickets" :key="tk">
+            <div v-for="(item) in appStore.state.tickets" :key="item">
                 <div class="rowTicket">
-                    <div class="centro">{{ moment(tk.datetime).format('DD/MM/YY HH:mm') }}</div>
-                    <div class="texto">{{ tk.concept }}</div>
-                    <div class="precio">{{ tk.amount.toFixed(2) }}</div>
-                    <div class="precio">{{ tk.paid.toFixed(2) }}</div>
-                    <div class="precio">{{ tk.balance.toFixed(2) }}</div>
-                    <div class="btn" @click="viewTicket(tk)">
+                    <div class="centro">{{ moment(item.datetime).format('DD/MM/YY HH:mm') }}</div>
+                    <div class="texto">{{ item.concept }}</div>
+                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                    <div class="precio">{{ item.paid.toFixed(2) }}</div>
+                    <div class="precio">{{ item.balance.toFixed(2) }}</div>
+                    <div class="btn" @click="viewTicket(item)">
                         <q-icon name="visibility" class="btnIcon"></q-icon>
                     </div>
-                    <div class="status" :class="{pagado: tk.checked}">
-                        <q-icon v-if="tk.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
-                        <q-icon v-if="!tk.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
+                    <div class="status" :class="{pagado: item.checked}">
+                        <q-icon v-if="item.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
+                        <q-icon v-if="!item.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
                     </div>
                 </div>
             </div>
             <div class="rowTicket total">
                 <div class="centro">TOTAL</div>
                 <div></div>
-                <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(2) }}</div>
+                <div class="precio">{{ sumTickets(localTickets).toFixed(2) }}</div>
             </div>
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
@@ -44,6 +44,7 @@ import moment from 'moment'
 import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
 
+const localTickets = ref([])
 const refTicket = ref()
 
 console.log('Tickets CONSTRUCTOR ################')
@@ -51,7 +52,7 @@ console.log('Tickets CONSTRUCTOR ################')
 onMounted(async () => {
     console.log('Tickets onMounted')
     ui.actions.setTitle('Gastos')
-    appStore.actions.tickets.getTickets()
+    localTickets.value = JSON.parse(JSON.stringify(await appStore.actions.tickets.getTicketsByUnit()))
 })
 
 const download = (tk) => {

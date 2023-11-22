@@ -19,7 +19,9 @@ const state = reactive({
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
     details: undefined,
+    pendingTickets: undefined,
     expenses: undefined,
+    tickets: undefined,
     compsByExp: {},
     unsubListeners: [],
     payModes: ['Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
@@ -86,9 +88,17 @@ const set = {
         })
         state.expenses = exps
     },
+    tickets (tks) {
+        console.log('store expenses:', tks)
+        state.tickets = tks
+    },
     settings (cfg) {
         console.log('store settings:', cfg)
         state.settings = cfg
+    },
+    pendingTickets (tks) {
+        console.log('store pendingTickets:', tks)
+        state.pendingTickets = tks
     }
 }
 const actions = {
@@ -178,6 +188,12 @@ const actions = {
         }
     },
     tickets: {
+        async getTickets () {
+            const path = 'tickets'
+            const tks = await fb.getCollection(path)
+            console.log('store getTickets:', tks)
+            set.tickets(tks)
+        },
         async getTicketsByUnit () {
             const path = 'tickets'
             const tks = await fb.getCollection(path)
@@ -230,6 +246,12 @@ const actions = {
                     set.details(res)
                 })
             }
+        },
+        async getPendingTickets () {
+            const path = 'tickets'
+            const tks = await fb.getCollectionFlex(path, { field: 'checked', val: false })
+            console.log('store getPendingTickets:', tks)
+            set.pendingTickets(tks)
         },
         async removeDetail (detail) {
             ui.actions.showLoading()

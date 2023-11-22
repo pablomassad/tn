@@ -2,6 +2,7 @@ import { main } from 'fwk-q-main'
 import Admin from 'src/pages/admin/index.vue'
 import Details from 'src/pages/admin/details/index.vue'
 import UserExpense from 'src/pages/userExpense/index.vue'
+import UserAccounts from 'src/pages/userAccounts/index.vue'
 import Tickets from 'src/pages/tickets/index.vue'
 import Login from 'src/pages/login/index.vue'
 
@@ -13,7 +14,8 @@ const routes = [
             { path: '/admin', component: Admin },
             { path: '/admin/details', component: Details },
             { path: '/userExpense', component: UserExpense },
-            { path: '/tickets', component: Tickets }
+            { path: '/tickets', component: Tickets },
+            { path: '/userAccounts', component: UserAccounts }
         ]
     },
     { path: '/login', component: Login },

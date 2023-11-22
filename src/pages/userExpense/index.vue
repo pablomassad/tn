@@ -59,7 +59,7 @@
                 </div>
             </div>
         </div>
-        <Comprobantes ref="refComp" />
+        <Receipts ref="refReceipt" />
     </div>
 </template>
 
@@ -67,12 +67,12 @@
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
-import Comprobantes from './Comprobantes/index.vue'
+import Receipts from './Receipts/index.vue'
 import moment from 'moment'
 import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
-const refComp = ref()
+const refReceipt = ref()
 const showDetails = ref({})
 
 let selExp
@@ -105,10 +105,10 @@ const toggleDetail = async (exp) => {
     }
 }
 const addComp = () => {
-    refComp.value.show(selExp)
+    refReceipt.value.show(selExp)
 }
 const viewComp = (cp) => {
-    refComp.value.show(selExp, cp)
+    refReceipt.value.show(selExp, cp)
 }
 const sumComps = (exp) => {
     const total = appStore.state.compsByExp[exp.id].reduce((sum, o) => sum + o.amount, 0)

@@ -11,6 +11,7 @@
                     <q-input type="text" v-model="detail.concept" label="Concepto" />
                     <q-input type="text" v-model="detail.description" label="Descripción" />
                     <q-input type="number" v-model="detail.amount" label="Importe pagado" />
+                    <q-select :options="appStore.state.pendingTickets" behavior="menu" label="Ticket Asociado" v-model="detail.idTicket" option-label="concept" option-value="id" class="combo" outlined></q-select>
                     <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="detail.payMode" class="combo" outlined></q-select>
                     <!--<q-input v-model="detail.comment" filled type="textarea" label="Comentario" class="description" />-->
                 </div>
@@ -51,6 +52,7 @@ const detail = reactive(Object.assign({}, emptyDetail))
 
 onMounted(async () => {
     console.log('ExpForm onMounted')
+    appStore.actions.getPendingTickets()
 })
 const save = async () => {
     showConfirm.value = true
