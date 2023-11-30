@@ -75,7 +75,7 @@ const addTicket = () => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 660px;
+    max-width: 700px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -90,9 +90,9 @@ const addTicket = () => {
 
 .rowTicket {
     display: grid;
-    grid-template-columns: 80px 130px 70px 70px 70px 40px 50px;
+    grid-template-columns: 100px 150px 70px 70px 70px 40px 50px;
     align-items: center;
-    width: 660px;
+    width: 700px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
@@ -152,7 +152,7 @@ const addTicket = () => {
 
 .addBtn {
     position: absolute;
-    right: 13px;
+    right: 18px;
     bottom: 10px;
 }
 </style>

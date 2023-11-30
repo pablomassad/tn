@@ -3,19 +3,19 @@
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="formDialog" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
-                    Ticket: {{ tk.title }}
+                    {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket
                 </div>
             </template>
             <template #default>
                 <div class="grdForm">
-                    <q-input type="text" v-model="tk.title" label="Ingrese título" />
+                    <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
                     <div class="rowDtAmAt">
                         <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" />
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
                     </div>
-                    <q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />
+                    <!--<q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />-->
                     <q-checkbox v-if="appStore.state.master" v-model="tk.checked" keep-color :color="(tk.checked ? 'green' : 'red')" />
                 </div>
             </template>
@@ -34,6 +34,9 @@
         </ModalPanel>
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
+        <div class="viewFrame">
+
+        </div>
     </div>
 </template>
 
@@ -100,9 +103,6 @@ const remove = () => {
         showConfirm.value = false
     }
 }
-const viewTicket = async () => {
-    console.log('view ticket:', tk.attachmentUrl)
-}
 const selectFecha = () => {
     dtPicker.selectedDate = tk.date
     showFecha.value = true
@@ -112,6 +112,9 @@ const onFechaOKClick = () => {
     tk.date = dtPicker.selectedDate
         ? dtPicker.selectedDate
         : tk.date
+}
+const viewTicket = async () => {
+    console.log('view ticket:', tk.attachmentUrl)
 }
 const attachTicket = () => {
     refAttachment.value.click()
@@ -128,10 +131,9 @@ const show = async (t) => {
     if (t) {
         tk.id = t.id
         tk.date = t.date
-        tk.title = t.title
+        tk.concept = t.concept
         tk.amount = t.amount
         tk.attachmentUrl = t.attachmentUrl
-        tk.comment = t.comment
         tk.checked = t.checked
     }
 }
