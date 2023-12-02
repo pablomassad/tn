@@ -19,12 +19,13 @@ const state = reactive({
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
     details: undefined,
+    detailsByExp: undefined,
     pendingTickets: undefined,
     expenses: undefined,
     tickets: undefined,
     compsByExp: {},
     unsubListeners: [],
-    payModes: ['Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
+    payModes: ['Pendiente', 'Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
     myLocale: {
         days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split(
             '_'
@@ -75,6 +76,10 @@ const set = {
     details (o) {
         console.log('store set.details:', o)
         state.details = o
+    },
+    detailsByExp (o) {
+        console.log('store set.detailsByExp:', o)
+        state.detailsByExp = o
     },
     units (u) {
         console.log('store units:', u)
@@ -247,11 +252,19 @@ const actions = {
                 })
             }
         },
+        async getDetailsByExp () {
+            const details = await fb.getCollectionFlex('details', { field: 'idExp', val: state.selExpense.id })
+            set.detailsByExp(details)
+        },
         async getPendingTickets () {
             const path = 'tickets'
             const tks = await fb.getCollectionFlex(path, { field: 'checked', val: false })
             console.log('store getPendingTickets:', tks)
             set.pendingTickets(tks)
+        },
+        async distributeExpense () {
+            // actualiza campos de la expensa y los guarda
+            // crea userExpenses correspondientes a cada propietario
         },
         async removeDetail (detail) {
             ui.actions.showLoading()
@@ -276,6 +289,7 @@ const actions = {
         },
         async saveDetail (item) {
             await fb.setDocument('details', item, item.id)
+            actions.admin.getDetailsByExp()
         }
     },
     async moveData () {

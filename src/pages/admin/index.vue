@@ -91,7 +91,7 @@ const createExp = () => {
 <style scoped>
 .combo {
     margin: 16px;
-    z-index: 10000;
+    z-index: 40000;
 }
 
 .matrix {

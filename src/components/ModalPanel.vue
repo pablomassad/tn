@@ -62,6 +62,7 @@ const prevent = (e) => {
 }
 
 .modal {
+    z-index: 12000;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -79,7 +80,7 @@ const prevent = (e) => {
     border-radius: 10px;
     background-color: white;
     z-index: 1000000;
-    min-width: 300px;
+    min-width: 280px;
 }
 
 .ico {

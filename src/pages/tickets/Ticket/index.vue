@@ -34,8 +34,9 @@
         </ModalPanel>
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
-        <div class="viewFrame">
-
+        <div class="viewFrame" v-if="showTicket">
+            <q-icon name="close" class="btnClose" @click="onCloseTicket" />
+            <img :src="evalImage()" class="ticketImage" />
         </div>
     </div>
 </template>
@@ -57,6 +58,7 @@ const onCancelDialog = ref()
 
 const exp = ref({})
 const attFile = ref()
+const showTicket = ref(false)
 const tk = reactive({
     date: moment().format('DD-MM-YYYY'),
     amount: 0,
@@ -79,7 +81,7 @@ const save = async () => {
     onAcceptDialog.value = async () => {
         if (!tk.comment) tk.comment = ''
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
-        if (!tk.title) ui.actions.notify('El titulo es obligatorio', 'error')
+        if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
         await appStore.actions.tickets.save(tk, attFile.value)
         // exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
@@ -113,8 +115,19 @@ const onFechaOKClick = () => {
         ? dtPicker.selectedDate
         : tk.date
 }
+const evalImage = () => {
+    let imgSrc
+    if (attFile.value) { imgSrc = URL.createObjectURL(attFile.value) }
+    if (tk.attachmentUrl) { imgSrc = tk.attachmentUrl }
+    return imgSrc
+}
 const viewTicket = async () => {
-    console.log('view ticket:', tk.attachmentUrl)
+    console.log('attFile.value:', attFile.value)
+    console.log('attachmentUrl:', tk.attachmentUrl)
+    showTicket.value = true
+}
+const onCloseTicket = () => {
+    showTicket.value = false
 }
 const attachTicket = () => {
     refAttachment.value.click()
@@ -141,6 +154,30 @@ defineExpose({ show })
 </script>
 
 <style scoped>
+.viewFrame {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 11000;
+    background-color: lightcyan;
+}
+
+.btnClose {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    font-size: 40px;
+}
+
+.ticketImage {
+    height: 100%;
+    object-fit: cover;
+    display: grid;
+    margin: auto;
+}
+
 .userForm {
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;

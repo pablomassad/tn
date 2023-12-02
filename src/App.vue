@@ -20,7 +20,7 @@ onMounted(() => {
             isMobile: false,
             appname: 'tn',
             origApp: 'tn',
-            tool: '/tickets'
+            tool: '/userExpenses'
         }
     }
     main.actions.init(ENVIRONMENTS, pl, true)

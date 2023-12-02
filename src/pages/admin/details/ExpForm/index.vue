@@ -52,7 +52,7 @@ const detail = reactive(Object.assign({}, emptyDetail))
 
 onMounted(async () => {
     console.log('ExpForm onMounted')
-    appStore.actions.getPendingTickets()
+    appStore.actions.admin.getPendingTickets()
 })
 const save = async () => {
     showConfirm.value = true

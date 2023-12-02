@@ -91,7 +91,7 @@ onMounted(async () => {
     }
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners()
+    appStore.actions.expenses.unsubscribeListeners()
 })
 
 const download = () => {
