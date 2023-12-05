@@ -6,7 +6,9 @@
                 <div class="precio">Total</div>
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
-                <div class="precio">Imp.x lote</div>
+                <div class="precio">Ordinarias</div>
+                <div class="precio">Extraordinarias</div>
+                <div class="precio">Total x lote</div>
                 <div class="central">Descargar</div>
                 <div class="central">Detalle</div>
                 <div class="central">Estado</div>
@@ -17,6 +19,8 @@
                     <div class="precio">{{ item.total.toFixed(2) }}</div>
                     <div class="precio">{{ item.paid.toFixed(2) }}</div>
                     <div class="precio">{{ item.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ item.amountOrdinary.toFixed(2) }}</div>
+                    <div class="precio">{{ item.amountExtraordinary.toFixed(2) }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
@@ -76,8 +80,8 @@ const onCloseExp = (e) => {
         appStore.actions.admin.createExpense(selYear.value.name, selMonth.value.id)
     }
 }
-const download = (exp) => {
-
+const download = async (exp) => {
+    appStore.actions.admin.downloadExpense()
 }
 const gotoDetails = (exp) => {
     appStore.set.selExpense(exp)
@@ -97,7 +101,7 @@ const createExp = () => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 750px;
+    max-width: 950px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -112,9 +116,9 @@ const createExp = () => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 100px 80px 80px 80px 80px 60px 60px 40px;
+    grid-template-columns: 100px 80px 80px 80px 80px 80px 80px 60px 60px 40px;
     align-items: center;
-    width: 750px;
+    width: 950px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;

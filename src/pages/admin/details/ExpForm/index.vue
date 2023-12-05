@@ -8,22 +8,34 @@
             </template>
             <template #default>
                 <div class="grdForm">
-                    <q-input type="text" v-model="detail.concept" label="Concepto" />
+                    <div class="row3">
+                        <q-input type="text" v-model="detail.concept" label="Concepto" />
+                        <q-input type="number" v-model="detail.amount" label="Importe pagado" />
+                        <q-input flat dense clearable v-model="detail.date" label="Fecha" @click="selectFecha()" />
+                    </div>
                     <q-input type="text" v-model="detail.description" label="Descripción" />
-                    <q-input type="number" v-model="detail.amount" label="Importe pagado" />
-                    <q-select :options="appStore.state.pendingTickets" behavior="menu" label="Ticket Asociado" v-model="detail.idTicket" option-label="concept" option-value="id" class="combo" outlined></q-select>
-                    <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="detail.payMode" class="combo" outlined></q-select>
+                    <div class="row4">
+                        <q-select :options="appStore.state.pendingTickets" behavior="menu" label="Ticket Asociado" v-model="detail.idTicket" option-label="concept" option-value="id" class="combo" outlined></q-select>
+                        <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="detail.payMode" class="combo" outlined></q-select>
+                        <q-toggle v-model="detail.isExtra" checked-icon="star" color="green" unchecked-icon="description" :label="detail.isExtra" false-value="Ordinaria" true-value="Extraordinaria" keep-color />
+                        <q-toggle v-model="detail.isCont" checked-icon="account_balance" color="blue" unchecked-icon="attach_money" :label="detail.isCont" false-value="Terra" true-value="Contable" keep-color />
+                    </div>
                     <!--<q-input v-model="detail.comment" filled type="textarea" label="Comentario" class="description" />-->
                 </div>
             </template>
             <template #footer>
                 <div class="btnContainer">
                     <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
-                    <q-btn glossy color="primary" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
+                    <q-btn glossy color="red" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
                     <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
                 </div>
             </template>
         </ConfirmDialog>
+        <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
+            <div>
+                <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
+            </div>
+        </ModalPanel>
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -33,12 +45,19 @@ import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
+import ModalPanel from 'src/components/ModalPanel.vue'
 
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
+
+const showFecha = ref(false)
+const dtPicker = reactive({
+    selectedDate: '',
+    datePickerTitle: ''
+})
 
 const emptyDetail = {
     date: moment().format('DD-MM-YYYY'),
@@ -87,10 +106,33 @@ const show = async (det) => {
     const o = det || emptyDetail
     Object.assign(detail, o)
 }
+const selectFecha = () => {
+    dtPicker.selectedDate = detail.date
+    showFecha.value = true
+}
+const onFechaOKClick = () => {
+    showFecha.value = false
+    detail.date = dtPicker.selectedDate
+        ? dtPicker.selectedDate
+        : detail.date
+}
+
 defineExpose({ show })
 </script>
 
 <style scoped>
+.row3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 200px;
+    column-gap: 10px;
+}
+
+.row4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 150px 120px;
+    column-gap: 10px;
+}
+
 .grdForm {
     display: grid;
     row-gap: 10px;

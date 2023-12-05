@@ -8,7 +8,9 @@
                 <div class="texto">Concepto</div>
                 <div class="texto">Descripcion</div>
                 <div class="precio">Importe</div>
+                <div class="central">Fecha</div>
                 <div class="texto">Forma de pago</div>
+                <div class="central">Cont</div>
                 <div class="texto"></div>
             </div>
             <div v-for="item in appStore.state.detailsByExp" :key="item">
@@ -16,7 +18,9 @@
                     <div class="texto">{{ item.concept }}</div>
                     <div class="texto">{{ item.description }}</div>
                     <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                    <div class="central">{{ item.date }}</div>
                     <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
+                    <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                     <div class="btn" @click="editItem(item)">
                         <q-icon name="edit" class="btnIcon"></q-icon>
                     </div>
@@ -25,20 +29,36 @@
                     </div>
                 </div>
             </div>
-            <div class="rowDetail total" style="background-color: lightpink !important">
-                <div class="texto">TOTAL pendiente</div>
+
+            <div class="rowDetail total" style="background-color: rgb(182, 255, 250) !important">
+                <div class="texto">TOTAL exp.ordinarias</div>
                 <div></div>
-                <div class="precio">{{ sumPendings()?.toFixed(2) }}</div>
+                <div class="precio">{{ sumOrdinarias()?.toFixed(2) }}</div>
+                <div></div>
+                <div class="precio">{{ expOrdinariaLote?.toFixed(2) }}</div>
             </div>
-            <div class="rowDetail total">
-                <div class="texto">TOTAL pagado</div>
+            <div class="rowDetail total" style="background-color: rgb(251, 255, 196) !important">
+                <div class="texto">TOTAL exp.extraordinarias</div>
                 <div></div>
-                <div class="precio">{{ sumPaid()?.toFixed(2) }}</div>
+                <div class="precio">{{ expExtraordinarias.toFixed(2) }}</div>
+                <div></div>
+                <div class="precio">
+                    {{ Number(expExtraLote)?.toFixed(2) }}
+                    <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope">
+                        <q-input type="number" dark color="white" v-model="scope.value" dense autofocus counter @keyup.enter="scope.set">
+                            <template v-slot:append>
+                                <q-icon name="edit" />
+                            </template>
+                        </q-input>
+                    </q-popup-edit>
+                </div>
             </div>
-            <div class="rowDetail total" style="background-color: lightgreen !important">
-                <div class="texto">TOTAL</div>
+            <div class="rowDetail total" style="background-color: rgb(202, 202, 202) !important">
+                <div class="texto">TOTAL Expensas</div>
                 <div></div>
-                <div class="precio">{{ sum()?.toFixed(2) }}</div>
+                <div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(2) }}</div>
+                <div></div>
+                <div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(2) }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>
@@ -49,17 +69,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import appStore from 'src/pages/appStore'
 import ExpForm from './ExpForm/index.vue'
+import ConfirmDialog from 'fwk-q-confirmdialog'
 
 const refExpForm = ref()
 
-const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
+
+const expOrdinariaLote = ref(0)
+const expExtraLote = ref(0)
+const expExtraordinarias = computed(x => Number(expExtraLote.value) * 48)
 
 onMounted(async () => {
     console.log('Details onMounted')
@@ -86,47 +110,25 @@ const distributeExpense = () => {
         showConfirm.value = false
     }
 }
-const sumPendings = () => {
+
+const sumOrdinarias = () => {
     const arr = appStore.state.detailsByExp
     if (!arr) return
     const total = arr.reduce((sum, o) => {
-        sum = sum + ((o.payMode === 'Pendiente') ? o.amount : 0)
-        console.log('sum:', sum)
+        sum = sum + ((o.isExtra === 'Ordinaria') ? o.amount : 0)
         return sum
     }, 0)
+    expOrdinariaLote.value = total / 48
     return total
 }
-const sumPaid = () => {
-    const arr = appStore.state.detailsByExp
-    if (!arr) return
-    const total = arr.reduce((sum, o) => {
-        const paidFlag = (o.payMode !== 'Pendiente')
-        const res = sum + (paidFlag ? o.amount : 0)
-        console.log('sum:', res)
-        return res
-    }, 0)
-    return total
-}
-const sum = () => {
-    const arr = appStore.state.detailsByExp
-    if (!arr) return
-    const total = arr.reduce((sum, o) => {
-        const res = sum + o.amount
-        return res
-    }, 0)
-    return total
-}
+
 </script>
 
 <style scoped>
-.matrix {
-    position: relative;
-    background-color: white;
-    max-width: 800px;
-    margin: auto;
-    margin-top: 50px;
-    border-radius: 10px;
-    box-shadow: 1px 1px 5px gray;
+.typeIcon {
+    font-size: 20px;
+    color: green;
+    justify-self: center;
 }
 
 .value {
@@ -143,19 +145,28 @@ const sum = () => {
     margin-top: 20px;
 }
 
+.matrix {
+    position: relative;
+    background-color: white;
+    max-width: 1000px;
+    margin: auto;
+    margin-top: 50px;
+    border-radius: 10px;
+    box-shadow: 1px 1px 5px gray;
+}
+
 .rowDetail {
     display: grid;
-    grid-template-columns: 180px 300px 70px 100px 50px;
+    grid-template-columns: 180px 300px 70px 104px 100px 50px 40px;
     align-items: center;
-    width: 800px;
+    width: 1000px;
     column-gap: 20px;
-    padding: 5px 15px;
+    padding: 0 15px;
     border-bottom: 1px solid gray;
 }
 
 .total {
     position: relative;
-    background: lightyellow !important;
     font-weight: bold;
     height: 40px;
 }
@@ -164,6 +175,7 @@ const sum = () => {
     background-color: lightblue;
     font-weight: bold;
     border-radius: 10px 10px 0 0;
+    padding: 10px 15px;
 }
 
 .estado {
@@ -207,8 +219,8 @@ const sum = () => {
 
 .addBtn {
     position: absolute;
-    right: 8px;
-    bottom: 8px;
+    right: 4px;
+    bottom: 4px;
 }
 
 .precio {
