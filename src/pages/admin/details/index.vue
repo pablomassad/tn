@@ -13,23 +13,20 @@
                 <div class="central">Cont</div>
                 <div class="texto"></div>
             </div>
-            <div v-for="item in appStore.state.detailsByExp" :key="item">
-                <div class="rowDetail">
-                    <div class="texto">{{ item.concept }}</div>
-                    <div class="texto">{{ item.description }}</div>
-                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
-                    <div class="central">{{ item.date }}</div>
-                    <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
-                    <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
-                    <div class="btn" @click="editItem(item)">
-                        <q-icon name="edit" class="btnIcon"></q-icon>
-                    </div>
-                    <div class="btn" @click="viewTicket(item)" v-show="item.idTicket">
-                        <q-icon name="request_quote" class="btnIcon"></q-icon>
+            <div class="detailsList">
+                <div v-for="item in appStore.state.detailsByExp" :key="item">
+                    <div class="rowDetail">
+                        <div class="texto">{{ item.concept }}</div>
+                        <div class="texto">{{ item.description }}</div>
+                        <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                        <div class="central">{{ item.date }}</div>
+                        <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
+                        <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
+                        <BtnIcon icon="edit" @click="editItem(item)" :disable="flag" />
+                        <BtnIcon v-show="item.idTicket" icon="request_quote" @click="viewTicket(item)" :disable="flag" />
                     </div>
                 </div>
             </div>
-
             <div class="rowDetail total" style="background-color: rgb(182, 255, 250) !important">
                 <div class="texto">TOTAL exp.ordinarias</div>
                 <div></div>
@@ -62,8 +59,6 @@
                 <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>
-        <q-btn glossy color="primary" icon="local_post_office" class="footerBtns" @click="distributeExpense">Cerrar y distribuir expensa</q-btn>
-        <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
         <ExpForm ref="refExpForm"></ExpForm>
     </div>
 </template>
@@ -72,18 +67,17 @@
 import { ref, onMounted, computed } from 'vue'
 import appStore from 'src/pages/appStore'
 import ExpForm from './ExpForm/index.vue'
-import ConfirmDialog from 'fwk-q-confirmdialog'
+import BtnIcon from 'src/components/BtnIcon.vue'
 
 const refExpForm = ref()
 
-const showConfirm = ref(false)
-const confirmMessage = ref()
-const onAcceptDialog = ref()
-const onCancelDialog = ref()
-
 const expOrdinariaLote = ref(0)
 const expExtraLote = ref(0)
-const expExtraordinarias = computed(x => Number(expExtraLote.value) * 48)
+const expExtraordinarias = computed(x => {
+    const extra = Number(expExtraLote.value) * 48
+    appStore.actions.admin.updateExpense({ amountExtraordinary: extra })
+    return extra
+})
 
 onMounted(async () => {
     console.log('Details onMounted')
@@ -98,17 +92,6 @@ const editItem = (item) => {
 }
 const viewTicket = (item) => {
 
-}
-const distributeExpense = () => {
-    showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere cerrar y distribuir esta expensa?'
-    onAcceptDialog.value = async () => {
-        await appStore.actions.admin.distributeExpense()
-        showConfirm.value = false
-    }
-    onCancelDialog.value = () => {
-        showConfirm.value = false
-    }
 }
 
 const sumOrdinarias = () => {
@@ -125,6 +108,11 @@ const sumOrdinarias = () => {
 </script>
 
 <style scoped>
+.footerBtn {
+    display: grid;
+    margin: 20px auto;
+}
+
 .typeIcon {
     font-size: 20px;
     color: green;
@@ -150,9 +138,14 @@ const sumOrdinarias = () => {
     background-color: white;
     max-width: 1000px;
     margin: auto;
-    margin-top: 50px;
+    margin-top: 20px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
+}
+
+.detailsList {
+    height: calc(100vh - 320px);
+    overflow: auto;
 }
 
 .rowDetail {

@@ -1,9 +1,9 @@
-import globalStore from 'src/store'
+// import globalStore from 'src/store'
 
 export const footerGenerator = (currentPage, pageCount) => {
     console.log('footerGenerator CONSTRUCTOR.......')
 
-    globalStore.actions.setDocData(globalStore.state.currentDoc, {}, { cantidadPaginas: pageCount })
+    // globalStore.actions.setDocData(globalStore.state.currentDoc, {}, { cantidadPaginas: pageCount })
 
     return {
         columns: [
