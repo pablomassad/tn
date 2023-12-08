@@ -25,10 +25,10 @@
                     <div class="celda precio">{{ item.amountExtraordinary.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
-                    <BtnIcon icon="edit" @click="gotoDetails(item)" :disabled="!!item.deployed" />
+                    <BtnIcon icon="edit" @click="gotoDetails(item)" />
                     <BtnIcon icon="visibility" @click="gotoMonitor(item)" />
                     <BtnIcon icon="send" @click="distributeExpense(item)" :disabled="!!item.deployed" :pressed="!!item.deployed" />
-                    <div class="celda estado" :class="{pagado: item.status}"></div>
+                    <StatusLed class="celda centro" :status="item.status" />
                 </div>
             </div>
             <q-btn glossy round color="primary" icon="add" @click="createExp" class="addBtn"></q-btn>
@@ -44,14 +44,16 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import appStore from 'src/pages/appStore'
 import { ui } from 'fwk-q-ui'
 import ModalPanel from 'src/components/ModalPanel.vue'
 import { LocalStorage } from 'quasar'
 import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
+import StatusLed from 'src/components/StatusLed.vue'
 import ConfirmDialog from 'fwk-q-confirmdialog'
+import moment from 'moment'
 
 const router = useRouter()
 
@@ -72,6 +74,9 @@ onMounted(async () => {
     appStore.actions.admin.monitorExpenses()
 })
 
+onUnmounted(() => {
+    appStore.actions.expenses.unsubscribeListeners()
+})
 const onSelYear = async (e) => {
     console.log(e.id)
     selYear.value = e
@@ -108,7 +113,7 @@ const distributeExpense = (exp) => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere cerrar y distribuir esta expensa?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.admin.distributeExpense()
+        await appStore.actions.admin.updateExpense({ deployed: moment().format('DD/MM/YY') })
         showConfirm.value = false
     }
     onCancelDialog.value = () => {
@@ -137,7 +142,7 @@ const distributeExpense = (exp) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1080px;
+    max-width: 1020px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -162,7 +167,7 @@ const distributeExpense = (exp) => {
     display: grid;
     grid-template-columns: 130px 80px 90px 100px 90px 110px 90px 80px 60px 60px 60px 60px;
     align-items: center;
-    width: 1080px;
+    width: 1020px;
     border-bottom: 1px solid gray;
 }
 
@@ -198,9 +203,9 @@ const distributeExpense = (exp) => {
 }
 
 .addBtn {
-    position: absolute;
-    right: -15px;
-    bottom: -15px;
+    position: fixed;
+    right: 10px;
+    bottom: 10px;
 }
 
 .modalFrame {

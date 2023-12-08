@@ -57,7 +57,7 @@ const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
 const gotoExpenses = () => {
-    router.push('/expenses')
+    router.push('/userExpenses')
 }
 const gotoTickets = () => {
     router.push('/tickets')

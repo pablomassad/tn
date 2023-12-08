@@ -14,26 +14,22 @@
             <div class="rowExpensa encabezado">
                 <div>Expensa</div>
                 <div class="precio">Importe</div>
-                <div class="interes">Interes</div>
+                <div class="precio">Interes</div>
                 <div class="precio">Pagado</div>
-                <div class="precio">Deuda</div>
+                <div class="precio">Saldo</div>
                 <div style="text-align: center;">Descargar</div>
                 <div style="text-align: center;">Detalle</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(item) in appStore.state.expenses" :key="item">
+            <div v-for="(item) in appStore.state.userExpenses" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(1) }}</div>
-                    <div class="interes">{{ item.interest.toFixed(1) }}</div>
+                    <div class="precio">{{ item.interest.toFixed(1) }}</div>
                     <div class="precio">{{ item.paid?.toFixed(1) }}</div>
                     <div class="precio">{{ item.balance.toFixed(1) }}</div>
-                    <div class="btn">
-                        <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
-                    </div>
-                    <div class="btn" @click="toggleDetail(item)" :class="{pressed: showDetails[item.id]}">
-                        <q-icon name="upload_file" class="btnIcon"></q-icon>
-                    </div>
+                    <BtnIcon icon="file_download" @click="download(item)" />
+                    <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
                     <div class="estado" :class="{pagado: item.status}"></div>
                 </div>
                 <div class="grdComps" v-if="showDetails[item.id] && appStore.state.compsByExp[item.id]">
@@ -64,9 +60,10 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
+import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from './Receipts/index.vue'
 import moment from 'moment'
 import { ui } from 'fwk-q-ui'
@@ -84,14 +81,7 @@ onMounted(async () => {
         router.push('/login')
     } else {
         appStore.actions.expenses.monitorExpensesByUnit()
-        // await appStore.actions.subscribeToFCM()
-        // await appStore.actions.getDataByUser()
-        // await appStore.actions.getNotificacionesByUser()
-        // activeIndex.value = appStore.state.userData[0].Patente
     }
-})
-onUnmounted(() => {
-    appStore.actions.expenses.unsubscribeListeners()
 })
 
 const download = () => {
@@ -156,7 +146,7 @@ watch(() => appStore.state.expenses, (newExps) => {
 
 .matrix {
     background-color: white;
-    max-width: 800px;
+    max-width: 730px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -165,9 +155,9 @@ watch(() => appStore.state.expenses, (newExps) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 90px 90px 40px;
+    grid-template-columns: 110px 80px 70px 70px 70px 70px 50px 40px;
     align-items: center;
-    width: 800px;
+    width: 730px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;

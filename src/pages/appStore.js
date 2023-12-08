@@ -91,7 +91,7 @@ const set = {
         state.units = u
     },
     expenses (exps) {
-        console.log('store expenses:', exps)
+        console.log('store set.expenses:', exps)
         const arr = exps.map(e => {
             e.expName = actions.expenses.evalExpName(e.id)
             return e
@@ -100,6 +100,10 @@ const set = {
     },
     userExpenses (o) {
         console.log('store set.userExpenses:', o)
+        const arr = o.map(ue => {
+            ue.expName = actions.expenses.evalExpName(ue.idExp)
+            return ue
+        })
         state.userExpenses = o
     },
     tickets (tks) {
@@ -127,13 +131,12 @@ const actions = {
         },
         async monitorExpensesByUnit () {
             console.log('store monitorExpensesByUnit')
-            const path = `units/${state.selUnit.id}/expenses`
-            const colRef = fb.getCollectionRef(path)
+            const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idUnit', op: '==', val: state.selUnit.id }])
             const us = fb.onSnapshot(colRef, (querySnapshot) => {
                 const docs = querySnapshot.docs
                 console.log('onSnapshot RT expensesByUnit', docs)
                 const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                set.expenses(exps)
+                set.userExpenses(exps)
             })
             state.unsubListeners.push(us)
         },
@@ -246,6 +249,10 @@ const actions = {
                     console.log('onSnapshot RT Expenses', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.expenses(res)
+                    if (state.selExpense) {
+                        const selExp = res.find(x => x.id === state.selExpense.id)
+                        set.selExpense(selExp)
+                    }
                 })
             }
         },
@@ -283,13 +290,11 @@ const actions = {
             console.log('store getPendingTickets:', tks)
             set.pendingTickets(tks)
         },
-        async distributeExpense () {
-
-            // actualiza campos de la expensa y los guarda
-            // crea userExpenses correspondientes a cada propietario
-        },
         async updateExpense (o) {
+            console.log('store updateExpense:', o)
+            ui.actions.showLoading()
             await fb.setDocument('expenses', o, state.selExpense.id)
+            ui.actions.hideLoading()
         },
         async removeDetail (detail) {
             ui.actions.showLoading()

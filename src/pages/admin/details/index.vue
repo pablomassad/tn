@@ -22,26 +22,29 @@
                         <div class="central">{{ item.date }}</div>
                         <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
-                        <BtnIcon icon="edit" @click="editItem(item)" :disable="flag" />
-                        <BtnIcon v-show="item.idTicket" icon="request_quote" @click="viewTicket(item)" :disable="flag" />
+                        <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />
                     </div>
                 </div>
             </div>
             <div class="rowDetail total" style="background-color: rgb(182, 255, 250) !important">
                 <div class="texto">TOTAL exp.ordinarias</div>
                 <div></div>
-                <div class="precio">{{ sumOrdinarias()?.toFixed(1) }}</div>
+                <!--<div class="precio">{{ sumOrdinarias()?.toFixed(1) }}</div>-->
+                <div class="precio">{{ appStore.state.selExpense.totalOrdinary.toFixed(1) }}</div>
                 <div></div>
-                <div class="precio">{{ expOrdinariaLote?.toFixed(1) }}</div>
+                <!--<div class="precio">{{ expOrdinariaLote?.toFixed(1) }}</div>-->
+                <div class="precio">{{ appStore.state.selExpense.amountOrdinary.toFixed(1) }}</div>
             </div>
             <div class="rowDetail total" style="background-color: rgb(251, 255, 196) !important">
                 <div class="texto">TOTAL exp.extraordinarias</div>
                 <div></div>
-                <div class="precio">{{ expExtraordinarias.toFixed(1) }}</div>
+                <!--<div class="precio">{{ expExtraordinarias.toFixed(1) }}</div>-->
+                <div class="precio">{{ appStore.state.selExpense.totalExtraordinary.toFixed(1) }}</div>
                 <div></div>
                 <div class="precio">
-                    {{ Number(expExtraLote)?.toFixed(1) }}
-                    <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope">
+                    <!--{{ Number(expExtraLote)?.toFixed(1) }}-->
+                    {{ appStore.state.selExpense.amountExtraordinary.toFixed(1) }}
+                    <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope" v-if="!appStore.state.selExpense.deployed">
                         <q-input type="number" dark color="white" v-model="scope.value" dense autofocus counter @keyup.enter="scope.set">
                             <template v-slot:append>
                                 <q-icon name="edit" />
@@ -53,9 +56,11 @@
             <div class="rowDetail total" style="background-color: rgb(202, 202, 202) !important">
                 <div class="texto">TOTAL Expensas</div>
                 <div></div>
-                <div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(1) }}</div>
+                <!--<div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(1) }}</div>-->
+                <div class="precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
                 <div></div>
-                <div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(1) }}</div>
+                <!--<div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(1) }}</div>-->
+                <div class="precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>
@@ -64,25 +69,18 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import ExpForm from './ExpForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 
 const refExpForm = ref()
 
-const expOrdinariaLote = ref(0)
 const expExtraLote = ref(0)
-const expExtraordinarias = computed(x => {
-    const extra = Number(expExtraLote.value) * 48
-    appStore.actions.admin.updateExpense({ amountExtraordinary: extra })
-    return extra
-})
 
 onMounted(async () => {
-    console.log('Details onMounted')
+    console.log('Details onMounted', appStore.state.selExpense)
     appStore.actions.admin.getDetailsByExp()
-    // appStore.actions.admin.monitorDetails()
 })
 const createItem = () => {
     refExpForm.value.show()
@@ -90,20 +88,24 @@ const createItem = () => {
 const editItem = (item) => {
     refExpForm.value.show(item)
 }
-const viewTicket = (item) => {
+watch(() => expExtraLote.value, (newVal) => {
+    if (!appStore.state.selExpense?.deployed) {
+        const num = Number(newVal)
+        console.log('watch expExtraLote:', num)
+        appStore.actions.admin.updateExpense({ amountExtraordinary: num, totalExtraordinary: num * 48 })
+    }
+})
 
-}
-
-const sumOrdinarias = () => {
-    const arr = appStore.state.detailsByExp
-    if (!arr) return
-    const total = arr.reduce((sum, o) => {
-        sum = sum + ((o.isExtra === 'Ordinaria') ? o.amount : 0)
-        return sum
-    }, 0)
-    expOrdinariaLote.value = total / 48
-    return total
-}
+// const sumOrdinarias = () => {
+//    const arr = appStore.state.detailsByExp
+//    if (!arr) return
+//    const total = arr.reduce((sum, o) => {
+//        sum = sum + ((o.isExtra === 'Ordinaria') ? o.amount : 0)
+//        return sum
+//    }, 0)
+//    expOrdinariaLote.value = total / 48
+//    return total
+// }
 
 </script>
 
@@ -180,27 +182,6 @@ const sumOrdinarias = () => {
     height: 20px;
     border: 1px solid;
 
-}
-
-.btnIcon {
-    padding: 5px;
-    font-size: 20px;
-    color: white;
-    text-shadow: 1px 1px 1px black;
-}
-
-.btn {
-    justify-self: center;
-    border-radius: 5px;
-    box-shadow: 1px 1px 3px gray;
-    background-color: cornflowerblue;
-    width: 30px;
-    height: 30px;
-    margin: 5px;
-}
-
-.btn:active {
-    box-shadow: none;
 }
 
 .title {
