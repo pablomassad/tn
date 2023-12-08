@@ -18,7 +18,7 @@
                     <div class="rowDetail">
                         <div class="texto">{{ item.concept }}</div>
                         <div class="texto">{{ item.description }}</div>
-                        <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                        <div class="precio">{{ item.amount.toFixed(1) }}</div>
                         <div class="central">{{ item.date }}</div>
                         <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
@@ -30,17 +30,17 @@
             <div class="rowDetail total" style="background-color: rgb(182, 255, 250) !important">
                 <div class="texto">TOTAL exp.ordinarias</div>
                 <div></div>
-                <div class="precio">{{ sumOrdinarias()?.toFixed(2) }}</div>
+                <div class="precio">{{ sumOrdinarias()?.toFixed(1) }}</div>
                 <div></div>
-                <div class="precio">{{ expOrdinariaLote?.toFixed(2) }}</div>
+                <div class="precio">{{ expOrdinariaLote?.toFixed(1) }}</div>
             </div>
             <div class="rowDetail total" style="background-color: rgb(251, 255, 196) !important">
                 <div class="texto">TOTAL exp.extraordinarias</div>
                 <div></div>
-                <div class="precio">{{ expExtraordinarias.toFixed(2) }}</div>
+                <div class="precio">{{ expExtraordinarias.toFixed(1) }}</div>
                 <div></div>
                 <div class="precio">
-                    {{ Number(expExtraLote)?.toFixed(2) }}
+                    {{ Number(expExtraLote)?.toFixed(1) }}
                     <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope">
                         <q-input type="number" dark color="white" v-model="scope.value" dense autofocus counter @keyup.enter="scope.set">
                             <template v-slot:append>
@@ -53,9 +53,9 @@
             <div class="rowDetail total" style="background-color: rgb(202, 202, 202) !important">
                 <div class="texto">TOTAL Expensas</div>
                 <div></div>
-                <div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(2) }}</div>
+                <div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(1) }}</div>
                 <div></div>
-                <div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(2) }}</div>
+                <div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(1) }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>

@@ -24,10 +24,10 @@
             <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
-                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
-                    <div class="interes">{{ item.interest.toFixed(2) }}</div>
-                    <div class="precio">{{ item.paid?.toFixed(2) }}</div>
-                    <div class="precio">{{ item.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ item.amount.toFixed(1) }}</div>
+                    <div class="interes">{{ item.interest.toFixed(1) }}</div>
+                    <div class="precio">{{ item.paid?.toFixed(1) }}</div>
+                    <div class="precio">{{ item.balance.toFixed(1) }}</div>
                     <div class="btn">
                         <q-icon name="file_download" class="btnIcon" @click="download"></q-icon>
                     </div>
@@ -45,7 +45,7 @@
                     </div>
                     <div v-for="(cp) in appStore.state.compsByExp[item.id]" :key="cp" class="rowComp">
                         <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
-                        <div class="importe">{{ cp.amount.toFixed(2) }}</div>
+                        <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                         <div class="btn" @click="viewComp(cp)">
                             <q-icon name="visibility" class="btnIcon"></q-icon>
                         </div>
@@ -53,7 +53,7 @@
                     </div>
                     <div class="rowComp total">
                         <div class="centro">TOTAL</div>
-                        <div class="importe">{{ sumComps(item).toFixed(2) }}</div>
+                        <div class="importe">{{ sumComps(item).toFixed(1) }}</div>
                         <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
                     </div>
                 </div>

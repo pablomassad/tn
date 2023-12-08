@@ -2,33 +2,33 @@
     <div>
         <div class="matrix">
             <div class="rowExpensa encabezado">
-                <div class="texto">Expensa</div>
-                <div class="precio">Total</div>
-                <div class="precio">Pagado</div>
-                <div class="precio">Saldo</div>
-                <div class="precio">Ordinarias</div>
-                <div class="precio">Extraordinarias</div>
-                <div class="precio">Total x lote</div>
-                <div class="central">Descargar</div>
-                <div class="central">Editar</div>
-                <div class="central">Detalle</div>
-                <div class="central">Enviar</div>
-                <div class="central">Estado</div>
+                <div class="celda texto">Expensa</div>
+                <div class="celda precio">Total</div>
+                <div class="celda precio">Pagado</div>
+                <div class="celda precio">Saldo</div>
+                <div class="celda precio lote">Ordinarias</div>
+                <div class="celda precio lote">Extraordinarias</div>
+                <div class="celda precio lote">Total</div>
+                <div class="celda central">Descargar</div>
+                <div class="celda central">Editar</div>
+                <div class="celda central">Detalle</div>
+                <div class="celda central">Enviar</div>
+                <div class="celda central">Estado</div>
             </div>
             <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
-                    <div>{{ item.expName }}</div>
-                    <div class="precio">{{ item.total.toFixed(2) }}</div>
-                    <div class="precio">{{ item.paid.toFixed(2) }}</div>
-                    <div class="precio">{{ item.balance.toFixed(2) }}</div>
-                    <div class="precio">{{ item.amountOrdinary.toFixed(2) }}</div>
-                    <div class="precio">{{ item.amountExtraordinary.toFixed(2) }}</div>
-                    <div class="precio">{{ item.amount.toFixed(2) }}</div>
+                    <div class="celda texto">{{ item.expName }}</div>
+                    <div class="celda precio">{{ item.total.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.amountOrdinary.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.amountExtraordinary.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="edit" @click="gotoDetails(item)" :disabled="!!item.deployed" />
                     <BtnIcon icon="visibility" @click="gotoMonitor(item)" />
                     <BtnIcon icon="send" @click="distributeExpense(item)" :disabled="!!item.deployed" :pressed="!!item.deployed" />
-                    <div class="estado" :class="{pagado: item.status}"></div>
+                    <div class="celda estado" :class="{pagado: item.status}"></div>
                 </div>
             </div>
             <q-btn glossy round color="primary" icon="add" @click="createExp" class="addBtn"></q-btn>
@@ -51,6 +51,7 @@ import ModalPanel from 'src/components/ModalPanel.vue'
 import { LocalStorage } from 'quasar'
 import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
+import ConfirmDialog from 'fwk-q-confirmdialog'
 
 const router = useRouter()
 
@@ -117,6 +118,17 @@ const distributeExpense = (exp) => {
 </script>
 
 <style scoped>
+.celda-roja {
+    background-color: red;
+    justify-content: center;
+}
+
+.celda-amarilla {
+    background-color: yellow;
+    justify-content: end;
+    padding-right: 10px;
+}
+
 .combo {
     margin: 16px;
     z-index: 40000;
@@ -138,14 +150,24 @@ const distributeExpense = (exp) => {
     border-radius: 10px 10px 0 0;
 }
 
+.celda {
+    display: flex;
+    justify-items: center;
+    align-items: center;
+    padding: 0 10px;
+    height: 40px;
+}
+
 .rowExpensa {
     display: grid;
-    grid-template-columns: 100px 80px 80px 80px 80px 80px 80px 60px 50px 50px 50px 30px;
+    grid-template-columns: 130px 80px 90px 100px 90px 110px 90px 80px 60px 60px 60px 60px;
     align-items: center;
     width: 1080px;
-    column-gap: 20px;
-    padding: 5px 15px;
     border-bottom: 1px solid gray;
+}
+
+.lote {
+    background-color: aquamarine;
 }
 
 .status {
@@ -153,15 +175,15 @@ const distributeExpense = (exp) => {
 }
 
 .centro {
-    text-align: center;
+    justify-content: center;
 }
 
 .precio {
-    text-align: right;
+    justify-content: end;
 }
 
 .texto {
-    text-align: left;
+    justify-content: start;
 }
 
 .central {

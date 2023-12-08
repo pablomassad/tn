@@ -23,6 +23,7 @@ const state = reactive({
     selExpense: undefined,
     details: undefined,
     detailsByExp: undefined,
+    userExpenses: undefined,
     pendingTickets: undefined,
     expenses: undefined,
     tickets: undefined,
@@ -263,7 +264,7 @@ const actions = {
         async monitorUserExpenses () {
             if (!usUserExps) {
                 console.log('store monitorUserExpenses: selExpense:', state.selExpense)
-                const colRef = fb.getCollectionRef('userExpenses')
+                const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
                 usUserExps = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     console.log('onSnapshot RT UserExpenses', docs)
@@ -283,6 +284,7 @@ const actions = {
             set.pendingTickets(tks)
         },
         async distributeExpense () {
+
             // actualiza campos de la expensa y los guarda
             // crea userExpenses correspondientes a cada propietario
         },
@@ -302,12 +304,15 @@ const actions = {
                 ui.actions.notify('La expensa ya existe!', 'info')
             } else {
                 const o = {
-                    total: 0,
                     paid: 0,
                     balance: 0,
+                    total: 0,
                     amount: 0,
+                    totalOrdinary: 0,
                     amountOrdinary: 0,
-                    amountExtraordinary: 0
+                    totalExtraordinary: 0,
+                    amountExtraordinary: 0,
+                    created: moment().format('DD/MM/YY')
                 }
                 await fb.setDocument('expenses', o, id)
             }

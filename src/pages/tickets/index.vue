@@ -14,9 +14,9 @@
                 <div class="rowTicket">
                     <div class="centro">{{ moment(tk.datetime).format('DD/MM/YY HH:mm') }}</div>
                     <div class="texto">{{ tk.concept }}</div>
-                    <div class="precio">{{ tk.amount.toFixed(2) }}</div>
-                    <div class="precio">{{ tk.paid.toFixed(2) }}</div>
-                    <div class="precio">{{ tk.balance.toFixed(2) }}</div>
+                    <div class="precio">{{ tk.amount.toFixed(1) }}</div>
+                    <div class="precio">{{ tk.paid.toFixed(1) }}</div>
+                    <div class="precio">{{ tk.balance.toFixed(1) }}</div>
                     <div class="btn" @click="viewTicket(tk)">
                         <q-icon name="visibility" class="btnIcon"></q-icon>
                     </div>
@@ -29,7 +29,7 @@
             <div class="rowTicket total">
                 <div class="centro">TOTAL</div>
                 <div></div>
-                <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(2) }}</div>
+                <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(1) }}</div>
             </div>
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>

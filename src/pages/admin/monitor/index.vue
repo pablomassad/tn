@@ -15,18 +15,12 @@
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
                     <div class="rowDetail">
-                        <div class="texto">{{ item.concept }}</div>
-                        <div class="texto">{{ item.description }}</div>
-                        <div class="precio">{{ item.amount.toFixed(2) }}</div>
-                        <div class="central">{{ item.date }}</div>
-                        <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
-                        <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
-                        <div class="btn" @click="editItem(item)">
-                            <q-icon name="edit" class="btnIcon"></q-icon>
-                        </div>
-                        <div class="btn" @click="viewTicket(item)" v-show="item.idTicket">
-                            <q-icon name="request_quote" class="btnIcon"></q-icon>
-                        </div>
+                        <div class="texto">{{ item.ownerNames }}</div>
+                        <div class="precio">{{ item.amount.toFixed(1) }}</div>
+                        <div class="precio">{{ item.interest.toFixed(1) }}</div>
+                        <div class="precio">{{ item.paid.toFixed(1) }}</div>
+                        <div class="precio">{{ item.balance.toFixed(1) }}</div>
+                        <q-icon class="typeIcon" :name="(item.status === 'Contable') ? 'task_alt' : ''"></q-icon>
                     </div>
                 </div>
             </div>
