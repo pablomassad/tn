@@ -9,26 +9,20 @@ import { pdfGenerator } from 'src/pages/generator.js'
 
 fb.initFirebase(ENVIRONMENTS.firebase)
 
-const unsubListeners = []
-
-let usExpenses
-let usDetails
-let usUserExps
-
 const state = reactive({
     master: true,
     settings: undefined,
     units: undefined,
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
-    details: undefined,
     detailsByExp: undefined,
     userExpenses: undefined,
+    expensesByUnit: undefined,
     pendingTickets: undefined,
     expenses: undefined,
     tickets: undefined,
     compsByExp: {},
-    unsubListeners: [],
+    unsubListeners: {},
     payModes: ['Pendiente', 'Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
     myLocale: {
         days: 'Domingo_Lunes_Martes_Miércoles_Jueves_Viernes_Sábado'.split(
@@ -77,15 +71,6 @@ const set = {
         console.log('store set.selExpense:', o)
         state.selExpense = o
     },
-    details (o) {
-        console.log('store set.details:', o)
-        state.details = o
-    },
-    detailsByExp (o) {
-        console.log('store set.detailsByExp:', o)
-        const sorted = sortArray(o, 'concept', 1)
-        state.detailsByExp = sorted
-    },
     units (u) {
         console.log('store units:', u)
         state.units = u
@@ -93,21 +78,34 @@ const set = {
     expenses (exps) {
         console.log('store set.expenses:', exps)
         const arr = exps.map(e => {
-            e.expName = actions.expenses.evalExpName(e.id)
+            e.expName = actions.evalExpName(e.id)
             return e
         })
         state.expenses = exps
     },
+    detailsByExp (o) {
+        console.log('store set.detailsByExp:', o)
+        const sorted = sortArray(o, 'concept', 1)
+        state.detailsByExp = sorted
+    },
     userExpenses (o) {
         console.log('store set.userExpenses:', o)
         const arr = o.map(ue => {
-            ue.expName = actions.expenses.evalExpName(ue.idExp)
+            ue.expName = actions.evalExpName(ue.idExp)
             return ue
         })
         state.userExpenses = o
     },
+    expensesByUnit (exps) {
+        console.log('store set.expensesByUnit:', exps)
+        const arr = exps.map(e => {
+            e.expName = actions.evalExpName(e.id)
+            return e
+        })
+        state.expensesByUnit = exps
+    },
     tickets (tks) {
-        console.log('store expenses:', tks)
+        console.log('store tickets:', tks)
         state.tickets = tks
     },
     settings (cfg) {
@@ -120,42 +118,29 @@ const set = {
     }
 }
 const actions = {
-    expenses: {
-        evalExpName (expId) {
-            const year = expId.substr(0, 2)
-            const monthNum = expId.substr(2, 2)
-            const month = state.myLocale.months[monthNum - 1]
-            const expName = `${month} 20${year}`
-            console.log('expName:', expName)
-            return expName
-        },
+    userExpenses: {
         async monitorExpensesByUnit () {
             console.log('store monitorExpensesByUnit')
             const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idUnit', op: '==', val: state.selUnit.id }])
             const us = fb.onSnapshot(colRef, (querySnapshot) => {
                 const docs = querySnapshot.docs
-                console.log('onSnapshot RT expensesByUnit', docs)
+                console.log('onSnapshot expensesByUnit', docs)
                 const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                set.userExpenses(exps)
+                set.expensesByUnit(exps)
             })
-            state.unsubListeners.push(us)
+            state.unsubListeners.expensesByUnit = us
         },
-        async monitorCompsByExp (expId) {
-            if (!state.compsByExp[expId]) {
-                const path = `units/${state.selUnit.id}/expenses/${expId}/comps`
-                const colRef = fb.getCollectionRef(path)
-                const us = fb.onSnapshot(colRef, (querySnapshot) => {
-                    console.log('onSnapshot RT comps', querySnapshot.length)
-                    state.compsByExp[expId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                })
-                state.unsubListeners.push(us)
-            } else { console.log('monitorCompsByExp already EXIST!!!') }
-        },
-        unsubscribeListeners () {
-            console.log('store usubscribeListeners')
-            state.unsubListeners.forEach(us => us())
-            state.unsubListeners = []
-        },
+        // async monitorCompsByExp (expId) {
+        //    if (!state.compsByExp[expId]) {
+        //        const path = `units/${state.selUnit.id}/expenses/${expId}/comps`
+        //        const colRef = fb.getCollectionRef(path)
+        //        const us = fb.onSnapshot(colRef, (querySnapshot) => {
+        //            console.log('onSnapshot comps', querySnapshot.length)
+        //            state.compsByExp[expId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+        //        })
+        //        state.unsubListeners.push(us)
+        //    } else { console.log('monitorCompsByExp already EXIST!!!') }
+        // },
         async saveComp (expId, comp, file) {
             console.log('store saveComp:', comp)
             ui.actions.showLoading()
@@ -242,48 +227,45 @@ const actions = {
     },
     admin: {
         async monitorExpenses () {
-            if (!usExpenses) {
+            console.log('store monitorExpenses')
+            if (!state.unsubListeners.expenses) {
                 const colRef = fb.getCollectionRef('expenses')
-                usExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                state.unsubListeners.expenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot RT Expenses', docs)
+                    console.log('onSnapshot Expenses', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.expenses(res)
-                    if (state.selExpense) {
-                        const selExp = res.find(x => x.id === state.selExpense.id)
-                        set.selExpense(selExp)
-                    }
                 })
             }
         },
-        async monitorDetails () {
-            if (!usDetails) {
-                console.log('store monitorDeatils: selExpense:', state.selExpense)
-                const colRef = fb.getCollectionRef('details')
-                usDetails = fb.onSnapshot(colRef, (querySnapshot) => {
+        async monitorDetailsByExp () {
+            console.log('store monitorDetailsByExp')
+            if (!state.unsubListeners.detailsByExp) {
+                const colRef = fb.getCollectionRefQuery('details', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
+                state.unsubListeners.detailsByExp = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot RT Details', docs)
+                    console.log('onSnapshot DetailsByExp', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                    set.details(res)
+                    set.detailsByExp(res)
                 })
             }
         },
         async monitorUserExpenses () {
-            if (!usUserExps) {
-                console.log('store monitorUserExpenses: selExpense:', state.selExpense)
+            console.log('store monitorUserExpenses')
+            if (!state.unsubListeners.userExpenses) {
                 const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
-                usUserExps = fb.onSnapshot(colRef, (querySnapshot) => {
+                state.unsubListeners.userExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot RT UserExpenses', docs)
+                    console.log('onSnapshot UserExpenses', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.userExpenses(res)
                 })
             }
         },
-        async getDetailsByExp () {
-            const details = await fb.getCollectionFlex('details', { field: 'idExp', val: state.selExpense.id })
-            set.detailsByExp(details)
-        },
+        // async getDetailsByExp () {
+        //    const details = await fb.getCollectionFlex('details', { field: 'idExp', val: state.selExpense.id })
+        //    set.detailsByExp(details)
+        // },
         async getPendingTickets () {
             const path = 'tickets'
             const tks = await fb.getCollectionFlex(path, { field: 'checked', val: false })
@@ -329,8 +311,24 @@ const actions = {
         },
         async saveDetail (item) {
             await fb.setDocument('details', item, item.id)
-            actions.admin.getDetailsByExp()
         }
+    },
+    unsubscribeListeners (key) {
+        console.log('store unsubscribeListeners:', key)
+        if (!key) {
+            Object.keys(state.unsubListeners).forEach(k => state.unsubListeners[k]())
+            state.unsubListeners = {}
+        } else {
+            state.unsubListeners[key]()
+        }
+    },
+    evalExpName (expId) {
+        const year = expId.substr(0, 2)
+        const monthNum = expId.substr(2, 2)
+        const month = state.myLocale.months[monthNum - 1]
+        const expName = `${month} 20${year}`
+        console.log('expName:', expName)
+        return expName
     },
     async moveData () {
         // const cfg = await fb.getDocument('settings', 'terranostra')
@@ -392,7 +390,7 @@ const sortArray = (arr, key, dir) => {
     })
     return res
 }
-async function definePDF (details) {
+async function definePDF (definition) {
     return pdfGenerator
 }
 //    async createLotesCol() {

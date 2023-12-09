@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="title">
-            Expensa {{ appStore.actions.expenses.evalExpName(appStore.state.selExpense.id) }}
+            Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix">
             <div class="rowDetail encabezado">
@@ -69,7 +69,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import ExpForm from './ExpForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -80,7 +80,11 @@ const expExtraLote = ref(0)
 
 onMounted(async () => {
     console.log('Details onMounted', appStore.state.selExpense)
-    appStore.actions.admin.getDetailsByExp()
+    // appStore.actions.admin.getDetailsByExp()
+    appStore.actions.admin.monitorDetailsByExp()
+})
+onUnmounted(() => {
+    appStore.actions.unsubscribeListeners('detailsByExp')
 })
 const createItem = () => {
     refExpForm.value.show()

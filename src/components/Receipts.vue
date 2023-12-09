@@ -75,7 +75,7 @@ const save = async () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.expenses.saveComp(exp.value.id, comp, attFile.value)
+        await appStore.actions.userExpenses.saveComp(exp.value.id, comp, attFile.value)
         showConfirm.value = false
         onClose()
     }
@@ -87,7 +87,7 @@ const remove = () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere eliminar el comprobante?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.expenses.removeComp(exp.value.id, comp)
+        await appStore.actions.userExpenses.removeComp(exp.value.id, comp)
         showConfirm.value = false
         onClose()
     }

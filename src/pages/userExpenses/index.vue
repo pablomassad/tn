@@ -18,10 +18,10 @@
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
                 <div style="text-align: center;">Descargar</div>
-                <div style="text-align: center;">Detalle</div>
+                <div style="text-align: center;">Comprobantes</div>
                 <div style="text-align: center;">Estado</div>
             </div>
-            <div v-for="(item) in appStore.state.userExpenses" :key="item">
+            <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(1) }}</div>
@@ -30,7 +30,7 @@
                     <div class="precio">{{ item.balance.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
-                    <div class="estado" :class="{pagado: item.status}"></div>
+                    <StatusLed class="centro" :status="item.status" />
                 </div>
                 <div class="grdComps" v-if="showDetails[item.id] && appStore.state.compsByExp[item.id]">
                     <div class="rowComp encabezado">
@@ -60,12 +60,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
-import Receipts from './Receipts/index.vue'
+import Receipts from 'src/components/Receipts.vue'
 import moment from 'moment'
+import StatusLed from 'src/components/StatusLed.vue'
 import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
@@ -80,8 +81,11 @@ onMounted(async () => {
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
-        appStore.actions.expenses.monitorExpensesByUnit()
+        appStore.actions.userExpenses.monitorExpensesByUnit()
     }
+})
+onUnmounted(() => {
+    appStore.actions.unsubscribeListeners('expensesByUnit')
 })
 
 const download = () => {
@@ -89,7 +93,6 @@ const download = () => {
 }
 const toggleDetail = async (exp) => {
     showDetails.value[exp.id] = !showDetails.value[exp.id]
-    appStore.actions.expenses.monitorCompsByExp(exp.id)
     if (showDetails.value[exp.id]) {
         selExp = exp
     }
@@ -146,7 +149,7 @@ watch(() => appStore.state.expenses, (newExps) => {
 
 .matrix {
     background-color: white;
-    max-width: 730px;
+    max-width: 770px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -155,11 +158,11 @@ watch(() => appStore.state.expenses, (newExps) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 70px 50px 40px;
+    grid-template-columns: 110px 80px 70px 70px 70px 70px 90px 40px;
     align-items: center;
-    width: 730px;
+    width: 770px;
     column-gap: 20px;
-    padding: 5px 15px;
+    padding: 0 15px;
     border-bottom: 1px solid gray;
 }
 
@@ -227,6 +230,7 @@ watch(() => appStore.state.expenses, (newExps) => {
     background-color: lightblue;
     font-weight: bold;
     border-radius: 10px 10px 0 0;
+    height: 30px;
 }
 
 .estado {

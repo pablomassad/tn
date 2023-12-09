@@ -25,13 +25,13 @@ onMounted(() => {
 const evalColor = (st) => {
     let col = 'gray'
     switch (st) {
-        case 'pendiente':
+        case 'pending':
             col = 'red'
             break
-        case 'pagado':
+        case 'paid':
             col = '#ffd100'
             break
-        case 'validado':
+        case 'valid':
             col = 'green'
             break
     }

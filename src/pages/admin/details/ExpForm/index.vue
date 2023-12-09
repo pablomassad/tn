@@ -3,7 +3,7 @@
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="formDialog" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
-                    Detalle de expensa {{ appStore.actions.expenses.evalExpName(appStore.state.selExpense.id) }}
+                    Detalle de expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
                 </div>
             </template>
             <template #default>
