@@ -24,30 +24,10 @@
                         <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
                         <StatusLed :status="item.status" />
                     </div>
-                    <div class="grdComps" v-if="showDetails[item.id] && appStore.state.compsByExp[item.id]">
-                        <div class="rowComp encabezado">
-                            <div class="centro">Fecha</div>
-                            <div class="importe">Importe</div>
-                            <div class="centro">Ver</div>
-                            <div class="centro">Confirmado</div>
-                        </div>
-                        <div v-for="(cp) in appStore.state.compsByExp[item.id]" :key="cp" class="rowComp">
-                            <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
-                            <div class="importe">{{ cp.amount.toFixed(1) }}</div>
-                            <div class="btn" @click="viewComp(cp)">
-                                <q-icon name="visibility" class="btnIcon"></q-icon>
-                            </div>
-                            <q-icon :name="cp.checked ? 'task_alt' : 'radio_button_unchecked'" class="chkStatus" :class="{chkValid: cp.checked}"></q-icon>
-                        </div>
-                        <div class="rowComp total">
-                            <div class="centro">TOTAL</div>
-                            <div class="importe">{{ sumComps(item).toFixed(1) }}</div>
-                        </div>
-                    </div>
+                    <Receipts :idExp="item.id" />
                 </div>
             </div>
         </div>
-        <Receipts ref="refReceipt" />
     </div>
 </template>
 
@@ -116,7 +96,7 @@ const viewComp = (cp) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 810px;
+    max-width: 880px;
     margin: auto;
     margin-top: 20px;
     border-radius: 10px;
@@ -130,12 +110,12 @@ const viewComp = (cp) => {
 
 .rowDetail {
     display: grid;
-    grid-template-columns: 260px 100px 70px 100px 100px 60px;
+    grid-template-columns: 260px 100px 70px 100px 100px 50px 50px;
     align-items: center;
-    width: 810px;
-    height: 36px;
+    width: 880px;
+    height: 40px;
     column-gap: 20px;
-    padding: 0 15px;
+    padding: 0px 15px;
     border-bottom: 1px solid gray;
 }
 

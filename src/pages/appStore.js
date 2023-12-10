@@ -99,7 +99,7 @@ const set = {
     expensesByUnit (exps) {
         console.log('store set.expensesByUnit:', exps)
         const arr = exps.map(e => {
-            e.expName = actions.evalExpName(e.id)
+            e.expName = actions.evalExpName(e.idExp)
             return e
         })
         state.expensesByUnit = exps
@@ -124,63 +124,66 @@ const actions = {
             const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idUnit', op: '==', val: state.selUnit.id }])
             const us = fb.onSnapshot(colRef, (querySnapshot) => {
                 const docs = querySnapshot.docs
-                console.log('onSnapshot expensesByUnit', docs)
                 const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                 set.expensesByUnit(exps)
             })
             state.unsubListeners.expensesByUnit = us
         },
-        // async monitorCompsByExp (expId) {
-        //    if (!state.compsByExp[expId]) {
-        //        const path = `units/${state.selUnit.id}/expenses/${expId}/comps`
-        //        const colRef = fb.getCollectionRef(path)
-        //        const us = fb.onSnapshot(colRef, (querySnapshot) => {
-        //            console.log('onSnapshot comps', querySnapshot.length)
-        //            state.compsByExp[expId] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
-        //        })
-        //        state.unsubListeners.push(us)
-        //    } else { console.log('monitorCompsByExp already EXIST!!!') }
-        // },
+        async getReceiptsByExp () {
+            console.log('store getReceiptsByExp: ', state.selExpense.id)
+            const res = await fb.getCollectionFlex('receipts', { field: 'idUsrExp', op: '==', val: state.selExpense.id })
+            set.selExpense({ ...state.selExpense, receipts: res })
+        },
         async saveComp (expId, comp, file) {
             console.log('store saveComp:', comp)
-            ui.actions.showLoading()
-            if (file) {
-                const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
-                console.log('sto folder:', folder)
-                const url = await fb.uploadFile(file, folder)
-                comp.attachmentUrl = url
-            }
-            comp.amount = Number(comp.amount)
-            await fb.transaction(async (transaction) => {
-                console.log('comp.amount:', comp.amount)
-                let origAmount = 0
-                let id
+            try {
+                ui.actions.showLoading()
+                if (file) {
+                    const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
+                    console.log('sto folder:', folder)
+                    const url = await fb.uploadFile(file, folder)
+                    comp.attachmentUrl = url
+                }
+                comp.idUsrExp = expId
+                comp.amount = Number(comp.amount)
+                let id = comp.id
                 if (!comp.id) id = new Date().getTime().toString()
 
-                // LECTURAS PRIMERO
-                const compRef = fb.getDocumentRef(`units/${state.selUnit.id}/expenses/${expId}/comps`, id)
-                if (comp.id) { // Modificacion de comp
-                    const compSnapshot = await transaction.get(compRef)
-                    origAmount = compSnapshot.data().amount
-                    console.log('origAmout:', origAmount)
-                }
+                await fb.setDocument('receipts', comp, id)
 
-                const expensaRef = fb.getDocumentRef(`units/${state.selUnit.id}/expenses`, expId)
-                const expensaSnapshot = await transaction.get(expensaRef)
-                const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
-                console.log('newTotal:', newTotal)
+                // await fb.transaction(async (transaction) => {
+                //    let id = comp.id
+                //    if (!comp.id) id = new Date().getTime().toString()
 
-                const expGlobablRef = fb.getDocumentRef('expenses', expId)
-                const expGlobalSnapshot = await transaction.get(expGlobablRef)
-                const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
-                console.log('newExpTotal:', newTotal)
+                //    // LECTURAS PRIMERO
+                //    let origAmount = 0
+                //    const compRef = fb.getDocumentRef('receipts', id)
+                //    if (comp.id) { // Modificacion de comp
+                //        const compSnapshot = await transaction.get(compRef)
+                //        origAmount = compSnapshot.data().amount
+                //        console.log('origAmout:', origAmount)
+                //    }
 
-                // ESCRITURAS DESPUES
-                transaction.set(compRef, comp, { merge: true }) // { amount: origAmount })
-                transaction.update(expensaRef, { paid: newTotal })
-                transaction.update(expGlobablRef, { paid: newExpTotal })
-            })
-            ui.actions.hideLoading()
+                //    // const expensaRef = fb.getDocumentRef(`units/${state.selUnit.id}/expenses`, expId)
+                //    // const expensaSnapshot = await transaction.get(expensaRef)
+                //    // const newTotal = expensaSnapshot.data().paid + comp.amount - origAmount
+                //    // console.log('newTotal:', newTotal)
+
+                //    // const expGlobablRef = fb.getDocumentRef('expenses', expId)
+                //    // const expGlobalSnapshot = await transaction.get(expGlobablRef)
+                //    // const newExpTotal = expGlobalSnapshot.data().paid + comp.amount - origAmount
+                //    // console.log('newExpTotal:', newTotal)
+
+                //    // ESCRITURAS DESPUES
+                //    transaction.set(compRef, comp, { merge: true }) // { amount: origAmount })
+                //    // transaction.update(expensaRef, { paid: newTotal })
+                //    // transaction.update(expGlobablRef, { paid: newExpTotal })
+                // })
+                ui.actions.hideLoading()
+            } catch (e) {
+                ui.actions.notify('Ha ocurrido un error al guardar el comprobante')
+                console.log('Error transaction:', e)
+            }
         },
         async removeComp (expId, comp) {
             console.log('store removeComp:', comp.id)
@@ -232,7 +235,6 @@ const actions = {
                 const colRef = fb.getCollectionRef('expenses')
                 state.unsubListeners.expenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot Expenses', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.expenses(res)
                 })
@@ -244,7 +246,6 @@ const actions = {
                 const colRef = fb.getCollectionRefQuery('details', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
                 state.unsubListeners.detailsByExp = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot DetailsByExp', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.detailsByExp(res)
                 })
@@ -256,7 +257,6 @@ const actions = {
                 const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
                 state.unsubListeners.userExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
-                    console.log('onSnapshot UserExpenses', docs)
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.userExpenses(res)
                 })
@@ -327,7 +327,7 @@ const actions = {
         const monthNum = expId.substr(2, 2)
         const month = state.myLocale.months[monthNum - 1]
         const expName = `${month} 20${year}`
-        console.log('expName:', expName)
+        console.log('expId:', expId, 'expName:', expName)
         return expName
     },
     async moveData () {

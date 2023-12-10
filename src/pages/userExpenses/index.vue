@@ -32,52 +32,27 @@
                     <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
                     <StatusLed class="centro" :status="item.status" />
                 </div>
-                <div class="grdComps" v-if="showDetails[item.id] && appStore.state.compsByExp[item.id]">
-                    <div class="rowComp encabezado">
-                        <div class="centro">Fecha</div>
-                        <div class="importe">Importe</div>
-                        <div class="centro">Ver</div>
-                        <div class="centro">Confirmado</div>
-                    </div>
-                    <div v-for="(cp) in appStore.state.compsByExp[item.id]" :key="cp" class="rowComp">
-                        <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
-                        <div class="importe">{{ cp.amount.toFixed(1) }}</div>
-                        <div class="btn" @click="viewComp(cp)">
-                            <q-icon name="visibility" class="btnIcon"></q-icon>
-                        </div>
-                        <q-icon :name="cp.checked ? 'task_alt' : 'radio_button_unchecked'" class="chkStatus" :class="{chkValid: cp.checked}"></q-icon>
-                    </div>
-                    <div class="rowComp total">
-                        <div class="centro">TOTAL</div>
-                        <div class="importe">{{ sumComps(item).toFixed(1) }}</div>
-                        <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
-                    </div>
-                </div>
+                <Receipts v-if="showDetails[item.id]" :expense="appStore.state.selExpense" />
             </div>
         </div>
-        <Receipts ref="refReceipt" />
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from 'src/components/Receipts.vue'
-import moment from 'moment'
 import StatusLed from 'src/components/StatusLed.vue'
 import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
-const refReceipt = ref()
 const showDetails = ref({})
-
-let selExp
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
-    console.log('onMounted UserExpense')
+    console.log('UserExpense onMounted')
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
@@ -91,32 +66,14 @@ onUnmounted(() => {
 const download = () => {
     console.log('bajar arhivo expensas')
 }
-const toggleDetail = async (exp) => {
-    showDetails.value[exp.id] = !showDetails.value[exp.id]
-    if (showDetails.value[exp.id]) {
-        selExp = exp
-    }
+const toggleDetail = async (expense) => {
+    appStore.set.selExpense(expense)
+    setTimeout(async () => {
+        await appStore.actions.userExpenses.getReceiptsByExp()
+    }, 100)
+    showDetails.value[expense.id] = !showDetails.value[expense.id]
+    console.log('showDetails:', showDetails.value)
 }
-const addComp = () => {
-    refReceipt.value.show(selExp)
-}
-const viewComp = (cp) => {
-    refReceipt.value.show(selExp, cp)
-}
-const sumComps = (exp) => {
-    const total = appStore.state.compsByExp[exp.id].reduce((sum, o) => sum + o.amount, 0)
-    return total
-}
-watch(() => appStore.state.expenses, (newExps) => {
-    console.log('watch expenses update:', newExps)
-    if (selExp && !newExps.find(doc => doc.id === selExp.id)) {
-        selExp = null
-    }
-})
-// watch(() => appStore.state.compsByExp, (newObj) => {
-//    console.log('watch compsByExp update:', newObj)
-// }, { deep: true })
-
 </script>
 
 <style scoped>
@@ -131,13 +88,6 @@ watch(() => appStore.state.expenses, (newExps) => {
     align-items: center;
     margin-top: 20px;
     max-width: 720px;
-}
-
-.total {
-    position: relative;
-    background: lightyellow !important;
-    font-weight: bold;
-    height: 60px;
 }
 
 .addBtn {
@@ -206,24 +156,6 @@ watch(() => appStore.state.expenses, (newExps) => {
 
 .footerBtns {
     margin: 20px;
-}
-
-.grdComps {
-    padding: 20px;
-    position: relative;
-    background: lightgray;
-}
-
-.rowComp {
-    display: grid;
-    grid-template-columns: 70px 80px 60px 70px;
-    align-items: center;
-    width: 364px;
-    background: white;
-    column-gap: 20px;
-    padding: 5px 15px;
-    border-bottom: 1px solid gray;
-    margin: auto;
 }
 
 .encabezado {

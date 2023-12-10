@@ -16,8 +16,6 @@ const props = defineProps({
 
 const color = ref('gray')
 
-console.log('StatusLed CONSTRUCTOR', props.status)
-
 onMounted(() => {
     evalColor(props.status)
 })
@@ -37,7 +35,6 @@ const evalColor = (st) => {
     }
     const cc = `radial-gradient( farthest-corner at -5px -5px,white 30%, ${col}  70% )`
     color.value = cc
-    console.log('new Status:', st, 'color:', col, 'gradient:', cc)
 }
 
 watch(() => props.status, (newStatus) => {
