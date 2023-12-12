@@ -17,9 +17,10 @@
                 <div class="precio">Interes</div>
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
-                <div style="text-align: center;">Descargar</div>
-                <div style="text-align: center;">Comprobantes</div>
-                <div style="text-align: center;">Estado</div>
+                <div class="centro">Descargar</div>
+                <div class="centro">Comprobantes</div>
+                <div class="centro">Estado</div>
+                <div class="centro">Valido</div>
             </div>
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="rowExpensa">
@@ -30,9 +31,10 @@
                     <div class="precio">{{ item.balance.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
-                    <StatusLed class="centro" :status="item.status" />
+                    <StatusLed class="centro" :status="evalStatus(item)" />
+                    <Validation :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id]" :expense="appStore.state.selExpense" />
+                <Receipts v-if="showDetails[item.id]" :expense="appStore.state.selExpense" @onCheck="toggleValidation" />
             </div>
         </div>
     </div>
@@ -45,6 +47,7 @@ import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from 'src/components/Receipts.vue'
 import StatusLed from 'src/components/StatusLed.vue'
+import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 
 const router = useRouter()
@@ -60,11 +63,20 @@ onMounted(async () => {
     }
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners('expensesByUnit')
+    appStore.actions.unsubscribeListeners('us_expensesByUnit')
 })
-
+const evalStatus = (item) => {
+    let st = 'pending'
+    if (item.amount !== item.balance) {
+        st = 'partial'
+        if (item.balance === 0) {
+            st = 'total'
+        }
+    }
+    return st
+}
 const download = () => {
-    console.log('bajar arhivo expensas')
+    console.log('bajar archivo expensas')
 }
 const toggleDetail = async (expense) => {
     appStore.set.selExpense(expense)
@@ -73,6 +85,14 @@ const toggleDetail = async (expense) => {
     }, 100)
     showDetails.value[expense.id] = !showDetails.value[expense.id]
     console.log('showDetails:', showDetails.value)
+}
+const toggleValidation = async (cp) => {
+    ui.actions.showLoading()
+    await appStore.actions.userExpenses.toggleValidation(cp)
+    // await appStore.actions.userExpenses.getReceiptsByExp()
+    // const notValid = appStore.state.selExpense.receipts.find(x => !x.isValid)
+    // await appStore.actions.userExpenses.updateUserExpense(!notValid)
+    ui.actions.hideLoading()
 }
 </script>
 
@@ -99,7 +119,7 @@ const toggleDetail = async (expense) => {
 
 .matrix {
     background-color: white;
-    max-width: 770px;
+    max-width: 830px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -108,9 +128,9 @@ const toggleDetail = async (expense) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 70px 90px 40px;
+    grid-template-columns: 110px 80px 70px 70px 70px 70px 90px 40px 40px;
     align-items: center;
-    width: 770px;
+    width: 830px;
     column-gap: 20px;
     padding: 0 15px;
     border-bottom: 1px solid gray;

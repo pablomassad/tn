@@ -127,7 +127,7 @@ const actions = {
                 const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                 set.expensesByUnit(exps)
             })
-            state.unsubListeners.expensesByUnit = us
+            state.unsubListeners.us_expensesByUnit = us
         },
         async getReceiptsByExp () {
             console.log('store getReceiptsByExp: ', state.selExpense.id)
@@ -185,11 +185,23 @@ const actions = {
                 console.log('Error transaction:', e)
             }
         },
-        async removeComp (expId, comp) {
+        async removeComp (comp) {
             console.log('store removeComp:', comp.id)
             ui.actions.showLoading()
-            await fb.deleteDocument(`units/${state.selUnit.id}/expenses/${expId}/comps`, comp.id)
+            await fb.deleteDocument('receipts', comp.id)
             ui.actions.hideLoading()
+        },
+        async toggleValidation (comp) {
+            const cp = { ...comp }
+            cp.isValid = !cp.isValid
+            await fb.setDocument('receipts', cp, cp.id)
+            console.log('toggle validation receipt:', cp)
+        },
+        async updateUserExpense (flag) {
+            const exp = { ...state.selExpense }
+            exp.isValid = flag
+            await fb.setDocument('userExpenses', exp, exp.id)
+            console.log('toggle validation userExpense:', exp)
         }
     },
     tickets: {
@@ -231,9 +243,9 @@ const actions = {
     admin: {
         async monitorExpenses () {
             console.log('store monitorExpenses')
-            if (!state.unsubListeners.expenses) {
+            if (!state.unsubListeners.us_expenses) {
                 const colRef = fb.getCollectionRef('expenses')
-                state.unsubListeners.expenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                state.unsubListeners.us_expenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.expenses(res)
@@ -242,9 +254,9 @@ const actions = {
         },
         async monitorDetailsByExp () {
             console.log('store monitorDetailsByExp')
-            if (!state.unsubListeners.detailsByExp) {
+            if (!state.unsubListeners.us_detailsByExp) {
                 const colRef = fb.getCollectionRefQuery('details', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
-                state.unsubListeners.detailsByExp = fb.onSnapshot(colRef, (querySnapshot) => {
+                state.unsubListeners.us_detailsByExp = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.detailsByExp(res)
@@ -253,9 +265,9 @@ const actions = {
         },
         async monitorUserExpenses () {
             console.log('store monitorUserExpenses')
-            if (!state.unsubListeners.userExpenses) {
+            if (!state.unsubListeners.us_userExpenses) {
                 const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
-                state.unsubListeners.userExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                state.unsubListeners.us_userExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.userExpenses(res)
@@ -319,7 +331,8 @@ const actions = {
             Object.keys(state.unsubListeners).forEach(k => state.unsubListeners[k]())
             state.unsubListeners = {}
         } else {
-            state.unsubListeners[key]()
+            const unsub = state.unsubListeners[key]
+            if (unsub) unsub()
         }
     },
     evalExpName (expId) {
@@ -354,7 +367,8 @@ const actions = {
         set.units(units)
         return units
     },
-    async updateUnit (pwd) {
+    async updateLoginInfoUnit (pwd) {
+        console.log('store updateLoginInfoUnit')
         state.selUnit = { ...state.selUnit, pwd }
         ui.actions.showLoading()
         await fb.setDocument('units', state.selUnit, state.selUnit.id)
@@ -362,6 +376,7 @@ const actions = {
     },
     async login (unit, pwd) {
         if (state.selUnit.pwd === pwd) {
+            console.log('login OK')
             ui.actions.showLoading()
             set.selUnit(unit)
             await fb.setDocument('units', unit, unit.id)

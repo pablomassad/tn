@@ -6,8 +6,9 @@
 👍 Ordenamiento por concepto de items de detalle
 👍 Carga nuevo detalle sobre un detalle viejo! bug
 ⏰ Exportacion y bajada a PDF
-⏰ Corregir comportamiento de expensas de usuarios (no se ve pagina)
+👍 Corregir comportamiento de expensas de usuarios (no se ve pagina)
 ⏰ Copia automatica de items ordinarios a proxima expensas
 ⏰ Monitoreo en tiempo real de expensas de propietarios
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
-
+⏰ Sacar boton de agregar detalle una vez distribuida la expensas
+⏰ Agregar columna Valido con check verde ✅ y X roja 🚫

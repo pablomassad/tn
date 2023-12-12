@@ -16,7 +16,6 @@
                         <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
                     </div>
                     <q-input v-model="comp.description" filled type="textarea" label="Descripción" class="description" />
-                    <q-checkbox v-if="appStore.state.master" v-model="comp.checked" keep-color :color="(comp.checked ? 'green' : 'red')" />
                 </div>
             </template>
             <template #footer>
@@ -43,6 +42,7 @@ import appStore from 'src/pages/appStore'
 import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
+import { ui } from 'fwk-q-ui'
 
 const refAttachment = ref()
 const showForm = ref(false)
@@ -72,22 +72,26 @@ onMounted(async () => {
     console.log('ReceiptForm onMounted')
 })
 const save = async () => {
-    showConfirm.value = true
-    confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
-    onAcceptDialog.value = async () => {
-        await appStore.actions.userExpenses.saveComp(exp.value.id, comp, attFile.value)
-        showConfirm.value = false
-        onClose()
-    }
-    onCancelDialog.value = () => {
-        showConfirm.value = false
+    if (!attFile.value) {
+        ui.actions.notify('Debe adjuntar un comprobante!', 'info')
+    } else {
+        showConfirm.value = true
+        confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
+        onAcceptDialog.value = async () => {
+            await appStore.actions.userExpenses.saveComp(exp.value.id, comp, attFile.value)
+            showConfirm.value = false
+            onClose()
+        }
+        onCancelDialog.value = () => {
+            showConfirm.value = false
+        }
     }
 }
 const remove = () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere eliminar el comprobante?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.userExpenses.removeComp(exp.value.id, comp)
+        await appStore.actions.userExpenses.removeComp(comp)
         showConfirm.value = false
         onClose()
     }

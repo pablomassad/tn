@@ -74,7 +74,7 @@ onMounted(async () => {
     appStore.actions.admin.monitorExpenses()
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners('expenses')
+    appStore.actions.unsubscribeListeners('us_expenses')
 })
 const onSelYear = async (e) => {
     console.log(e.id)

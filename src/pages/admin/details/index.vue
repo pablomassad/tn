@@ -84,7 +84,7 @@ onMounted(async () => {
     appStore.actions.admin.monitorDetailsByExp()
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners('detailsByExp')
+    appStore.actions.unsubscribeListeners('us_detailsByExp')
 })
 const createItem = () => {
     refExpForm.value.show()

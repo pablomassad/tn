@@ -4,14 +4,14 @@
             <div class="centro">Fecha</div>
             <div class="importe">Importe</div>
             <div class="centro">Ver</div>
-            <div class="centro">Estado</div>
+            <div class="centro">Válido</div>
         </div>
         <div v-if="expense">
             <div v-for="(cp) in expense.receipts" :key="cp" class="rowComp">
                 <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
-                <StatusLed :status="cp.status ? 'valid' : 'pending'" />
+                <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />
             </div>
             <div class="rowComp total">
                 <div class="centro">TOTAL</div>
@@ -25,14 +25,15 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import moment from 'moment'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
-import StatusLed from 'src/components/StatusLed.vue'
+import Validation from 'src/components/Validation.vue'
 
 console.log('Receipts CONSTRUCTOR')
 
+const emit = defineEmits(['onCheck'])
 const props = defineProps({
     expense: {
         type: Object
@@ -50,6 +51,14 @@ const addComp = () => {
 const viewComp = (cp) => {
     refReceipt.value.show(props.expense, cp)
 }
+const toggleValidation = (cp) => {
+    console.log('toggleValidation:', cp)
+    emit('onCheck', cp)
+}
+
+watch(() => props.expense.receipts, (newVal) => {
+    console.log('watch expense.receipts:', newVal)
+})
 </script>
 
 <style scoped>
@@ -61,9 +70,9 @@ const viewComp = (cp) => {
 
 .rowComp {
     display: grid;
-    grid-template-columns: 70px 80px 60px 70px;
+    grid-template-columns: 70px 80px 40px 40px;
     align-items: center;
-    width: 364px;
+    width: 320px;
     background: white;
     column-gap: 20px;
     padding: 5px 15px;

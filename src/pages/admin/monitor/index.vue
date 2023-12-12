@@ -49,7 +49,7 @@ onMounted(async () => {
     appStore.actions.admin.monitorUserExpenses()
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners('userExpenses')
+    appStore.actions.unsubscribeListeners('us_userExpenses')
 })
 const toggleDetail = async (exp) => {
     showDetails.value[exp.id] = !showDetails.value[exp.id]

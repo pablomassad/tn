@@ -4,9 +4,11 @@
             <img src="images/tn.png" class="logo">
         </div>
         <div class="grdLogin">
-            <q-select filled bg-color="white" :options="options" behavior="menu" label="Seleccione propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit"></q-select>
-            <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" class="doc" @keyup.enter="login" />
-            <q-input v-if="localUnit && !localUnit.pwd" color="black" bg-color="white" type="password" filled v-model="pwdCopy" label="Ingrese nuevamente" @keyup.enter="login" class="doc" />
+            <q-select filled bg-color="white" :options="owners" behavior="menu" label="Seleccione propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit"></q-select>
+            <div v-if="localUnit">
+                <q-input color="black" bg-color="white" type="password" filled v-model="pwd" label="Ingrese contraseña" class="doc" @keyup.enter="login" />
+                <q-input v-if="!localUnit.pwd" color="black" bg-color="white" type="password" filled v-model="pwdCopy" label="Ingrese nuevamente" @keyup.enter="login" class="doc" />
+            </div>
             <q-btn color="blue-8" icon="login" @click="login" class="login" :disable="!localUnit" :label="lblLogin" />
         </div>
     </div>
@@ -22,7 +24,7 @@ const router = useRouter()
 const pwd = ref()
 const pwdCopy = ref()
 const localUnit = ref()
-const options = ref()
+const owners = ref()
 const lblLogin = ref('Login')
 
 onMounted(async () => {
@@ -32,13 +34,13 @@ onMounted(async () => {
 const filterFn = (val, update) => {
     if (val === '') {
         update(() => {
-            options.value = appStore.state.units
+            owners.value = appStore.state.units
         })
         return
     }
     update(() => {
         const needle = val.toLowerCase()
-        options.value = appStore.state.units.filter(item => item.ownerNames.toLowerCase().indexOf(needle) > -1)
+        owners.value = appStore.state.units.filter(item => item.ownerNames.toLowerCase().indexOf(needle) > -1)
     })
 }
 const onSelUnit = (e) => {
@@ -54,9 +56,10 @@ const login = async () => {
     if (!localUnit.value.pwd) {
         if (pwd.value !== pwdCopy.value) {
             ui.actions.notify('Las contraseñas no coinciden!, vuelva a intentarlo.', 'warning')
-            return
+        } else {
+            await appStore.actions.updateLoginInfoUnit(pwd.value)
+            ui.actions.notify('Se ha registrado el usuario y su contraseña!', 'success')
         }
-        await appStore.actions.updateUnit(pwd.value)
     }
     const data = await appStore.actions.login(localUnit.value, pwd.value)
     if (data) {

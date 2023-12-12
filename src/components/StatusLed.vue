@@ -26,10 +26,10 @@ const evalColor = (st) => {
         case 'pending':
             col = 'red'
             break
-        case 'paid':
+        case 'partial':
             col = '#ffd100'
             break
-        case 'valid':
+        case 'total':
             col = 'green'
             break
     }
