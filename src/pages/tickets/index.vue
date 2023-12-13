@@ -7,8 +7,9 @@
                 <div class="precio">Importe</div>
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
-                <div style="text-align: center;">Ver</div>
-                <div style="text-align: center;">Estado</div>
+                <div class="centro">Ver</div>
+                <div class="centro">Estado</div>
+                <div class="centro">Referente</div>
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="rowTicket">
@@ -17,13 +18,13 @@
                     <div class="precio">{{ tk.amount.toFixed(1) }}</div>
                     <div class="precio">{{ tk.paid.toFixed(1) }}</div>
                     <div class="precio">{{ tk.balance.toFixed(1) }}</div>
-                    <div class="btn" @click="viewTicket(tk)">
-                        <q-icon name="visibility" class="btnIcon"></q-icon>
-                    </div>
-                    <div class="status" :class="{pagado: tk.checked}">
+                    <BtnIcon icon="visibility" @click="viewTicket(tk)" />
+                    <StatusLed class="centro" :status="evalStatus(item)" />
+                    <Validation :isValid="tk.isValid" />
+                    <!--<div class="status" :class="{pagado: tk.checked}">
                         <q-icon v-if="tk.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
                         <q-icon v-if="!tk.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
-                    </div>
+                    </div>-->
                 </div>
             </div>
             <div class="rowTicket total">
@@ -54,19 +55,11 @@ onMounted(async () => {
     appStore.actions.tickets.getTickets()
 })
 
-const download = (tk) => {
-
-}
-const sumTickets = (tks) => {
-    if (!tks) return 0
-    const total = tks.reduce((sum, o) => sum + o.amount, 0)
-    return total
+const addTicket = () => {
+    refTicket.value.show()
 }
 const viewTicket = async (tk) => {
     refTicket.value.show(tk)
-}
-const addTicket = () => {
-    refTicket.value.show()
 }
 
 </script>

@@ -6,8 +6,8 @@
             <div class="centro">Ver</div>
             <div class="centro">Válido</div>
         </div>
-        <div v-if="expense">
-            <div v-for="(cp) in expense.receipts" :key="cp" class="rowComp">
+        <div v-if="userExpense">
+            <div v-for="(cp) in userExpense.receipts" :key="cp" class="rowComp">
                 <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
@@ -15,7 +15,7 @@
             </div>
             <div class="rowComp total">
                 <div class="centro">TOTAL</div>
-                <div class="importe">{{ expense.paid.toFixed(1) }}</div>
+                <div class="importe">{{ userExpense.paid.toFixed(1) }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
@@ -25,7 +25,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import moment from 'moment'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -35,7 +35,7 @@ console.log('Receipts CONSTRUCTOR')
 
 const emit = defineEmits(['onCheck'])
 const props = defineProps({
-    expense: {
+    userExpense: {
         type: Object
     }
 })
@@ -45,20 +45,23 @@ const refReceipt = ref()
 onMounted(async () => {
     console.log('Receipts onMounted')
 })
+onUnmounted(() => {
+    console.log('Receipts onUnmounted')
+})
 const addComp = () => {
-    refReceipt.value.show(props.expense)
+    refReceipt.value.show(props.userExpense)
 }
 const viewComp = (cp) => {
-    refReceipt.value.show(props.expense, cp)
+    refReceipt.value.show(props.userExpense, cp)
 }
 const toggleValidation = (cp) => {
     console.log('toggleValidation:', cp)
     emit('onCheck', cp)
 }
 
-watch(() => props.expense.receipts, (newVal) => {
-    console.log('watch expense.receipts:', newVal)
-})
+watch(() => props.userExpense, (newExp, oldExp) => {
+    console.log('watch userExpense:', newExp, oldExp)
+}, { deep: true })
 </script>
 
 <style scoped>

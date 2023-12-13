@@ -15,13 +15,13 @@ const state = reactive({
     units: undefined,
     selUnit: LocalStorage.getItem('TN_selUnit'),
     selExpense: undefined,
-    detailsByExp: undefined,
+    expenses: undefined,
+    selUserExpense: undefined,
     userExpenses: undefined,
+    detailsByExp: undefined,
     expensesByUnit: undefined,
     pendingTickets: undefined,
-    expenses: undefined,
     tickets: undefined,
-    compsByExp: {},
     unsubListeners: {},
     payModes: ['Pendiente', 'Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
     myLocale: {
@@ -62,6 +62,10 @@ const state = reactive({
     ]
 })
 const set = {
+    unsubListeners (o) {
+        state.unsubListeners = { ...state.unsubListeners, ...o }
+        console.log('store set.unsubListeners:', state.unsubListeners)
+    },
     selUnit (o) {
         console.log('store set.selUnit:', o)
         state.selUnit = o
@@ -70,6 +74,10 @@ const set = {
     selExpense (o) {
         console.log('store set.selExpense:', o)
         state.selExpense = o
+    },
+    selUserExpense (o) {
+        console.log('store set.selUserExpense:', o)
+        state.selUserExpense = o
     },
     units (u) {
         console.log('store units:', u)
@@ -127,7 +135,7 @@ const actions = {
                 const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                 set.expensesByUnit(exps)
             })
-            state.unsubListeners.us_expensesByUnit = us
+            set.unsubListeners({ us_expensesByUnit: us })
         },
         async getReceiptsByExp () {
             console.log('store getReceiptsByExp: ', state.selExpense.id)
@@ -195,6 +203,7 @@ const actions = {
             const cp = { ...comp }
             cp.isValid = !cp.isValid
             await fb.setDocument('receipts', cp, cp.id)
+            await actions.userExpenses.getReceiptsByExp()
             console.log('toggle validation receipt:', cp)
         },
         async updateUserExpense (flag) {
@@ -245,33 +254,36 @@ const actions = {
             console.log('store monitorExpenses')
             if (!state.unsubListeners.us_expenses) {
                 const colRef = fb.getCollectionRef('expenses')
-                state.unsubListeners.us_expenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.expenses(res)
                 })
+                set.unsubListeners({ us_expenses: us })
             }
         },
         async monitorDetailsByExp () {
             console.log('store monitorDetailsByExp')
             if (!state.unsubListeners.us_detailsByExp) {
                 const colRef = fb.getCollectionRefQuery('details', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
-                state.unsubListeners.us_detailsByExp = fb.onSnapshot(colRef, (querySnapshot) => {
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.detailsByExp(res)
                 })
+                set.unsubListeners({ us_detailsByExp: us })
             }
         },
         async monitorUserExpenses () {
             console.log('store monitorUserExpenses')
             if (!state.unsubListeners.us_userExpenses) {
                 const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
-                state.unsubListeners.us_userExpenses = fb.onSnapshot(colRef, (querySnapshot) => {
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const res = docs.map(doc => ({ id: doc.id, ...doc.data() }))
                     set.userExpenses(res)
                 })
+                set.unsubListeners({ us_userExpenses: us })
             }
         },
         // async getDetailsByExp () {
@@ -332,7 +344,11 @@ const actions = {
             state.unsubListeners = {}
         } else {
             const unsub = state.unsubListeners[key]
-            if (unsub) unsub()
+            if (unsub) {
+                unsub()
+                delete state.unsubListeners[key]
+                console.log('store set.unsubListeners:', state.unsubListeners)
+            }
         }
     },
     evalExpName (expId) {

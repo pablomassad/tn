@@ -21,12 +21,12 @@
                     <div class="celda precio">{{ item.total.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.amountOrdinary.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.amountExtraordinary.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
+                    <div class="celda precio loteInfo">{{ item.amountOrdinary.toFixed(1) }}</div>
+                    <div class="celda precio loteInfo">{{ item.amountExtraordinary.toFixed(1) }}</div>
+                    <div class="celda precio loteInfo">{{ item.amount.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="edit" @click="gotoDetails(item)" />
-                    <BtnIcon icon="visibility" @click="gotoMonitor(item)" />
+                    <BtnIcon icon="groups" @click="gotoMonitor(item)" :disabled="!item.deployed" />
                     <BtnIcon icon="send" @click="distributeExpense(item)" :disabled="!!item.deployed" :pressed="!!item.deployed" />
                     <StatusLed class="celda centro" :status="item.status" />
                 </div>
@@ -172,6 +172,10 @@ const distributeExpense = (exp) => {
 
 .lote {
     background-color: aquamarine;
+}
+
+.loteInfo {
+    background-color: rgb(223, 255, 244);
 }
 
 .status {

@@ -84,7 +84,6 @@ const save = async () => {
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
         await appStore.actions.tickets.save(tk, attFile.value)
-        // exp.value.comps = await appStore.actions.getCompsByExp(exp.value.id)
         showConfirm.value = false
         onClose()
     }

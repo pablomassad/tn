@@ -20,7 +20,7 @@
                 <div class="centro">Descargar</div>
                 <div class="centro">Comprobantes</div>
                 <div class="centro">Estado</div>
-                <div class="centro">Valido</div>
+                <div class="centro">Vâlido</div>
             </div>
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="rowExpensa">
@@ -30,11 +30,11 @@
                     <div class="precio">{{ item.paid?.toFixed(1) }}</div>
                     <div class="precio">{{ item.balance.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
-                    <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
+                    <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
                     <StatusLed class="centro" :status="evalStatus(item)" />
                     <Validation :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id]" :expense="appStore.state.selExpense" @onCheck="toggleValidation" />
+                <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" @onCheck="toggleValidation" />
             </div>
         </div>
     </div>
@@ -78,20 +78,16 @@ const evalStatus = (item) => {
 const download = () => {
     console.log('bajar archivo expensas')
 }
-const toggleDetail = async (expense) => {
-    appStore.set.selExpense(expense)
+const toggleReceipts = async (uExp) => {
+    appStore.set.selUserExpense(uExp)
     setTimeout(async () => {
         await appStore.actions.userExpenses.getReceiptsByExp()
     }, 100)
-    showDetails.value[expense.id] = !showDetails.value[expense.id]
-    console.log('showDetails:', showDetails.value)
+    showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
 const toggleValidation = async (cp) => {
     ui.actions.showLoading()
     await appStore.actions.userExpenses.toggleValidation(cp)
-    // await appStore.actions.userExpenses.getReceiptsByExp()
-    // const notValid = appStore.state.selExpense.receipts.find(x => !x.isValid)
-    // await appStore.actions.userExpenses.updateUserExpense(!notValid)
     ui.actions.hideLoading()
 }
 </script>

@@ -3,7 +3,7 @@
         <div class="title">
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
-        <div class="matrix">
+        <div class="matrix" v-if="appStore.state.userExpenses">
             <div class="rowDetail encabezado">
                 <div class="texto">Propietarios</div>
                 <div class="precio">Importe</div>
@@ -11,7 +11,8 @@
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
                 <div class="central">Detalle</div>
-                <div class="central">Estado</div>
+                <div class="centro">Estado</div>
+                <div class="central">Válido</div>
             </div>
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
@@ -21,10 +22,11 @@
                         <div class="precio">{{ item.interest.toFixed(1) }}</div>
                         <div class="precio">{{ item.paid.toFixed(1) }}</div>
                         <div class="precio">{{ item.balance.toFixed(1) }}</div>
-                        <BtnIcon icon="upload_file" @click="toggleDetail(item)" />
-                        <StatusLed :status="item.status" />
+                        <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
+                        <StatusLed :status="evalStatus(item)" />
+                        <Validation :isValid="item.isValid" />
                     </div>
-                    <Receipts :idExp="item.id" />
+                    <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" @onCheck="toggleValidation" />
                 </div>
             </div>
         </div>
@@ -37,12 +39,10 @@ import appStore from 'src/pages/appStore'
 import Receipts from 'src/components/Receipts.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
-import moment from 'moment'
+import Validation from 'src/components/Validation.vue'
+import { ui } from 'fwk-q-ui'
 
-const refReceipt = ref()
 const showDetails = ref({})
-
-let selExp
 
 onMounted(async () => {
     console.log('Monitor Expenses onMounted')
@@ -51,14 +51,27 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_userExpenses')
 })
-const toggleDetail = async (exp) => {
-    showDetails.value[exp.id] = !showDetails.value[exp.id]
-    if (showDetails.value[exp.id]) {
-        selExp = exp
-    }
+const toggleReceipts = async (uExp) => {
+    appStore.set.selUserExpense(uExp)
+    setTimeout(async () => {
+        await appStore.actions.userExpenses.getReceiptsByExp()
+    }, 100)
+    showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
-const viewComp = (cp) => {
-    refReceipt.value.show(selExp, cp)
+const toggleValidation = async (cp) => {
+    ui.actions.showLoading()
+    await appStore.actions.userExpenses.toggleValidation(cp)
+    ui.actions.hideLoading()
+}
+const evalStatus = (item) => {
+    let st = 'pending'
+    if (item.amount !== item.balance) {
+        st = 'partial'
+        if (item.balance === 0) {
+            st = 'total'
+        }
+    }
+    return st
 }
 </script>
 
@@ -96,7 +109,7 @@ const viewComp = (cp) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 880px;
+    max-width: 940px;
     margin: auto;
     margin-top: 20px;
     border-radius: 10px;
@@ -110,10 +123,10 @@ const viewComp = (cp) => {
 
 .rowDetail {
     display: grid;
-    grid-template-columns: 260px 100px 70px 100px 100px 50px 50px;
+    grid-template-columns: 260px 100px 70px 100px 100px 50px 40px 40px;
     align-items: center;
-    width: 880px;
-    height: 40px;
+    width: 940px;
+    height: 40px px;
     column-gap: 20px;
     padding: 0px 15px;
     border-bottom: 1px solid gray;

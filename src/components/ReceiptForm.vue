@@ -37,7 +37,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
 import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
@@ -71,20 +71,24 @@ const comp = reactive(Object.assign({}, emptyComp))
 onMounted(async () => {
     console.log('ReceiptForm onMounted')
 })
+onUnmounted(() => {
+    console.log('ReceiptForm onUnmounted')
+})
 const save = async () => {
-    if (!attFile.value) {
-        ui.actions.notify('Debe adjuntar un comprobante!', 'info')
-    } else {
+    if (comp.attachmentUrl || attFile.value) {
         showConfirm.value = true
         confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
         onAcceptDialog.value = async () => {
             await appStore.actions.userExpenses.saveComp(exp.value.id, comp, attFile.value)
             showConfirm.value = false
+            await appStore.actions.userExpenses.getReceiptsByExp()
             onClose()
         }
         onCancelDialog.value = () => {
             showConfirm.value = false
         }
+    } else {
+        ui.actions.notify('Debe adjuntar un comprobante!', 'info')
     }
 }
 const remove = () => {

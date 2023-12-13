@@ -12,3 +12,5 @@
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
 ⏰ Sacar boton de agregar detalle una vez distribuida la expensas
 ⏰ Agregar columna Valido con check verde ✅ y X roja 🚫
+⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
+⏰
