@@ -400,9 +400,10 @@ const actions = {
         set.settings(cfg)
     },
     async getUnits () {
-        const units = await fb.getCollection('units')
-        set.units(units)
-        return units
+        if (!state.units) {
+            const units = await fb.getCollection('units')
+            set.units(units)
+        }
     },
     async updateLoginInfoUnit (pwd) {
         console.log('store updateLoginInfoUnit')

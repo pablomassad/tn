@@ -64,17 +64,17 @@
                 <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>
-        <ExpForm ref="refExpForm"></ExpForm>
+        <DetailsForm ref="refDetailsForm"></DetailsForm>
     </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
-import ExpForm from './ExpForm/index.vue'
+import DetailsForm from './DetailsForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 
-const refExpForm = ref()
+const refDetailsForm = ref()
 
 const expExtraLote = ref(0)
 
@@ -87,10 +87,10 @@ onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_detailsByExp')
 })
 const createItem = () => {
-    refExpForm.value.show()
+    refDetailsForm.value.show()
 }
 const editItem = (item) => {
-    refExpForm.value.show(item)
+    refDetailsForm.value.show(item)
 }
 watch(() => expExtraLote.value, (newVal) => {
     if (!appStore.state.selExpense?.deployed) {
@@ -114,11 +114,6 @@ watch(() => expExtraLote.value, (newVal) => {
 </script>
 
 <style scoped>
-.footerBtn {
-    display: grid;
-    margin: 20px auto;
-}
-
 .typeIcon {
     font-size: 20px;
     color: green;

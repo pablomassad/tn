@@ -20,7 +20,7 @@
                     <div class="precio">{{ tk.balance.toFixed(1) }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
                     <StatusLed class="centro" :status="evalStatus(tk)" />
-                    <div class="texto">{{ tk.referente }}</div>
+                    <div class="texto">{{ tk.referrer }}</div>
                     <!--<div class="status" :class="{pagado: tk.checked}">
                         <q-icon v-if="tk.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
                         <q-icon v-if="!tk.checked" name="error_outline" class="btnStatus" color="red"></q-icon>

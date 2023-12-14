@@ -81,11 +81,6 @@ const evalStatus = (item) => {
     overflow: auto;
 }
 
-.footerBtn {
-    display: grid;
-    margin: 20px auto;
-}
-
 .typeIcon {
     font-size: 20px;
     color: green;

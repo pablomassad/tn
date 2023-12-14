@@ -8,14 +8,16 @@
             </template>
             <template #default>
                 <div class="grdForm">
-                    <q-input flat dense clearable v-model="comp.date" label="Fecha de comprobante" @click="selectFecha()" />
+                    <div class="rowDtCom">
+                        <q-input flat dense clearable v-model="comp.date" label="Fecha de comprobante" @click="selectFecha()" readonly />
+                        <q-input type="text" v-model="comp.description" filled label="Descripción" class="description" />
+                    </div>
                     <div class="rowAmAt">
                         <q-input type="number" v-model="comp.amount" label="Importe pagado" />
                         <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
                         <q-btn v-if="!attFile && !comp.attachmentUrl" glossy color="primary" icon="attachment" @click="attachComp">Adjuntar comprobante</q-btn>
                         <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
                     </div>
-                    <q-input v-model="comp.description" filled type="textarea" label="Descripción" class="description" />
                 </div>
             </template>
             <template #footer>
@@ -141,15 +143,23 @@ defineExpose({ show })
 .grdForm {
     display: grid;
     row-gap: 10px;
+    margin: 20px;
+    padding: 26px;
+    border-radius: 10px;
+    box-shadow: inset 1px 1px 3px gray;
+    background: #eee;
+}
+
+.rowDtCom {
+    display: grid;
+    align-items: baseline;
+    column-gap: 20px;
+    grid-template-columns: 150px 1fr;
 }
 
 .rowAmAt {
     display: flex;
     justify-content: space-between;
-}
-
-.footerBtns {
-    margin: 20px;
 }
 
 .btnContainer {

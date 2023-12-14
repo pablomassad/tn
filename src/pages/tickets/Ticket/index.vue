@@ -8,21 +8,24 @@
             </template>
             <template #default>
                 <div class="grdForm">
-                    <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
-                    <div class="rowDtAmAt">
-                        <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" />
+                    <div class="rowConDt">
+                        <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" readonly />
+                        <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
+                    </div>
+                    <div class="rowRefAmAt">
+                        <q-toggle v-model="isOwner" checked-icon="home" color="blue" unchecked-icon="engineering" :label="isOwnerVal" false-value="Externo" true-value="Propietario" keep-color />
+                        <q-select v-if="isOwner && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit" class="tnOwners"></q-select>
+                        <q-input v-if="!isOwner" type="text" v-model="tk.referrer" label="Referente externo" />
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
                     </div>
-                    <!--<q-input v-model="tk.comment" filled type="textarea" label="Comentario" class="comment" />-->
-                    <q-checkbox v-if="appStore.state.master" v-model="tk.checked" keep-color :color="(tk.checked ? 'green' : 'red')" />
                 </div>
             </template>
             <template #footer>
                 <div class="btnContainer">
                     <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
-                    <q-btn glossy color="primary" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
+                    <q-btn glossy color="red" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
                     <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
                 </div>
             </template>
@@ -56,6 +59,10 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
+const isOwnerVal = ref('Propietario')
+const isOwner = ref('Propietario')
+const localUnit = ref()
+const owners = ref()
 const exp = ref({})
 const attFile = ref()
 const showTicket = ref(false)
@@ -74,7 +81,23 @@ const dtPicker = reactive({
 
 onMounted(async () => {
     console.log('TICKET onMounted')
+    await appStore.actions.getUnits()
 })
+const filterFn = (val, update) => {
+    if (val === '') {
+        update(() => {
+            owners.value = appStore.state.units
+        })
+        return
+    }
+    update(() => {
+        const needle = val.toLowerCase()
+        owners.value = appStore.state.units.filter(item => item.ownerNames.toLowerCase().indexOf(needle) > -1)
+    })
+}
+const onSelUnit = (e) => {
+    console.log(e.id)
+}
 const save = async () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
@@ -83,6 +106,7 @@ const save = async () => {
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
+        if (localUnit.value) tk.referrer = localUnit.value.ownerNames
         await appStore.actions.tickets.save(tk, attFile.value)
         showConfirm.value = false
         onClose()
@@ -114,19 +138,10 @@ const onFechaOKClick = () => {
         ? dtPicker.selectedDate
         : tk.date
 }
-const evalImage = () => {
-    let imgSrc
-    if (attFile.value) { imgSrc = URL.createObjectURL(attFile.value) }
-    if (tk.attachmentUrl) { imgSrc = tk.attachmentUrl }
-    return imgSrc
-}
 const viewTicket = async () => {
     console.log('attFile.value:', attFile.value)
     console.log('attachmentUrl:', tk.attachmentUrl)
     showTicket.value = true
-}
-const onCloseTicket = () => {
-    showTicket.value = false
 }
 const attachTicket = () => {
     refAttachment.value.click()
@@ -149,6 +164,16 @@ const show = async (t) => {
         tk.checked = t.checked
     }
 }
+
+// const onCloseTicket = () => {
+//    showTicket.value = false
+// }
+// const evalImage = () => {
+//    let imgSrc
+//    if (attFile.value) { imgSrc = URL.createObjectURL(attFile.value) }
+//    if (tk.attachmentUrl) { imgSrc = tk.attachmentUrl }
+//    return imgSrc
+// }
 defineExpose({ show })
 </script>
 
@@ -193,13 +218,29 @@ defineExpose({ show })
 .grdForm {
     display: grid;
     row-gap: 10px;
+    margin: 20px;
+    padding: 26px;
+    border-radius: 10px;
+    box-shadow: inset 1px 1px 3px gray;
+    background: #eee;
 }
 
-.rowDtAmAt {
-    display: flex;
-    justify-content: space-between;
+.rowConDt {
+    display: grid;
+    grid-template-columns: 150px 1fr;
+    align-items: baseline;
+    column-gap: 30px;
+}
+
+.rowRefAmAt {
+    display: grid;
     align-items: center;
-    ;
+    grid-template-columns: 150px 1fr 120px 150px;
+    column-gap: 20px;
+}
+
+.tnOwnersx {
+    width: 400px;
 }
 
 .matrix {
@@ -219,10 +260,6 @@ defineExpose({ show })
 .value {
     font-size: 18px;
     color: #555;
-}
-
-.footerBtns {
-    margin: 20px;
 }
 
 .btnContainer {

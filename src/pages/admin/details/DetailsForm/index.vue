@@ -70,7 +70,7 @@ const emptyDetail = {
 const detail = reactive(Object.assign({}, emptyDetail))
 
 onMounted(async () => {
-    console.log('ExpForm onMounted')
+    console.log('DetailsForm onMounted')
     appStore.actions.admin.getPendingTickets()
 })
 const save = async () => {
@@ -136,10 +136,11 @@ defineExpose({ show })
 .grdForm {
     display: grid;
     row-gap: 10px;
-}
-
-.footerBtns {
     margin: 20px;
+    padding: 26px;
+    border-radius: 10px;
+    box-shadow: inset 1px 1px 3px gray;
+    background: #eee;
 }
 
 .btnContainer {

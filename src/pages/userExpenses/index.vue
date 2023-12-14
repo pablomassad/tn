@@ -175,10 +175,6 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     color: #555;
 }
 
-.footerBtns {
-    margin: 20px;
-}
-
 .encabezado {
     background-color: lightblue;
     font-weight: bold;
