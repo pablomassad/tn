@@ -34,10 +34,10 @@
         </ModalPanel>
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
-        <div class="viewFrame" v-if="showTicket">
+        <!--<div class="viewFrame" v-if="showTicket">
             <q-icon name="close" class="btnClose" @click="onCloseTicket" />
             <img :src="evalImage()" class="ticketImage" />
-        </div>
+        </div>-->
     </div>
 </template>
 

@@ -337,6 +337,10 @@ const actions = {
             }
         },
         async downloadExpense () {
+            if (!state.selExpense) {
+                const exp = await fb.getDocument('expenses', state.selUserExpense.idExp)
+                set.selExpense(exp)
+            }
             if (state.selExpense.pdfUrl) {
                 window.open(state.selExpense.pdfUrl, 'blank')
             } else {
@@ -345,6 +349,13 @@ const actions = {
         },
         async saveDetail (item) {
             await fb.setDocument('details', item, item.id)
+        }
+    },
+    tickets: {
+        async getTickets () {
+            console.log('store getTickets')
+            const res = await fb.getCollection('tickets')
+            set.tickets(res)
         }
     },
     unsubscribeListeners (key) {

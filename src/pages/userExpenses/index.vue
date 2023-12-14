@@ -75,8 +75,9 @@ const evalStatus = (item) => {
     }
     return st
 }
-const download = () => {
-    console.log('bajar archivo expensas')
+const download = (uExp) => {
+    appStore.set.selUserExpense(uExp)
+    appStore.actions.admin.downloadExpense()
 }
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)

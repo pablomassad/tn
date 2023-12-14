@@ -19,19 +19,19 @@
                     <div class="precio">{{ tk.paid.toFixed(1) }}</div>
                     <div class="precio">{{ tk.balance.toFixed(1) }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
-                    <StatusLed class="centro" :status="evalStatus(item)" />
-                    <Validation :isValid="tk.isValid" />
+                    <StatusLed class="centro" :status="evalStatus(tk)" />
+                    <div class="texto">{{ tk.referente }}</div>
                     <!--<div class="status" :class="{pagado: tk.checked}">
                         <q-icon v-if="tk.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
                         <q-icon v-if="!tk.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
                     </div>-->
                 </div>
             </div>
-            <div class="rowTicket total">
+            <!--<div class="rowTicket total">
                 <div class="centro">TOTAL</div>
                 <div></div>
                 <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(1) }}</div>
-            </div>
+            </div>-->
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
         <Ticket ref="refTicket" />
@@ -42,6 +42,9 @@
 import { ref, onMounted } from 'vue'
 import appStore from 'src/pages/appStore'
 import moment from 'moment'
+import BtnIcon from 'src/components/BtnIcon.vue'
+import StatusLed from 'src/components/StatusLed.vue'
+import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
 
@@ -61,6 +64,16 @@ const addTicket = () => {
 const viewTicket = async (tk) => {
     refTicket.value.show(tk)
 }
+const evalStatus = (item) => {
+    let st = 'pending'
+    if (item.amount !== item.balance) {
+        st = 'partial'
+        if (item.balance === 0) {
+            st = 'total'
+        }
+    }
+    return st
+}
 
 </script>
 
@@ -68,7 +81,7 @@ const viewTicket = async (tk) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 700px;
+    max-width: 1100px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -83,9 +96,9 @@ const viewTicket = async (tk) => {
 
 .rowTicket {
     display: grid;
-    grid-template-columns: 100px 150px 70px 70px 70px 40px 50px;
+    grid-template-columns: 100px 250px 70px 70px 70px 40px 50px 50px 200px;
     align-items: center;
-    width: 700px;
+    width: 1100px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
@@ -145,7 +158,7 @@ const viewTicket = async (tk) => {
 
 .addBtn {
     position: absolute;
-    right: 18px;
-    bottom: 10px;
+    right: 5px;
+    bottom: 5px;
 }
 </style>
