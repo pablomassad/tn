@@ -34,14 +34,14 @@
                     <StatusLed class="centro" :status="evalStatus(item)" />
                     <Validation :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" @onCheck="toggleValidation" />
+                <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selUserReceipts" @onCheck="toggleValidation" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -90,6 +90,10 @@ const toggleValidation = async (cp) => {
     await appStore.actions.userExpenses.toggleValidation(cp)
     ui.actions.hideLoading()
 }
+
+watch(() => appStore.state.selUserExpense, (newVal) => {
+    console.log('watch selUserExpense:', newVal)
+})
 </script>
 
 <style scoped>

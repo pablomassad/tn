@@ -3,7 +3,7 @@
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
-                    Expensa {{ exp.expName }}
+                    Expensa {{ expName }}
                 </div>
             </template>
             <template #default>
@@ -51,7 +51,7 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const exp = ref({})
+const expName = ref()
 const attFile = ref()
 const showFecha = ref(false)
 const dtPicker = reactive({
@@ -79,7 +79,7 @@ const save = async () => {
         showConfirm.value = true
         confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
         onAcceptDialog.value = async () => {
-            await appStore.actions.userExpenses.saveComp(exp.value.id, comp, attFile.value)
+            await appStore.actions.userExpenses.saveComp(comp, attFile.value)
             showConfirm.value = false
             await appStore.actions.userExpenses.getReceiptsByExp()
             onClose()
@@ -105,6 +105,7 @@ const remove = () => {
 }
 const viewComp = async () => {
     console.log('view comprobante:', comp.attachmentUrl)
+    window.open(comp.attachmentUrl, 'blank')
 }
 const selectFecha = () => {
     dtPicker.selectedDate = comp.date
@@ -126,8 +127,8 @@ const onUploadAttachment = async (e) => {
 const onClose = () => {
     showForm.value = false
 }
-const show = async (expense, cp) => {
-    exp.value = expense
+const show = async (name, cp) => {
+    expName.value = name
     showForm.value = true
     const o = cp || emptyComp
     Object.assign(comp, o)

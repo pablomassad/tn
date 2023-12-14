@@ -26,7 +26,7 @@
                         <StatusLed :status="evalStatus(item)" />
                         <Validation :isValid="item.isValid" />
                     </div>
-                    <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" @onCheck="toggleValidation" />
+                    <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selUserReceipts" @onCheck="toggleValidation" />
                 </div>
             </div>
         </div>

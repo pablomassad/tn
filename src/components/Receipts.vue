@@ -6,8 +6,8 @@
             <div class="centro">Ver</div>
             <div class="centro">Válido</div>
         </div>
-        <div v-if="userExpense">
-            <div v-for="(cp) in userExpense.receipts" :key="cp" class="rowComp">
+        <div v-if="userReceipts">
+            <div v-for="(cp) in userReceipts" :key="cp" class="rowComp">
                 <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
@@ -19,9 +19,8 @@
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
-
     </div>
-    <ReceiptForm ref="refReceipt" />
+    <ReceiptForm ref="refReceiptForm" />
 </template>
 
 <script setup>
@@ -37,10 +36,13 @@ const emit = defineEmits(['onCheck'])
 const props = defineProps({
     userExpense: {
         type: Object
+    },
+    userReceipts: {
+        type: Object
     }
 })
 
-const refReceipt = ref()
+const refReceiptForm = ref()
 
 onMounted(async () => {
     console.log('Receipts onMounted')
@@ -49,19 +51,19 @@ onUnmounted(() => {
     console.log('Receipts onUnmounted')
 })
 const addComp = () => {
-    refReceipt.value.show(props.userExpense)
+    refReceiptForm.value.show(props.userExpense.expName)
 }
 const viewComp = (cp) => {
-    refReceipt.value.show(props.userExpense, cp)
+    refReceiptForm.value.show(props.userExpense.expName, cp)
 }
 const toggleValidation = (cp) => {
     console.log('toggleValidation:', cp)
     emit('onCheck', cp)
 }
 
-watch(() => props.userExpense, (newExp, oldExp) => {
-    console.log('watch userExpense:', newExp, oldExp)
-}, { deep: true })
+watch(() => props.userExpense, (newVal) => {
+    console.log('watch Receipts userExpense:', newVal)
+})
 </script>
 
 <style scoped>

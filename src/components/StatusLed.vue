@@ -33,7 +33,7 @@ const evalColor = (st) => {
             col = 'green'
             break
     }
-    const cc = `radial-gradient( farthest-corner at -5px -5px,white 30%, ${col}  70% )`
+    const cc = `radial-gradient( farthest-corner at -5px -5px,white 20%, ${col}  70% )`
     color.value = cc
 }
 
@@ -47,7 +47,7 @@ watch(() => props.status, (newStatus) => {
 .ledFrame {
     position: relative;
     border-radius: 50%;
-    border: 1px solid black;
+    /*border: 1px solid black;*/
     box-shadow: 1px 1px 3px black;
     width: 20px !important;
     height: 20px !important;

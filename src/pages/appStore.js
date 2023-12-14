@@ -17,6 +17,7 @@ const state = reactive({
     selExpense: undefined,
     expenses: undefined,
     selUserExpense: undefined,
+    selUserReceipts: undefined,
     userExpenses: undefined,
     detailsByExp: undefined,
     expensesByUnit: undefined,
@@ -79,6 +80,10 @@ const set = {
         console.log('store set.selUserExpense:', o)
         state.selUserExpense = o
     },
+    selUserReceipts (o) {
+        console.log('store set.selUserReceipts:', o)
+        state.selUserReceipts = o
+    },
     units (u) {
         console.log('store units:', u)
         state.units = u
@@ -111,6 +116,10 @@ const set = {
             return e
         })
         state.expensesByUnit = exps
+        if (state.selUserExpense) {
+            const fndExp = exps.find(x => x.id === state.selUserExpense.id)
+            set.selUserExpense(fndExp)
+        }
     },
     tickets (tks) {
         console.log('store tickets:', tks)
@@ -138,25 +147,25 @@ const actions = {
             set.unsubListeners({ us_expensesByUnit: us })
         },
         async getReceiptsByExp () {
-            console.log('store getReceiptsByExp: ', state.selExpense.id)
-            const res = await fb.getCollectionFlex('receipts', { field: 'idUsrExp', op: '==', val: state.selExpense.id })
-            set.selExpense({ ...state.selExpense, receipts: res })
+            console.log('store getReceiptsByExp: ', state.selUserExpense.id)
+            const res = await fb.getCollectionFlex('receipts', { field: 'idUsrExp', op: '==', val: state.selUserExpense.id })
+            set.selUserReceipts(res)
         },
-        async saveComp (expId, comp, file) {
+        async saveComp (comp, file) {
             console.log('store saveComp:', comp)
             try {
                 ui.actions.showLoading()
                 if (file) {
-                    const folder = `expenses/attachments/${state.selUnit.id}/${expId}/${file.name}`
+                    const folder = `expenses/attachments/${state.selUnit.id}/${state.selUserExpense.id}/${file.name}`
                     console.log('sto folder:', folder)
                     const url = await fb.uploadFile(file, folder)
                     comp.attachmentUrl = url
                 }
-                comp.idUsrExp = expId
+                comp.idUsrExp = state.selUserExpense.id
                 comp.amount = Number(comp.amount)
+
                 let id = comp.id
                 if (!comp.id) id = new Date().getTime().toString()
-
                 await fb.setDocument('receipts', comp, id)
 
                 // await fb.transaction(async (transaction) => {
@@ -206,47 +215,41 @@ const actions = {
             await actions.userExpenses.getReceiptsByExp()
             console.log('toggle validation receipt:', cp)
         },
-        async updateUserExpense (flag) {
-            const exp = { ...state.selExpense }
-            exp.isValid = flag
-            await fb.setDocument('userExpenses', exp, exp.id)
-            console.log('toggle validation userExpense:', exp)
-        }
-    },
-    tickets: {
-        async getTickets () {
-            const path = 'tickets'
-            const tks = await fb.getCollection(path)
-            console.log('store getTickets:', tks)
-            set.tickets(tks)
-        },
-        async getTicketsByUnit () {
-            const path = 'tickets'
-            const tks = await fb.getCollection(path)
-            console.log('store getTicketByUnit:', tks)
-            return tks
-        },
-        async save (tk, file) {
-            console.log('store saveTicket:', tk)
-            ui.actions.showLoading()
-            if (file) {
-                const folder = `tickets/attachments/${file.name}`
-                console.log('sto folder:', folder)
-                const url = await fb.uploadFile(file, folder)
-                tk.attachmentUrl = url
+        tickets: {
+            async getTickets () {
+                const path = 'tickets'
+                const tks = await fb.getCollection(path)
+                console.log('store getTickets:', tks)
+                set.tickets(tks)
+            },
+            async getTicketsByUnit () {
+                const path = 'tickets'
+                const tks = await fb.getCollection(path)
+                console.log('store getTicketByUnit:', tks)
+                return tks
+            },
+            async save (tk, file) {
+                console.log('store saveTicket:', tk)
+                ui.actions.showLoading()
+                if (file) {
+                    const folder = `tickets/attachments/${file.name}`
+                    console.log('sto folder:', folder)
+                    const url = await fb.uploadFile(file, folder)
+                    tk.attachmentUrl = url
+                }
+                tk.amount = Number(tk.amount)
+                tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
+                const id = tk.id || tk.datetime.toString()
+                console.log('save ticket:', id)
+                await fb.setDocument('tickets', tk, id)
+                ui.actions.hideLoading()
+            },
+            async remove (tk) {
+                console.log('store removeTicket:', tk.id)
+                ui.actions.showLoading()
+                await fb.deleteDocument('tickets', tk.id)
+                ui.actions.hideLoading()
             }
-            tk.amount = Number(tk.amount)
-            tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-            const id = tk.id || tk.datetime.toString()
-            console.log('save ticket:', id)
-            await fb.setDocument('tickets', tk, id)
-            ui.actions.hideLoading()
-        },
-        async remove (tk) {
-            console.log('store removeTicket:', tk.id)
-            ui.actions.showLoading()
-            await fb.deleteDocument('tickets', tk.id)
-            ui.actions.hideLoading()
         }
     },
     admin: {
@@ -286,15 +289,20 @@ const actions = {
                 set.unsubListeners({ us_userExpenses: us })
             }
         },
-        // async getDetailsByExp () {
-        //    const details = await fb.getCollectionFlex('details', { field: 'idExp', val: state.selExpense.id })
-        //    set.detailsByExp(details)
-        // },
         async getPendingTickets () {
             const path = 'tickets'
             const tks = await fb.getCollectionFlex(path, { field: 'checked', val: false })
             console.log('store getPendingTickets:', tks)
             set.pendingTickets(tks)
+        },
+        async generateExpense () {
+            const pdfDefinition = definePDF(state.detailsByExp)
+            const base64 = await pdfSrv.generate(pdfDefinition)
+            const file = base64ToFile(base64, `ExpensaTN_${state.selExpense.id}.pdf`)
+            const folder = `expenses/${file.name}`
+            console.log('sto folder:', folder)
+            const url = await fb.uploadFile(file, folder)
+            return url
         },
         async updateExpense (o) {
             console.log('store updateExpense:', o)
@@ -329,9 +337,11 @@ const actions = {
             }
         },
         async downloadExpense () {
-            const pdfDefinition = definePDF(state.detailsByExp)
-            const base64 = await pdfSrv.generate(pdfDefinition)
-            pdfSrv.download(`ExpTN_${state.selExpense.id}`, base64)
+            if (state.selExpense.pdfUrl) {
+                window.open(state.selExpense.pdfUrl, 'blank')
+            } else {
+                ui.actions.notify('No existe el archivo de expensa!', 'error')
+            }
         },
         async saveDetail (item) {
             await fb.setDocument('details', item, item.id)
@@ -339,17 +349,17 @@ const actions = {
     },
     unsubscribeListeners (key) {
         console.log('store unsubscribeListeners:', key)
-        if (!key) {
-            Object.keys(state.unsubListeners).forEach(k => state.unsubListeners[k]())
-            state.unsubListeners = {}
-        } else {
-            const unsub = state.unsubListeners[key]
-            if (unsub) {
-                unsub()
-                delete state.unsubListeners[key]
-                console.log('store set.unsubListeners:', state.unsubListeners)
-            }
-        }
+        // if (!key) {
+        //    Object.keys(state.unsubListeners).forEach(k => state.unsubListeners[k]())
+        //    state.unsubListeners = {}
+        // } else {
+        //    const unsub = state.unsubListeners[key]
+        //    if (unsub) {
+        //        unsub()
+        //        delete state.unsubListeners[key]
+        //        console.log('store set.unsubListeners:', state.unsubListeners)
+        //    }
+        // }
     },
     evalExpName (expId) {
         const year = expId.substr(0, 2)
@@ -423,6 +433,16 @@ const sortArray = (arr, key, dir) => {
 }
 async function definePDF (definition) {
     return pdfGenerator
+}
+function base64ToFile (base64, filename) {
+    const binaryString = window.atob(base64)
+    const len = binaryString.length
+    const bytes = new Uint8Array(len)
+    for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i)
+    }
+    const blob = new Blob([bytes], { type: 'application/pdf' })
+    return new File([blob], filename, { type: 'application/pdf' })
 }
 //    async createLotesCol() {
 //    for (let index = 1; index <= 48; index++) {

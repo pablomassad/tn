@@ -112,7 +112,8 @@ const distributeExpense = (exp) => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere cerrar y distribuir esta expensa?'
     onAcceptDialog.value = async () => {
-        await appStore.actions.admin.updateExpense({ deployed: moment().format('DD/MM/YY') })
+        const url = await appStore.actions.admin.generateExpense()
+        await appStore.actions.admin.updateExpense({ pdfUrl: url, deployed: moment().format('DD/MM/YY') })
         showConfirm.value = false
     }
     onCancelDialog.value = () => {
