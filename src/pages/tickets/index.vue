@@ -9,7 +9,7 @@
                 <div class="precio">Saldo</div>
                 <div class="centro">Ver</div>
                 <div class="centro">Estado</div>
-                <div class="centro">Referente</div>
+                <div class="texto">Referente</div>
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="rowTicket">
@@ -44,7 +44,6 @@ import appStore from 'src/pages/appStore'
 import moment from 'moment'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
-import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
 
@@ -55,7 +54,7 @@ console.log('Tickets CONSTRUCTOR ################')
 onMounted(async () => {
     console.log('Tickets onMounted')
     ui.actions.setTitle('Gastos')
-    appStore.actions.tickets.getTickets()
+    appStore.actions.tickets.monitorTickets()
 })
 
 const addTicket = () => {
@@ -81,7 +80,7 @@ const evalStatus = (item) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1100px;
+    max-width: 1090px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -96,9 +95,9 @@ const evalStatus = (item) => {
 
 .rowTicket {
     display: grid;
-    grid-template-columns: 100px 250px 70px 70px 70px 40px 50px 50px 200px;
+    grid-template-columns: 100px 250px 70px 70px 70px 40px 50px 270px;
     align-items: center;
-    width: 1100px;
+    width: 1090px;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;

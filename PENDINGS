@@ -2,16 +2,17 @@
 👍 Se ingresa por seleccion de propietario
 👍 Agregar discriminacion entre ordinaria y extraordinaria
 👍 Agregar discriminacion entre Contable o Terra
-
+👍 Monitoreo en tiempo real de expensas de propietarios
+👍 Corregir comportamiento de expensas de usuarios (no se ve pagina)
 👍 Ordenamiento por concepto de items de detalle
 👍 Carga nuevo detalle sobre un detalle viejo! bug
+👍 Agregar columna Valido con check verde ✅ y X roja 🚫
+
+
 ⏰ Exportacion y bajada a PDF
-👍 Corregir comportamiento de expensas de usuarios (no se ve pagina)
 ⏰ Copia automatica de items ordinarios a proxima expensas
-⏰ Monitoreo en tiempo real de expensas de propietarios
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
 ⏰ Sacar boton de agregar detalle una vez distribuida la expensas
-⏰ Agregar columna Valido con check verde ✅ y X roja 🚫
 ⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
-⏰
+⏰ Ordenamiento por columna en todas las grillas
 

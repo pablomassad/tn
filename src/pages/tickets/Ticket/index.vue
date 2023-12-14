@@ -13,9 +13,9 @@
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
                     </div>
                     <div class="rowRefAmAt">
-                        <q-toggle v-model="isOwner" checked-icon="home" color="blue" unchecked-icon="engineering" :label="isOwnerVal" false-value="Externo" true-value="Propietario" keep-color />
-                        <q-select v-if="isOwner && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" @update:model-value="onSelUnit" class="tnOwners"></q-select>
-                        <q-input v-if="!isOwner" type="text" v-model="tk.referrer" label="Referente externo" />
+                        <q-toggle v-model="tk.refType" checked-icon="home" color="blue" unchecked-icon="engineering" :label="tk.refType" false-value="Externo" true-value="Propietario" keep-color />
+                        <q-select v-if="tk.refType === 'Propietario' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
+                        <q-input v-if="tk.refType === 'Externo'" type="text" v-model="tk.referrer" label="Referente externo" />
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
@@ -59,8 +59,7 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const isOwnerVal = ref('Propietario')
-const isOwner = ref('Propietario')
+const refType = ref('Propietario')
 const localUnit = ref()
 const owners = ref()
 const exp = ref({})
@@ -78,10 +77,18 @@ const dtPicker = reactive({
     selectedDate: '',
     datePickerTitle: ''
 })
+const emptyTicket = {
+    date: moment().format('DD-MM-YYYY'),
+    amount: 0,
+    concept: '',
+    attachmentUrl: '',
+    refType: 'Propietario',
+    referrer: ''
+}
 
 onMounted(async () => {
     console.log('TICKET onMounted')
-    await appStore.actions.getUnits()
+    if (!appStore.state.units) { await appStore.actions.getUnits() }
 })
 const filterFn = (val, update) => {
     if (val === '') {
@@ -95,9 +102,6 @@ const filterFn = (val, update) => {
         owners.value = appStore.state.units.filter(item => item.ownerNames.toLowerCase().indexOf(needle) > -1)
     })
 }
-const onSelUnit = (e) => {
-    console.log(e.id)
-}
 const save = async () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
@@ -106,7 +110,13 @@ const save = async () => {
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
-        if (localUnit.value) tk.referrer = localUnit.value.ownerNames
+        if (tk.refType === 'Propietario') {
+            if (!localUnit.value) {
+                ui.actions.notify('Debe seleccionar un propietario o cambiar de tipo', 'error')
+            } else {
+                tk.referrer = localUnit.value.ownerNames
+            }
+        }
         await appStore.actions.tickets.save(tk, attFile.value)
         showConfirm.value = false
         onClose()
@@ -155,13 +165,10 @@ const onClose = () => {
 }
 const show = async (t) => {
     showForm.value = true
-    if (t) {
-        tk.id = t.id
-        tk.date = t.date
-        tk.concept = t.concept
-        tk.amount = t.amount
-        tk.attachmentUrl = t.attachmentUrl
-        tk.checked = t.checked
+    const o = t || emptyTicket
+    Object.assign(tk, o)
+    if (o.refType === 'Propietario') {
+        localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
 }
 

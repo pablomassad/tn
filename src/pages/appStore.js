@@ -138,13 +138,15 @@ const actions = {
     userExpenses: {
         async monitorExpensesByUnit () {
             console.log('store monitorExpensesByUnit')
-            const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idUnit', op: '==', val: state.selUnit.id }])
-            const us = fb.onSnapshot(colRef, (querySnapshot) => {
-                const docs = querySnapshot.docs
-                const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
-                set.expensesByUnit(exps)
-            })
-            set.unsubListeners({ us_expensesByUnit: us })
+            if (!state.unsubListeners.us_expensesByUnit) {
+                const colRef = fb.getCollectionRefQuery('userExpenses', [{ field: 'idUnit', op: '==', val: state.selUnit.id }])
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
+                    const docs = querySnapshot.docs
+                    const exps = docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    set.expensesByUnit(exps)
+                })
+                set.unsubListeners({ us_expensesByUnit: us })
+            }
         },
         async getReceiptsByExp () {
             console.log('store getReceiptsByExp: ', state.selUserExpense.id)
@@ -214,42 +216,52 @@ const actions = {
             await fb.setDocument('receipts', cp, cp.id)
             await actions.userExpenses.getReceiptsByExp()
             console.log('toggle validation receipt:', cp)
-        },
-        tickets: {
-            async getTickets () {
-                const path = 'tickets'
-                const tks = await fb.getCollection(path)
-                console.log('store getTickets:', tks)
-                set.tickets(tks)
-            },
-            async getTicketsByUnit () {
-                const path = 'tickets'
-                const tks = await fb.getCollection(path)
-                console.log('store getTicketByUnit:', tks)
-                return tks
-            },
-            async save (tk, file) {
-                console.log('store saveTicket:', tk)
-                ui.actions.showLoading()
-                if (file) {
-                    const folder = `tickets/attachments/${file.name}`
-                    console.log('sto folder:', folder)
-                    const url = await fb.uploadFile(file, folder)
-                    tk.attachmentUrl = url
-                }
-                tk.amount = Number(tk.amount)
-                tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
-                const id = tk.id || tk.datetime.toString()
-                console.log('save ticket:', id)
-                await fb.setDocument('tickets', tk, id)
-                ui.actions.hideLoading()
-            },
-            async remove (tk) {
-                console.log('store removeTicket:', tk.id)
-                ui.actions.showLoading()
-                await fb.deleteDocument('tickets', tk.id)
-                ui.actions.hideLoading()
+        }
+    },
+    tickets: {
+        async monitorTickets () {
+            console.log('store monitorTickets')
+            if (!state.unsubListeners.us_tickets) {
+                const colRef = fb.getCollectionRef('tickets')
+                const us = fb.onSnapshot(colRef, (querySnapshot) => {
+                    const docs = querySnapshot.docs
+                    const tks = docs.map(doc => ({ id: doc.id, ...doc.data() }))
+                    set.tickets(tks)
+                })
+                set.unsubListeners({ us_tickets: us })
             }
+        },
+        async getTickets () {
+            console.log('store getTickets')
+            const res = await fb.getCollection('tickets')
+            set.tickets(res)
+        },
+        async getTicketsByUnit () {
+            const path = 'tickets'
+            const tks = await fb.getCollection(path)
+            console.log('store getTicketByUnit:', tks)
+            return tks
+        },
+        async save (tk, file) {
+            console.log('store saveTicket:', tk)
+            ui.actions.showLoading()
+            if (file) {
+                const folder = `tickets/attachments/${file.name}`
+                console.log('sto folder:', folder)
+                const url = await fb.uploadFile(file, folder)
+                tk.attachmentUrl = url
+            }
+            tk.amount = Number(tk.amount)
+            tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
+            const id = tk.id || tk.datetime.toString()
+            await fb.setDocument('tickets', tk, id)
+            ui.actions.hideLoading()
+        },
+        async remove (tk) {
+            console.log('store removeTicket:', tk.id)
+            ui.actions.showLoading()
+            await fb.deleteDocument('tickets', tk.id)
+            ui.actions.hideLoading()
         }
     },
     admin: {
@@ -351,13 +363,6 @@ const actions = {
             await fb.setDocument('details', item, item.id)
         }
     },
-    tickets: {
-        async getTickets () {
-            console.log('store getTickets')
-            const res = await fb.getCollection('tickets')
-            set.tickets(res)
-        }
-    },
     unsubscribeListeners (key) {
         console.log('store unsubscribeListeners:', key)
         // if (!key) {
@@ -400,10 +405,8 @@ const actions = {
         set.settings(cfg)
     },
     async getUnits () {
-        if (!state.units) {
-            const units = await fb.getCollection('units')
-            set.units(units)
-        }
+        const units = await fb.getCollection('units')
+        set.units(units)
     },
     async updateLoginInfoUnit (pwd) {
         console.log('store updateLoginInfoUnit')

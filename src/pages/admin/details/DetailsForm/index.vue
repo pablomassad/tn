@@ -101,11 +101,6 @@ const remove = () => {
 const onClose = () => {
     showForm.value = false
 }
-const show = async (det) => {
-    showForm.value = true
-    const o = det || emptyDetail
-    Object.assign(detail, o)
-}
 const selectFecha = () => {
     dtPicker.selectedDate = detail.date
     showFecha.value = true
@@ -115,6 +110,11 @@ const onFechaOKClick = () => {
     detail.date = dtPicker.selectedDate
         ? dtPicker.selectedDate
         : detail.date
+}
+const show = async (det) => {
+    showForm.value = true
+    const o = det || emptyDetail
+    Object.assign(detail, o)
 }
 
 defineExpose({ show })
