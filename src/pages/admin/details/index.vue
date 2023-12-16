@@ -61,7 +61,7 @@
                 <div></div>
                 <!--<div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(1) }}</div>-->
                 <div class="precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
-                <q-btn glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
+                <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>
         <DetailsForm ref="refDetailsForm"></DetailsForm>

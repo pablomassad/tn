@@ -15,6 +15,7 @@
                 <div>Expensa</div>
                 <div class="precio">Importe</div>
                 <div class="precio">Interes</div>
+                <div class="precio">A cuenta</div>
                 <div class="precio">Pagado</div>
                 <div class="precio">Saldo</div>
                 <div class="centro">Descargar</div>
@@ -27,6 +28,7 @@
                     <div>{{ item.expName }}</div>
                     <div class="precio">{{ item.amount.toFixed(1) }}</div>
                     <div class="precio">{{ item.interest.toFixed(1) }}</div>
+                    <div class="precio">{{ item.credit?.toFixed(1) }}</div>
                     <div class="precio">{{ item.paid?.toFixed(1) }}</div>
                     <div class="precio">{{ item.balance.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
@@ -43,24 +45,18 @@
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
-import { useRouter } from 'vue-router'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from 'src/components/Receipts.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 
-const router = useRouter()
 const showDetails = ref({})
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
     console.log('UserExpense onMounted')
-    if (!appStore.state.selUnit) {
-        router.push('/login')
-    } else {
-        appStore.actions.userExpenses.monitorExpensesByUnit()
-    }
+    appStore.actions.userExpenses.monitorExpensesByUnit()
 })
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_expensesByUnit')
@@ -120,7 +116,7 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 
 .matrix {
     background-color: white;
-    max-width: 830px;
+    max-width: 910px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -129,9 +125,9 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 70px 90px 40px 40px;
+    grid-template-columns: 110px 80px 70px 70px 70px 70px 70px 90px 40px 40px;
     align-items: center;
-    width: 830px;
+    width: 910px;
     column-gap: 20px;
     padding: 0 15px;
     border-bottom: 1px solid gray;

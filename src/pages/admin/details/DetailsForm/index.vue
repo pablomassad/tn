@@ -20,7 +20,6 @@
                         <q-toggle v-model="detail.isExtra" checked-icon="star" color="green" unchecked-icon="description" :label="detail.isExtra" false-value="Ordinaria" true-value="Extraordinaria" keep-color />
                         <q-toggle v-model="detail.isCont" checked-icon="account_balance" color="blue" unchecked-icon="attach_money" :label="detail.isCont" false-value="Terra" true-value="Contable" keep-color />
                     </div>
-                    <!--<q-input v-model="detail.comment" filled type="textarea" label="Comentario" class="description" />-->
                 </div>
             </template>
             <template #footer>

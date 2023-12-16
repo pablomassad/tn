@@ -29,7 +29,11 @@ onMounted(() => {
 watch(() => main.state.info, async (newVal, oldVal) => {
     console.log('watch main.state.info...', newVal)
     await appStore.actions.getSettings()
-    router.push(newVal.tool)
+    if (!appStore.state.selUnit) {
+        router.push('/login')
+    } else {
+        router.push(newVal.tool)
+    }
 })
 </script>
 

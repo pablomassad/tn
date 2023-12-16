@@ -12,14 +12,68 @@
                         <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" readonly />
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
                     </div>
-                    <div class="rowRefAmAt">
-                        <q-toggle v-model="tk.refType" checked-icon="home" color="blue" unchecked-icon="engineering" :label="tk.refType" false-value="Externo" true-value="Propietario" keep-color />
-                        <q-select v-if="tk.refType === 'Propietario' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
-                        <q-input v-if="tk.refType === 'Externo'" type="text" v-model="tk.referrer" label="Referente externo" />
+                    <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
+                        <div>
+                            <q-btn-toggle v-model="tk.refType" push rounded glossy toggle-color="purple" :options="[
+                                {value: 'Terra', slot: 'one'},
+                                {value: 'Prop', slot: 'two'}
+                            ]" size="sm">
+                                <template v-slot:one>
+                                    <div class="row items-center no-wrap">
+                                        <div class="text-center">
+                                            TERRA
+                                        </div>
+                                        <q-icon right name="home" />
+                                    </div>
+                                </template>
+                                <template v-slot:two>
+                                    <div class="row items-center no-wrap">
+                                        <div class="text-center">
+                                            PROP
+                                        </div>
+                                        <q-icon right name="person" />
+                                    </div>
+                                </template>
+                            </q-btn-toggle>
+                        </div>
+                        <q-select v-if="tk.refType === 'Prop' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
+                        <div v-if="tk.refType === 'Terra'"></div>
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
                     </div>
+                    <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
+                        <div></div>
+                        <div></div>
+                        <!--<q-input v-if="appStore.state.selUnit.role === 'admin' && tk.refType === 'TERRA'" type="text" v-model="tk.referrer" label="Referente" readonly />-->
+                        <q-input type="number" v-model="tk.amount" label="Importe pagado" />
+                        <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
+                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
+                    </div>
+                    <div class="grdPayOps">
+                        <q-btn-toggle v-model="tk.payType" push rounded glossy toggle-color="purple" :options="[
+                            {value: 'one', slot: 'one'},
+                            {value: 'two', slot: 'two'}
+                        ]" size="sm" :style="{marginTop: (!appStore.state.selUnit.role) ? '-90px' : '0px', justifySelf: 'end'}">
+                            <template v-slot:one>
+                                <div class="row items-center no-wrap">
+                                    <div class="text-center">
+                                        A CTA
+                                    </div>
+                                    <q-icon right name="home" />
+                                </div>
+                            </template>
+                            <template v-slot:two>
+                                <div class="row items-center no-wrap">
+                                    <div class="text-center">
+                                        EFVO
+                                    </div>
+                                    <q-icon right name="attach_money" />
+                                </div>
+                            </template>
+                        </q-btn-toggle>
+                    </div>
+                    <ReceiptsTerra :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selTicketReceipts" />
                 </div>
             </template>
             <template #footer>
@@ -50,6 +104,7 @@ import appStore from 'src/pages/appStore'
 import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
+import ReceiptsTerra from 'src/components/ReceiptFormTerra.vue'
 import { ui } from 'fwk-q-ui'
 
 const refAttachment = ref()
@@ -59,7 +114,6 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const refType = ref('Propietario')
 const localUnit = ref()
 const owners = ref()
 const exp = ref({})
@@ -69,8 +123,8 @@ const tk = reactive({
     date: moment().format('DD-MM-YYYY'),
     amount: 0,
     attachmentUrl: '',
-    comment: '',
-    checked: false
+    paid: 0,
+    balance: 0
 })
 const showFecha = ref(false)
 const dtPicker = reactive({
@@ -81,8 +135,10 @@ const emptyTicket = {
     date: moment().format('DD-MM-YYYY'),
     amount: 0,
     concept: '',
+    paid: 0,
+    balance: 0,
     attachmentUrl: '',
-    refType: 'Propietario',
+    refType: 'Prop',
     referrer: ''
 }
 
@@ -106,11 +162,10 @@ const save = async () => {
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
     onAcceptDialog.value = async () => {
-        if (!tk.comment) tk.comment = ''
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
-        if (tk.refType === 'Propietario') {
+        if (tk.refType === 'Prop') {
             if (!localUnit.value) {
                 ui.actions.notify('Debe seleccionar un propietario o cambiar de tipo', 'error')
             } else {
@@ -167,7 +222,7 @@ const show = async (t) => {
     showForm.value = true
     const o = t || emptyTicket
     Object.assign(tk, o)
-    if (o.refType === 'Propietario') {
+    if (o.refType === 'Prop') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
 }
@@ -185,6 +240,11 @@ defineExpose({ show })
 </script>
 
 <style scoped>
+.grdPayOps {
+    display: grid;
+    margin-top: 20px;
+}
+
 .viewFrame {
     position: absolute;
     top: 0;
@@ -234,7 +294,7 @@ defineExpose({ show })
 
 .rowConDt {
     display: grid;
-    grid-template-columns: 150px 1fr;
+    grid-template-columns: 190px 1fr;
     align-items: baseline;
     column-gap: 30px;
 }
@@ -242,7 +302,7 @@ defineExpose({ show })
 .rowRefAmAt {
     display: grid;
     align-items: center;
-    grid-template-columns: 150px 1fr 120px 150px;
+    grid-template-columns: 190px 1fr 120px 150px;
     column-gap: 20px;
 }
 
