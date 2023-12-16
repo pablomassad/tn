@@ -12,7 +12,12 @@
                 <div class="rowText">Gastos</div>
             </div>
             <q-separator />
-            <div v-if="appStore.state.master">
+            <div class="menuRow" @click="gotoReports()">
+                <q-icon name="checklist" class="iconMenu" />
+                <div class="rowText">Resumenes Liquidación</div>
+            </div>
+            <q-separator />
+            <div v-if="appStore.state.selUnit.role === 'admin'">
                 <div class="menuRow" @click="gotoAdmin()">
                     <q-icon name="admin_panel_settings" class="iconMenu" />
                     <div class="rowText">Administración</div>
@@ -64,6 +69,9 @@ const gotoTickets = () => {
 }
 const gotoAdmin = () => {
     router.push('/admin')
+}
+const gotoReports = () => {
+    router.push('/reports')
 }
 const searchUpdates = () => {
     if (ENVIRONMENTS.versionName < appStore.state.settings.version || !main.state.isMobile) {

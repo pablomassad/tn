@@ -7,19 +7,19 @@
 👍 Ordenamiento por concepto de items de detalle
 👍 Carga nuevo detalle sobre un detalle viejo! bug
 👍 Agregar columna Valido con check verde ✅ y X roja 🚫
+👍 No funciona Salir de sesion (no vuelve al login)
+👍 Agregar Perfiles en DB
+👍 Sacar boton de agregar detalle una vez distribuida la expensas
 
-
-⏰ No funciona Salir de sesion (no vuelve al login)
-⏰ Agregar Perfiles en DB
 ⏰ Exportacion y bajada a PDF
 ⏰ Copia automatica de items ordinarios a proxima expensas
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
-⏰ Sacar boton de agregar detalle una vez distribuida la expensas
 ⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
 ⏰ Armar otra expensa PDF de Resumen de liquidacion (de todos)
 ⏰ Ordenamiento por columna en todas las grillas
 
-⏰ Tickets: Agregar opcion de Pago a Cuenta o Efvo
+⏰ Tickets: Si el tk.refferer = TERRA => payType = CASH
+ ⏰ Tickets: Si el tk.refferer = PROP => payType = CREDIT
 ⏰ Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
 ⏰ Tickets: Armar formulario contextual al perfil
      (propietario carga por defecto su nombre)

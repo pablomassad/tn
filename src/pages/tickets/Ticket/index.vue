@@ -14,10 +14,10 @@
                     </div>
                     <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
                         <div>
-                            <q-btn-toggle v-model="tk.refType" push rounded glossy toggle-color="purple" :options="[
-                                {value: 'Terra', slot: 'one'},
-                                {value: 'Prop', slot: 'two'}
-                            ]" size="sm">
+                            <q-btn-toggle v-model="tk.refType" push rounded toggle-color="primary" :options="[
+                                {value: 'TERRA', slot: 'one'},
+                                {value: 'PROP', slot: 'two'}
+                            ]" size="md">
                                 <template v-slot:one>
                                     <div class="row items-center no-wrap">
                                         <div class="text-center">
@@ -36,25 +36,24 @@
                                 </template>
                             </q-btn-toggle>
                         </div>
-                        <q-select v-if="tk.refType === 'Prop' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
-                        <div v-if="tk.refType === 'Terra'"></div>
+                        <q-select v-if="tk.refType === 'PROP' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
+                        <div v-if="tk.refType === 'TERRA'" class="subject">TerraNostra S.A.</div>
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
-                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
+                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
                     </div>
                     <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
                         <div></div>
-                        <div></div>
-                        <!--<q-input v-if="appStore.state.selUnit.role === 'admin' && tk.refType === 'TERRA'" type="text" v-model="tk.referrer" label="Referente" readonly />-->
+                        <div class="subject">{{ tk.referrer }}</div>
                         <q-input type="number" v-model="tk.amount" label="Importe pagado" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
-                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Ver ticket</q-btn>
+                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
                     </div>
-                    <div class="grdPayOps">
-                        <q-btn-toggle v-model="tk.payType" push rounded glossy toggle-color="purple" :options="[
-                            {value: 'one', slot: 'one'},
-                            {value: 'two', slot: 'two'}
-                        ]" size="sm" :style="{marginTop: (!appStore.state.selUnit.role) ? '-90px' : '0px', justifySelf: 'end'}">
+                    <!--<div class="grdPayOps">
+                        <q-btn-toggle v-model="tk.payType" push rounded toggle-color="primary" :options="[
+                            {value: 'CREDIT', slot: 'one'},
+                            {value: 'CASH', slot: 'two'}
+                        ]" size="md" :style="{marginTop: (!appStore.state.selUnit.role) ? '-90px' : '0px', justifySelf: 'end'}">
                             <template v-slot:one>
                                 <div class="row items-center no-wrap">
                                     <div class="text-center">
@@ -72,7 +71,7 @@
                                 </div>
                             </template>
                         </q-btn-toggle>
-                    </div>
+                    </div>-->
                     <ReceiptsTerra :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selTicketReceipts" />
                 </div>
             </template>
@@ -138,8 +137,9 @@ const emptyTicket = {
     paid: 0,
     balance: 0,
     attachmentUrl: '',
-    refType: 'Prop',
-    referrer: ''
+    refType: 'TERRA',
+    payType: 'CREDIT',
+    referrer: appStore.state.selUnit.ownerNames
 }
 
 onMounted(async () => {
@@ -165,12 +165,14 @@ const save = async () => {
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
-        if (tk.refType === 'Prop') {
+        if (tk.refType === 'PROP') {
             if (!localUnit.value) {
                 ui.actions.notify('Debe seleccionar un propietario o cambiar de tipo', 'error')
             } else {
                 tk.referrer = localUnit.value.ownerNames
             }
+        } else {
+            tk.referrer = 'TerraNostra'
         }
         await appStore.actions.tickets.save(tk, attFile.value)
         showConfirm.value = false
@@ -220,9 +222,9 @@ const onClose = () => {
 }
 const show = async (t) => {
     showForm.value = true
-    const o = t || emptyTicket
+    const o = t || emptyTicket // { ...t, ...emptyTicket }
     Object.assign(tk, o)
-    if (o.refType === 'Prop') {
+    if (o.refType === 'PROP') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
 }
@@ -240,6 +242,11 @@ defineExpose({ show })
 </script>
 
 <style scoped>
+.subject {
+    padding-left: 10px;
+    font-size: 20px;
+}
+
 .grdPayOps {
     display: grid;
     margin-top: 20px;
@@ -294,15 +301,15 @@ defineExpose({ show })
 
 .rowConDt {
     display: grid;
-    grid-template-columns: 190px 1fr;
-    align-items: baseline;
+    grid-template-columns: 200px 1fr;
+    align-items: end;
     column-gap: 30px;
 }
 
 .rowRefAmAt {
     display: grid;
-    align-items: center;
-    grid-template-columns: 190px 1fr 120px 150px;
+    align-items: end;
+    grid-template-columns: 200px 1fr 120px 150px;
     column-gap: 20px;
 }
 
