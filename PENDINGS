@@ -11,20 +11,28 @@
 👍 Agregar Perfiles en DB
 👍 Sacar boton de agregar detalle una vez distribuida la expensas
 
+
+ADMIN:
 ⏰ Exportacion y bajada a PDF
 ⏰ Copia automatica de items ordinarios a proxima expensas
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
-⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
-⏰ Armar otra expensa PDF de Resumen de liquidacion (de todos)
-⏰ Ordenamiento por columna en todas las grillas
 
-⏰ Tickets: Si el tk.refferer = TERRA => payType = CASH
- ⏰ Tickets: Si el tk.refferer = PROP => payType = CREDIT
+
+USEREXPENSES:
+⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
+⏰ Ordenamiento por columna en todas las grillas
+⏰ UserExpenses: Agregar columnas (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
+
+
+TICKETS:
+⏰ Tickets: Si el tk.referrer = TERRA => payType = CASH
+ ⏰ Tickets: Si el tk.referrer = PROP => payType = CREDIT
 ⏰ Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
 ⏰ Tickets: Armar formulario contextual al perfil
      (propietario carga por defecto su nombre)
      (admistrador carga combo propietarios o TERRA)
 
-⏰ UserExpenses: Agregar columnas (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
 
+RESUMENES LIQUIDACION
+⏰ Armar otra expensa PDF de Resumen de liquidacion (de todos)
 ⏰ Agregar opcion al propietario para ver historico de Resumenes de liquidacion

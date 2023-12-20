@@ -5,12 +5,12 @@
         </div>
         <div class="matrix">
             <div class="rowDetail encabezado">
-                <div class="texto">Concepto</div>
-                <div class="texto">Descripcion</div>
-                <div class="precio">Importe</div>
-                <div class="central">Fecha</div>
-                <div class="texto">Forma de pago</div>
-                <div class="central">Cont</div>
+                <div class="texto" @click="sortCol('concept')">Concepto</div>
+                <div class="texto" @click="sortCol('description')">Descripcion</div>
+                <div class="precio" @click="sortCol('amount')">Importe</div>
+                <div class="central" @click="sortCol('date')">Fecha</div>
+                <div class="texto" @click="sortCol('payMode')">Forma de pago</div>
+                <div class="central" @click="sortCol('iscont')">Cont</div>
                 <div class="texto"></div>
             </div>
             <div class="detailsList">
@@ -75,8 +75,16 @@ import DetailsForm from './DetailsForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 
 const refDetailsForm = ref()
-
 const expExtraLote = ref(0)
+const sortOrder = ref({
+    expName: 1,
+    total: 1,
+    paid: 1,
+    balance: 1,
+    amountOrdinary: 1,
+    amountExtraordinary: 1,
+    status: 1
+})
 
 onMounted(async () => {
     console.log('Details onMounted', appStore.state.selExpense)
@@ -86,6 +94,10 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_detailsByExp')
 })
+const sortCol = (field) => {
+    sortOrder.value[field] = -sortOrder.value[field]
+    appStore.actions.sortDetails(field, sortOrder.value[field])
+}
 const createItem = () => {
     refDetailsForm.value.show()
 }

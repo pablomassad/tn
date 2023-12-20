@@ -2,18 +2,18 @@
     <div>
         <div class="matrix">
             <div class="rowExpensa encabezado">
-                <div class="celda texto">Expensa</div>
-                <div class="celda precio">Total</div>
-                <div class="celda precio">Pagado</div>
-                <div class="celda precio">Saldo</div>
-                <div class="celda precio lote">Ordinarias</div>
-                <div class="celda precio lote">Extraordinarias</div>
-                <div class="celda precio lote">Total</div>
+                <div class="celda texto" @click="sortCol('expName')">Expensa</div>
+                <div class="celda precio" @click="sortCol('total')">Total</div>
+                <div class="celda precio" @click="sortCol('paid')">Pagado</div>
+                <div class="celda precio" @click="sortCol('balance')">Saldo</div>
+                <div class="celda precio lote" @click="sortCol('amountOrdinary')">Ordinarias</div>
+                <div class="celda precio lote" @click="sortCol('amountExtraordinary')">Extraordinarias</div>
+                <div class="celda precio lote" @click="sortCol('amount')">Total</div>
                 <div class="celda central">Descargar</div>
                 <div class="celda central">Editar</div>
                 <div class="celda central">Detalle</div>
                 <div class="celda central">Enviar</div>
-                <div class="celda central">Estado</div>
+                <div class="celda central" @click="sortCol('status')">Estado</div>
             </div>
             <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
@@ -68,6 +68,16 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
+const sortOrder = ref({
+    expName: 1,
+    total: 1,
+    paid: 1,
+    balance: 1,
+    amountOrdinary: 1,
+    amountExtraordinary: 1,
+    status: 1
+})
+
 onMounted(async () => {
     console.log('Administración OnMounted')
     ui.actions.setTitle('Administración')
@@ -76,6 +86,10 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_expenses')
 })
+const sortCol = (field) => {
+    sortOrder.value[field] = -sortOrder.value[field]
+    appStore.actions.sortExpenses(field, sortOrder.value[field])
+}
 const onSelYear = async (e) => {
     console.log(e.id)
     selYear.value = e

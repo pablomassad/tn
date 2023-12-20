@@ -216,6 +216,10 @@ const actions = {
             await fb.setDocument('receipts', cp, cp.id)
             await actions.userExpenses.getReceiptsByExp()
             console.log('toggle validation receipt:', cp)
+        },
+        sortUserExpenses (field, dir) {
+            const arr = sortArray(state.expensesByUnit, field, dir)
+            set.userExpenses(arr)
         }
     },
     tickets: {
@@ -262,6 +266,10 @@ const actions = {
             ui.actions.showLoading()
             await fb.deleteDocument('tickets', tk.id)
             ui.actions.hideLoading()
+        },
+        sortTickets (field, dir) {
+            const arr = sortArray(state.tickets, field, dir)
+            set.tickets(arr)
         }
     },
     admin: {
@@ -361,6 +369,14 @@ const actions = {
         },
         async saveDetail (item) {
             await fb.setDocument('details', item, item.id)
+        },
+        sortExpenses (field, dir) {
+            const arr = sortArray(state.expenses, field, dir)
+            set.expenses(arr)
+        },
+        sortDetails (field, dir) {
+            const arr = sortArray(state.detailsByExp, field, dir)
+            set.detailsByExp(arr)
         }
     },
     unsubscribeListeners (key) {
@@ -438,7 +454,7 @@ export default {
     actions
 }
 
-const sortArray = (arr, key, dir) => {
+function sortArray (arr, key, dir) {
     const res = arr.sort((a, b) => {
         if (a[key] > b[key]) return 1 * dir
         if (a[key] < b[key]) return -1 * dir

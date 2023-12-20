@@ -2,14 +2,14 @@
     <div>
         <div class="matrix" v-if="appStore.state.tickets">
             <div class="rowTicket encabezado">
-                <div class="centro">Fecha</div>
-                <div class="texto">Concepto</div>
-                <div class="precio">Importe</div>
-                <div class="precio">Pagado</div>
-                <div class="precio">Saldo</div>
+                <div class="centro" @click="sortCol('datetime')">Fecha</div>
+                <div class="texto" @click="sortCol('concept')">Concepto</div>
+                <div class="precio" @click="sortCol('amount')">Importe</div>
+                <div class="precio" @click="sortCol('paid')">Pagado</div>
+                <div class="precio" @click="sortCol('balance')">Saldo</div>
                 <div class="centro">Ver</div>
                 <div class="centro">Estado</div>
-                <div class="texto">Referente</div>
+                <div class="texto" @click="sortCol('referrer')">Referente</div>
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="rowTicket">
@@ -21,10 +21,6 @@
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
                     <StatusLed class="centro" :status="evalStatus(tk)" />
                     <div class="texto">{{ tk.referrer }}</div>
-                    <!--<div class="status" :class="{pagado: tk.checked}">
-                        <q-icon v-if="tk.checked" name="assignment_turned_in" class="btnStatus" color="green"></q-icon>
-                        <q-icon v-if="!tk.checked" name="error_outline" class="btnStatus" color="red"></q-icon>
-                    </div>-->
                 </div>
             </div>
             <!--<div class="rowTicket total">
@@ -48,6 +44,14 @@ import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
 
 const refTicket = ref()
+const sortOrder = ref({
+    datetime: 1,
+    concept: 1,
+    amount: 1,
+    paid: 1,
+    balance: 1,
+    referrer: 1
+})
 
 console.log('Tickets CONSTRUCTOR ################')
 
@@ -56,7 +60,10 @@ onMounted(async () => {
     ui.actions.setTitle('Gastos')
     appStore.actions.tickets.monitorTickets()
 })
-
+const sortCol = (field) => {
+    sortOrder.value[field] = -sortOrder.value[field]
+    appStore.actions.sortTickets(field, sortOrder.value[field])
+}
 const addTicket = () => {
     refTicket.value.show()
 }

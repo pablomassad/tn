@@ -5,14 +5,14 @@
         </div>
         <div class="matrix" v-if="appStore.state.userExpenses">
             <div class="rowDetail encabezado">
-                <div class="texto">Propietarios</div>
-                <div class="precio">Importe</div>
-                <div class="precio">Interes</div>
-                <div class="precio">Pagado</div>
-                <div class="precio">Saldo</div>
+                <div class="texto" @click="sortCol('ownerNames')">Propietarios</div>
+                <div class="precio" @click="sortCol('amout')">Importe</div>
+                <div class="precio" @click="sortCol('interest')">Interes</div>
+                <div class="precio" @click="sortCol('paid')">Pagado</div>
+                <div class="precio" @click="sortCol('balance')">Saldo</div>
                 <div class="central">Detalle</div>
                 <div class="centro">Estado</div>
-                <div class="central">Válido</div>
+                <div class="central" @click="sortCol('isValid')">Válido</div>
             </div>
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
@@ -43,6 +43,15 @@ import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 
 const showDetails = ref({})
+const sortOrder = ref({
+    expName: 1,
+    total: 1,
+    paid: 1,
+    balance: 1,
+    amountOrdinary: 1,
+    amountExtraordinary: 1,
+    status: 1
+})
 
 onMounted(async () => {
     console.log('Monitor Expenses onMounted')
@@ -51,6 +60,10 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_userExpenses')
 })
+const sortCol = (field) => {
+    sortOrder.value[field] = -sortOrder.value[field]
+    appStore.actions.sortDetails(field, sortOrder.value[field])
+}
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
     setTimeout(async () => {
