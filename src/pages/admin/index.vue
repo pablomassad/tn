@@ -54,6 +54,7 @@ import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import moment from 'moment'
+import SortColumn from 'src/components/SortColumn.vue'
 
 const router = useRouter()
 
@@ -181,18 +182,6 @@ const distributeExpense = (exp) => {
 
 .status {
     justify-self: center;
-}
-
-.centro {
-    justify-content: center;
-}
-
-.texto {
-    justify-content: start;
-}
-
-.central {
-    text-align: center;
 }
 
 .total {

@@ -45,14 +45,6 @@ import Ticket from './Ticket/index.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const refTicket = ref()
-const sortOrder = ref({
-    datetime: 1,
-    concept: 1,
-    amount: 1,
-    paid: 1,
-    balance: 1,
-    referrer: 1
-})
 
 console.log('Tickets CONSTRUCTOR ################')
 
@@ -61,10 +53,6 @@ onMounted(async () => {
     ui.actions.setTitle('Gastos')
     appStore.actions.tickets.monitorTickets()
 })
-const sortCol = (field) => {
-    sortOrder.value[field] = -sortOrder.value[field]
-    appStore.actions.sortTickets(field, sortOrder.value[field])
-}
 const addTicket = () => {
     refTicket.value.show()
 }
@@ -146,10 +134,6 @@ const evalStatus = (item) => {
 
 .centro {
     text-align: center;
-}
-
-.texto {
-    text-align: left;
 }
 
 .total {

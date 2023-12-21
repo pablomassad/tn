@@ -43,15 +43,6 @@ import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
 
 const showDetails = ref({})
-const sortOrder = ref({
-    expName: 1,
-    total: 1,
-    paid: 1,
-    balance: 1,
-    amountOrdinary: 1,
-    amountExtraordinary: 1,
-    status: 1
-})
 
 onMounted(async () => {
     console.log('Monitor Expenses onMounted')
@@ -60,10 +51,7 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_userExpenses')
 })
-const sortCol = (field) => {
-    sortOrder.value[field] = -sortOrder.value[field]
-    appStore.actions.sortDetails(field, sortOrder.value[field])
-}
+
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
     setTimeout(async () => {
@@ -196,13 +184,5 @@ const evalStatus = (item) => {
     position: absolute;
     right: 4px;
     bottom: 4px;
-}
-
-.texto {
-    text-align: left;
-}
-
-.central {
-    text-align: center;
 }
 </style>

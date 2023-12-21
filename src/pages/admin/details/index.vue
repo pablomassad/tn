@@ -5,9 +5,13 @@
         </div>
         <div class="matrix">
             <div class="rowDetail encabezado">
-                <div class="texto" @click="sortCol('concept')">Concepto</div>
-                <div class="texto" @click="sortCol('description')">Descripcion</div>
-                <div class="precio" @click="sortCol('amount')">Importe</div>
+                <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto" col="description" label="Descripcion" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="date" label="Fecha" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto" col="payMode" label="Forma de pago" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="isCont" label="Cont" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
+
                 <div class="central" @click="sortCol('date')">Fecha</div>
                 <div class="texto" @click="sortCol('payMode')">Forma de pago</div>
                 <div class="central" @click="sortCol('iscont')">Cont</div>
@@ -73,18 +77,10 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import DetailsForm from './DetailsForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
+import SortColumn from 'src/components/SortColumn.vue'
 
 const refDetailsForm = ref()
 const expExtraLote = ref(0)
-const sortOrder = ref({
-    expName: 1,
-    total: 1,
-    paid: 1,
-    balance: 1,
-    amountOrdinary: 1,
-    amountExtraordinary: 1,
-    status: 1
-})
 
 onMounted(async () => {
     console.log('Details onMounted', appStore.state.selExpense)
@@ -94,10 +90,6 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_detailsByExp')
 })
-const sortCol = (field) => {
-    sortOrder.value[field] = -sortOrder.value[field]
-    appStore.actions.sortDetails(field, sortOrder.value[field])
-}
 const createItem = () => {
     refDetailsForm.value.show()
 }
@@ -206,13 +198,5 @@ watch(() => expExtraLote.value, (newVal) => {
     position: absolute;
     right: 4px;
     bottom: 4px;
-}
-
-.texto {
-    text-align: left;
-}
-
-.central {
-    text-align: center;
 }
 </style>
