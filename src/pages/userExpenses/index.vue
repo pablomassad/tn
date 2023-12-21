@@ -13,15 +13,15 @@
         <div class="matrix">
             <div class="rowExpensa encabezado">
                 <div>Expensa</div>
-                <div class="precio" @click="sortCol('amount')">Importe</div>
-                <div class="precio" @click="sortCol('interest')">Interes</div>
-                <div class="precio" @click="sortCol('credit')">A cuenta</div>
-                <div class="precio" @click="sortCol('paid')">Pagado</div>
-                <div class="precio" @click="sortCol('balance')">Saldo</div>
+                <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="interest" label="Interes" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="credit" label="A cuenta" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <div class="centro">Descargar</div>
                 <div class="centro">Comprobantes</div>
                 <div class="centro">Estado</div>
-                <div class="centro" @click="sortCol('isValid')">Vâlido</div>
+                <SortColumn class="precio" col="isValid" label="Válido" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="rowExpensa">
@@ -49,18 +49,10 @@ import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from 'src/components/Receipts.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import Validation from 'src/components/Validation.vue'
+import SortColumn from 'src/components/SortColumn.vue'
 import { ui } from 'fwk-q-ui'
 
 const showDetails = ref({})
-const sortOrder = ref({
-    expName: 1,
-    total: 1,
-    paid: 1,
-    balance: 1,
-    amountOrdinary: 1,
-    amountExtraordinary: 1,
-    status: 1
-})
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
@@ -70,10 +62,6 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_expensesByUnit')
 })
-const sortCol = (field) => {
-    sortOrder.value[field] = -sortOrder.value[field]
-    appStore.actions.userExpenses.sortUserExpenses(field, sortOrder.value[field])
-}
 const evalStatus = (item) => {
     let st = 'pending'
     if (item.amount !== item.balance) {
@@ -169,10 +157,6 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 
 .centro {
     text-align: center;
-}
-
-.precio {
-    text-align: right;
 }
 
 .interes {

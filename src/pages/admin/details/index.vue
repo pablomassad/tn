@@ -208,10 +208,6 @@ watch(() => expExtraLote.value, (newVal) => {
     bottom: 4px;
 }
 
-.precio {
-    text-align: right;
-}
-
 .texto {
     text-align: left;
 }

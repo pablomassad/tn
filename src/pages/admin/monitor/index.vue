@@ -198,10 +198,6 @@ const evalStatus = (item) => {
     bottom: 4px;
 }
 
-.precio {
-    text-align: right;
-}
-
 .texto {
     text-align: left;
 }

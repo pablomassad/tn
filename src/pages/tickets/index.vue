@@ -2,14 +2,14 @@
     <div>
         <div class="matrix" v-if="appStore.state.tickets">
             <div class="rowTicket encabezado">
-                <div class="centro" @click="sortCol('datetime')">Fecha</div>
-                <div class="texto" @click="sortCol('concept')">Concepto</div>
-                <div class="precio" @click="sortCol('amount')">Importe</div>
-                <div class="precio" @click="sortCol('paid')">Pagado</div>
-                <div class="precio" @click="sortCol('balance')">Saldo</div>
+                <SortColumn class="texto" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <div class="centro">Ver</div>
                 <div class="centro">Estado</div>
-                <div class="texto" @click="sortCol('referrer')">Referente</div>
+                <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="rowTicket">
@@ -42,6 +42,7 @@ import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import { ui } from 'fwk-q-ui'
 import Ticket from './Ticket/index.vue'
+import SortColumn from 'src/components/SortColumn.vue'
 
 const refTicket = ref()
 const sortOrder = ref({
@@ -102,7 +103,7 @@ const evalStatus = (item) => {
 
 .rowTicket {
     display: grid;
-    grid-template-columns: 100px 250px 70px 70px 70px 40px 50px 270px;
+    grid-template-columns: 100px 250px 73px 73px 73px 40px 50px 270px;
     align-items: center;
     width: 1090px;
     column-gap: 20px;
@@ -145,10 +146,6 @@ const evalStatus = (item) => {
 
 .centro {
     text-align: center;
-}
-
-.precio {
-    text-align: right;
 }
 
 .texto {

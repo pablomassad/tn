@@ -158,10 +158,6 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     text-align: center;
 }
 
-.precio {
-    text-align: right;
-}
-
 .interes {
     text-align: center;
 }

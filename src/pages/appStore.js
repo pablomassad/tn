@@ -10,6 +10,7 @@ import { pdfGenerator } from 'src/pages/generator.js'
 fb.initFirebase(ENVIRONMENTS.firebase)
 
 const state = reactive({
+    activeCol: undefined,
     master: true,
     settings: undefined,
     units: undefined,
@@ -63,6 +64,10 @@ const state = reactive({
     ]
 })
 const set = {
+    activeCol (c) {
+        console.log('store set.activeCol:', c)
+        state.activeCol = c
+    },
     unsubListeners (o) {
         state.unsubListeners = { ...state.unsubListeners, ...o }
         console.log('store set.unsubListeners:', state.unsubListeners)
@@ -217,9 +222,10 @@ const actions = {
             await actions.userExpenses.getReceiptsByExp()
             console.log('toggle validation receipt:', cp)
         },
-        sortUserExpenses (field, dir) {
+        sort (field, dir) {
             const arr = sortArray(state.expensesByUnit, field, dir)
             set.userExpenses(arr)
+            set.activeCol(field)
         }
     },
     tickets: {
@@ -267,9 +273,10 @@ const actions = {
             await fb.deleteDocument('tickets', tk.id)
             ui.actions.hideLoading()
         },
-        sortTickets (field, dir) {
+        sort (field, dir) {
             const arr = sortArray(state.tickets, field, dir)
             set.tickets(arr)
+            set.activeCol(field)
         }
     },
     admin: {

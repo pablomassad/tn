@@ -2,18 +2,18 @@
     <div>
         <div class="matrix">
             <div class="rowExpensa encabezado">
-                <div class="celda texto" @click="sortCol('expName')">Expensa</div>
-                <div class="celda precio" @click="sortCol('total')">Total</div>
-                <div class="celda precio" @click="sortCol('paid')">Pagado</div>
-                <div class="celda precio" @click="sortCol('balance')">Saldo</div>
-                <div class="celda precio lote" @click="sortCol('amountOrdinary')">Ordinarias</div>
-                <div class="celda precio lote" @click="sortCol('amountExtraordinary')">Extraordinarias</div>
-                <div class="celda precio lote" @click="sortCol('amount')">Total</div>
+                <SortColumn class="texto" col="expName" label="Expensa" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="total" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto lote" col="expamountOrdinaryName" label="Ordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto lote" col="amountExtraordinary" label="Extraordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto lote" col="amount" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Descargar</div>
                 <div class="celda central">Editar</div>
                 <div class="celda central">Detalle</div>
                 <div class="celda central">Enviar</div>
-                <div class="celda central" @click="sortCol('status')">Estado</div>
+                <SortColumn class="celda central" col="status" label="Estado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="rowExpensa">
@@ -68,16 +68,6 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const sortOrder = ref({
-    expName: 1,
-    total: 1,
-    paid: 1,
-    balance: 1,
-    amountOrdinary: 1,
-    amountExtraordinary: 1,
-    status: 1
-})
-
 onMounted(async () => {
     console.log('Administración OnMounted')
     ui.actions.setTitle('Administración')
@@ -86,10 +76,6 @@ onMounted(async () => {
 onUnmounted(() => {
     appStore.actions.unsubscribeListeners('us_expenses')
 })
-const sortCol = (field) => {
-    sortOrder.value[field] = -sortOrder.value[field]
-    appStore.actions.sortExpenses(field, sortOrder.value[field])
-}
 const onSelYear = async (e) => {
     console.log(e.id)
     selYear.value = e
@@ -199,10 +185,6 @@ const distributeExpense = (exp) => {
 
 .centro {
     justify-content: center;
-}
-
-.precio {
-    justify-content: end;
 }
 
 .texto {
