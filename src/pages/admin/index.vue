@@ -6,9 +6,9 @@
                 <SortColumn class="precio" col="total" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="texto lote" col="expamountOrdinaryName" label="Ordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="texto lote" col="amountExtraordinary" label="Extraordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="texto lote" col="amount" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio lote" col="expamountOrdinaryName" label="Ordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio lote" col="amountExtraordinary" label="Extraordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio lote" col="amount" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Descargar</div>
                 <div class="celda central">Editar</div>
                 <div class="celda central">Detalle</div>
@@ -124,17 +124,6 @@ const distributeExpense = (exp) => {
 </script>
 
 <style scoped>
-.celda-roja {
-    background-color: red;
-    justify-content: center;
-}
-
-.celda-amarilla {
-    background-color: yellow;
-    justify-content: end;
-    padding-right: 10px;
-}
-
 .combo {
     margin: 16px;
     z-index: 40000;
@@ -157,8 +146,7 @@ const distributeExpense = (exp) => {
 }
 
 .celda {
-    display: flex;
-    justify-items: center;
+    display: grid;
     align-items: center;
     padding: 0 10px;
     height: 40px;
@@ -166,7 +154,7 @@ const distributeExpense = (exp) => {
 
 .rowExpensa {
     display: grid;
-    grid-template-columns: 130px 80px 90px 100px 90px 110px 90px 80px 60px 60px 60px 60px;
+    grid-template-columns: 130px 80px 90px 100px 90px 120px 90px 80px 60px 60px 60px 60px;
     align-items: center;
     width: 1020px;
     border-bottom: 1px solid gray;

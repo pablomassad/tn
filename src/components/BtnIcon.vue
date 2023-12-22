@@ -62,7 +62,6 @@ const props = defineProps({
 
 .panelDisabled {
     position: absolute;
-    /* background-color: red; */
     height: 40px;
     width: 40px;
     top: 2px;

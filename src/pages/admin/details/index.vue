@@ -11,10 +11,6 @@
                 <SortColumn class="central" col="date" label="Fecha" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="payMode" label="Forma de pago" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="central" col="isCont" label="Cont" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
-
-                <div class="central" @click="sortCol('date')">Fecha</div>
-                <div class="texto" @click="sortCol('payMode')">Forma de pago</div>
-                <div class="central" @click="sortCol('iscont')">Cont</div>
                 <div class="texto"></div>
             </div>
             <div class="detailsList">

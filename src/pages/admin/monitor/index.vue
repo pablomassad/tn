@@ -5,14 +5,14 @@
         </div>
         <div class="matrix" v-if="appStore.state.userExpenses">
             <div class="rowDetail encabezado">
-                <div class="texto" @click="sortCol('ownerNames')">Propietarios</div>
-                <div class="precio" @click="sortCol('amout')">Importe</div>
-                <div class="precio" @click="sortCol('interest')">Interes</div>
-                <div class="precio" @click="sortCol('paid')">Pagado</div>
-                <div class="precio" @click="sortCol('balance')">Saldo</div>
+                <SortColumn class="central" col="ownerNames" label="Propietarios" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="amout" label="Importe" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="interest" label="Interes" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
                 <div class="central">Detalle</div>
                 <div class="centro">Estado</div>
-                <div class="central" @click="sortCol('isValid')">Válido</div>
+                <SortColumn class="central" col="isValid" label="Válido" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
             </div>
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
@@ -41,6 +41,7 @@ import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import Validation from 'src/components/Validation.vue'
 import { ui } from 'fwk-q-ui'
+import SortColumn from 'src/components/SortColumn.vue'
 
 const showDetails = ref({})
 

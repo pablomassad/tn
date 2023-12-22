@@ -38,9 +38,11 @@ const selSortCol = () => {
 
 <style lang="scss">
 .grdSort {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 10px;
     align-items: center;
-    margin-right: -22px;
+    padding: 0 10px;
+    height: 40px;
 }
 
 .arrowIcon {

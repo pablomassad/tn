@@ -380,10 +380,17 @@ const actions = {
         sortExpenses (field, dir) {
             const arr = sortArray(state.expenses, field, dir)
             set.expenses(arr)
+            set.activeCol(field)
         },
         sortDetails (field, dir) {
             const arr = sortArray(state.detailsByExp, field, dir)
             set.detailsByExp(arr)
+            set.activeCol(field)
+        },
+        sortUserExpenses (field, dir) {
+            const arr = sortArray(state.userExpenses, field, dir)
+            set.userExpenses(arr)
+            set.activeCol(field)
         }
     },
     unsubscribeListeners (key) {
