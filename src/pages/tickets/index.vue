@@ -1,30 +1,30 @@
 <template>
     <div>
         <div class="matrix" v-if="appStore.state.tickets">
-            <div class="rowTicket encabezado">
-                <SortColumn class="texto" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+            <div class="fila ticket encabezado">
+                <SortColumn class="central" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <div class="centro">Ver</div>
-                <div class="centro">Estado</div>
+                <div class="celda central">Ver</div>
+                <div class="celda central">Estado</div>
                 <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
-                <div class="rowTicket">
-                    <div class="centro">{{ moment(tk.datetime).format('DD/MM/YY HH:mm') }}</div>
-                    <div class="texto">{{ tk.concept }}</div>
-                    <div class="precio">{{ tk.amount.toFixed(1) }}</div>
-                    <div class="precio">{{ tk.paid.toFixed(1) }}</div>
-                    <div class="precio">{{ tk.balance.toFixed(1) }}</div>
+                <div class="fila ticket">
+                    <div class="celda central">{{ moment(tk.datetime).format('DD/MM/YY HH:mm') }}</div>
+                    <div class="celda texto">{{ tk.concept }}</div>
+                    <div class="celda precio">{{ tk.amount.toFixed(1) }}</div>
+                    <div class="celda precio">{{ tk.paid.toFixed(1) }}</div>
+                    <div class="celda precio">{{ tk.balance.toFixed(1) }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
-                    <StatusLed class="centro" :status="evalStatus(tk)" />
-                    <div class="texto">{{ tk.referrer }}</div>
+                    <StatusLed class="central" :status="evalStatus(tk)" />
+                    <div class="celda texto">{{ tk.referrer }}</div>
                 </div>
             </div>
             <!--<div class="rowTicket total">
-                <div class="centro">TOTAL</div>
+                <div class="central">TOTAL</div>
                 <div></div>
                 <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(1) }}</div>
             </div>-->
@@ -89,13 +89,9 @@ const evalStatus = (item) => {
     border-radius: 10px 10px 0 0;
 }
 
-.rowTicket {
-    display: grid;
-    grid-template-columns: 100px 250px 73px 73px 73px 40px 50px 270px;
-    align-items: center;
+.ticket {
+    grid-template-columns: 130px 270px 80px 80px 80px 70px 70px 320px;
     width: 1090px;
-    column-gap: 20px;
-    padding: 5px 15px;
     border-bottom: 1px solid gray;
 }
 
@@ -130,10 +126,6 @@ const evalStatus = (item) => {
     text-shadow: none !important;
     padding-top: 1px;
     background-color: rgb(89, 112, 155) !important;
-}
-
-.centro {
-    text-align: center;
 }
 
 .total {

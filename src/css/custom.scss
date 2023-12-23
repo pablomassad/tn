@@ -20,14 +20,33 @@
     margin: 0px;
 }
 
+.fila {
+    display: grid;
+    border-bottom: 1px solid gray;
+}
+
+.encabezado {
+    background-color: lightblue;
+    font-weight: bold;
+    border-radius: 10px 10px 0 0;
+}
+
+.celda {
+    display: grid;
+    align-items: center;
+    //padding: 0 10px;
+    //height: 40px;
+}
+
 .precio {
-    justify-self: end;
+    justify-content: right;
 }
 
 .central {
-    text-align: center;
+    justify-content: center;
 }
 
 .texto {
     justify-content: start;
+    padding-left: 10px;
 }

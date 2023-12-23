@@ -11,30 +11,36 @@
             <div class="value">$0</div>
         </div>
         <div class="matrix">
-            <div class="rowExpensa encabezado">
-                <div>Expensa</div>
+            <div class="fila expensa encabezado">
+                <SortColumn class="texto" col="expName" label="Expensa" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastAmount" label="Ult.Importe" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastPaid" label="Ult.Pago" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastBalance" label="Ult.Saldo" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="interest" label="Interes" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="credit" label="A cuenta" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
-                <div class="centro">Descargar</div>
-                <div class="centro">Comprobantes</div>
-                <div class="centro">Estado</div>
-                <SortColumn class="precio" col="isValid" label="Válido" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
+                <div class="celda central">Descargar</div>
+                <div class="celda central">Comprobantes</div>
+                <div class="celda central">Estado</div>
+                <SortColumn class="celda central" col="isValid" label="Válido" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
-                <div class="rowExpensa">
-                    <div>{{ item.expName }}</div>
-                    <div class="precio">{{ item.amount.toFixed(1) }}</div>
-                    <div class="precio">{{ item.interest.toFixed(1) }}</div>
-                    <div class="precio">{{ item.credit?.toFixed(1) }}</div>
-                    <div class="precio">{{ item.paid?.toFixed(1) }}</div>
-                    <div class="precio">{{ item.balance.toFixed(1) }}</div>
+                <div class="fila expensa">
+                    <div class="celda texto">{{ item.expName }}</div>
+                    <div class="celda precio">{{ item.lastAmount?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.interest.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.credit?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.paid?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
-                    <StatusLed class="centro" :status="evalStatus(item)" />
-                    <Validation :isValid="item.isValid" />
+                    <StatusLed class="celda central" :status="evalStatus(item)" />
+                    <Validation class="celda central" :isValid="item.isValid" />
                 </div>
                 <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selUserReceipts" @onCheck="toggleValidation" />
             </div>
@@ -44,13 +50,13 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ui } from 'fwk-q-ui'
 import appStore from 'src/pages/appStore'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Receipts from 'src/components/Receipts.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import Validation from 'src/components/Validation.vue'
 import SortColumn from 'src/components/SortColumn.vue'
-import { ui } from 'fwk-q-ui'
 
 const showDetails = ref({})
 
@@ -108,30 +114,19 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     max-width: 720px;
 }
 
-.addBtn {
-    position: absolute;
-    right: 22px;
-    bottom: 10px;
-
-}
-
 .matrix {
+    position: relative;
     background-color: white;
-    max-width: 910px;
+    max-width: 1200px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
 }
 
-.rowExpensa {
-    display: grid;
-    grid-template-columns: 110px 80px 70px 70px 70px 70px 70px 90px 40px 40px;
-    align-items: center;
-    width: 910px;
-    column-gap: 20px;
-    padding: 0 15px;
-    border-bottom: 1px solid gray;
+.expensa {
+    grid-template-columns: 120px 90px 90px 90px 90px 90px 90px 90px 90px 90px 100px 60px 70px;
+    width: 1200px;
 }
 
 .label {
@@ -139,91 +134,13 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     font-size: 20px;
 }
 
-.chkStatus {
-    color: red;
-    font-size: 25px;
-    text-shadow: 1px 1px 1px black;
-    font-weight: bold;
-    justify-self: center;
-}
-
-.chkValid {
-    color: green;
-}
-
-.importe {
-    text-align: right;
-}
-
-.centro {
-    text-align: center;
-}
-
-.interes {
-    text-align: center;
-}
-
 .value {
     font-size: 18px;
     color: #555;
 }
 
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-    height: 30px;
-}
-
-.estado {
-    justify-self: center;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 1px 1px 1px gray;
-    width: 20px;
-    height: 20px;
-    border: 1px solid;
-
-}
-
-.btnIcon {
-    padding: 5px;
-    font-size: 20px;
-    color: white;
-}
-
-.pressed {
-    box-shadow: inset 1px 1px 3px !important;
-    text-shadow: none !important;
-    padding-top: 1px;
-    background-color: rgb(89, 112, 155) !important;
-}
-
-.btn {
-    justify-self: center;
-    border-radius: 5px;
-    box-shadow: 1px 1px 3px gray;
-    background-color: cornflowerblue;
-    width: 30px;
-    height: 30px;
-    margin: 5px;
-    text-shadow: 1px 1px 1px black;
-}
-
-.dialogTitle {
-    font-size: 25px;
+.interes {
     text-align: center;
-    font-weight: bold;
-}
-
-.btnContainer {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-}
-
-.btn:active {
-    box-shadow: none;
 }
 
 .pagado {
@@ -235,104 +152,5 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     font-weight: bold;
     text-shadow: 1px 1px 1px white;
     text-align: center;
-}
-
-.cardList {
-    border-right: none;
-    max-width: 600px;
-    max-height: calc(100vh - 227px);
-    overflow: auto;
-    margin: auto;
-    border-radius: 20px;
-    box-shadow: 2px 2px 10px #555;
-    padding-top: 16px;
-}
-
-.carousel {
-    height: calc(100vh - 50px);
-    background: #cacaca;
-}
-
-.grdTitle {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    justify-items: center;
-    padding-top: 4px;
-    height: 64px;
-}
-
-.patViejaImg {
-    width: 130px;
-    border-radius: 5px;
-}
-
-.patVieja {
-    position: relative;
-    top: -56px;
-    left: 0px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    column-gap: 10px;
-    font-size: 30px;
-    text-align: center;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px gray;
-    color: #ffffff;
-}
-
-.patNuevaImg {
-    width: 175px;
-    border-radius: 5px;
-}
-
-.patNueva {
-    position: relative;
-    top: -53px;
-    left: 0px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    column-gap: 10px;
-    font-size: 31px;
-    text-align: center;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px gray;
-    color: rgb(45, 45, 45);
-}
-
-.carIcon {
-    font-size: 30px;
-    text-shadow: 1px 1px 3px gray;
-    color: rgb(106, 60, 191);
-}
-
-.notificaciones {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    margin: auto;
-}
-
-.btnMensajes {
-    width: 100%;
-}
-
-.btnVehiculo {
-    position: relative;
-    width: 300px;
-    margin: auto;
-}
-
-.contadorMensajes {
-    background-color: red;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
-    box-shadow: 1px 1px 3px gray;
-    color: white;
-    font-size: 12px;
-    position: absolute;
-    padding-left: 6px;
-    bottom: 27px;
-    right: -7px;
 }
 </style>

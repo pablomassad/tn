@@ -1,8 +1,10 @@
 <template >
     <div @click="selSortCol" class="grdSort">
-        {{ label }}
-        <q-icon v-if="activeCol === col" :name="arrowIcon" class="arrowIcon" />
-        <div v-else class="arrowEmpty"></div>
+        <div class="lblArrow">
+            {{ label }}
+            <q-icon v-if="activeCol === col" :name="arrowIcon" class="arrowIcon" />
+            <div v-else class="arrowEmpty"></div>
+        </div>
     </div>
 </template>
 
@@ -39,17 +41,22 @@ const selSortCol = () => {
 <style lang="scss">
 .grdSort {
     display: grid;
-    grid-template-columns: 1fr 10px;
     align-items: center;
-    padding: 0 10px;
     height: 40px;
+}
+
+.lblArrow {
+    display: flex;
+    align-items: center;
+    margin-right: -5px;
 }
 
 .arrowIcon {
     font-size: 23px;
+    margin: -2px;
 }
 
 .arrowEmpty {
-    width: 23px;
+    width: 18px;
 }
 </style>

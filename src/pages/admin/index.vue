@@ -1,12 +1,15 @@
 <template>
     <div>
         <div class="matrix">
-            <div class="rowExpensa encabezado">
+            <div class="fila admin encabezado">
                 <SortColumn class="texto" col="expName" label="Expensa" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastTotal" label="Ult.Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastPaid" label="Ult.Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastBalance" label="Ult.Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="total" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="precio lote" col="expamountOrdinaryName" label="Ordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio lote" col="amountOrdinary" label="Ordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio lote" col="amountExtraordinary" label="Extraordinarias" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio lote" col="amount" label="Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Descargar</div>
@@ -16,8 +19,11 @@
                 <SortColumn class="celda central" col="status" label="Estado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(item) in appStore.state.expenses" :key="item">
-                <div class="rowExpensa">
+                <div class="fila admin">
                     <div class="celda texto">{{ item.expName }}</div>
+                    <div class="celda precio">{{ item.lastTotal?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.total.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
                     <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
@@ -45,11 +51,11 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import appStore from 'src/pages/appStore'
 import { ui } from 'fwk-q-ui'
-import ModalPanel from 'src/components/ModalPanel.vue'
+import appStore from 'src/pages/appStore'
 import { LocalStorage } from 'quasar'
 import { useRouter } from 'vue-router'
+import ModalPanel from 'src/components/ModalPanel.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import ConfirmDialog from 'fwk-q-confirmdialog'
@@ -132,32 +138,16 @@ const distributeExpense = (exp) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1020px;
+    max-width: 1300px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
 }
 
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
-
-.celda {
-    display: grid;
-    align-items: center;
-    padding: 0 10px;
-    height: 40px;
-}
-
-.rowExpensa {
-    display: grid;
-    grid-template-columns: 130px 80px 90px 100px 90px 120px 90px 80px 60px 60px 60px 60px;
-    align-items: center;
-    width: 1020px;
-    border-bottom: 1px solid gray;
+.admin {
+    grid-template-columns: 130px 80px 90px 100px 80px 90px 100px 90px 120px 90px 80px 60px 60px 60px 60px;
+    width: 1300px;
 }
 
 .lote {
@@ -166,6 +156,7 @@ const distributeExpense = (exp) => {
 
 .loteInfo {
     background-color: rgb(223, 255, 244);
+    padding: 0 8px;
 }
 
 .status {

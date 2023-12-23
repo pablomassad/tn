@@ -4,7 +4,7 @@
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix">
-            <div class="rowDetail encabezado">
+            <div class="fila detail encabezado">
                 <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="description" label="Descripcion" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.admin.sortDetails" :activeCol="appStore.state.activeCol" />
@@ -15,18 +15,18 @@
             </div>
             <div class="detailsList">
                 <div v-for="item in appStore.state.detailsByExp" :key="item">
-                    <div class="rowDetail">
+                    <div class="fila detail">
                         <div class="texto">{{ item.concept }}</div>
                         <div class="texto">{{ item.description }}</div>
-                        <div class="precio">{{ item.amount.toFixed(1) }}</div>
-                        <div class="central">{{ item.date }}</div>
+                        <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
+                        <div class="celda central">{{ item.date }}</div>
                         <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                         <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />
                     </div>
                 </div>
             </div>
-            <div class="rowDetail total" style="background-color: rgb(182, 255, 250) !important">
+            <div class="fila detail total" style="background-color: rgb(182, 255, 250) !important">
                 <div class="texto">TOTAL exp.ordinarias</div>
                 <div></div>
                 <!--<div class="precio">{{ sumOrdinarias()?.toFixed(1) }}</div>-->
@@ -35,7 +35,7 @@
                 <!--<div class="precio">{{ expOrdinariaLote?.toFixed(1) }}</div>-->
                 <div class="precio">{{ appStore.state.selExpense.amountOrdinary.toFixed(1) }}</div>
             </div>
-            <div class="rowDetail total" style="background-color: rgb(251, 255, 196) !important">
+            <div class="fila detail total" style="background-color: rgb(251, 255, 196) !important">
                 <div class="texto">TOTAL exp.extraordinarias</div>
                 <div></div>
                 <!--<div class="precio">{{ expExtraordinarias.toFixed(1) }}</div>-->
@@ -53,7 +53,7 @@
                     </q-popup-edit>
                 </div>
             </div>
-            <div class="rowDetail total" style="background-color: rgb(202, 202, 202) !important">
+            <div class="fila detail total" style="background-color: rgb(202, 202, 202) !important">
                 <div class="texto">TOTAL Expensas</div>
                 <div></div>
                 <!--<div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(1) }}</div>-->
@@ -149,27 +149,15 @@ watch(() => expExtraLote.value, (newVal) => {
     overflow: auto;
 }
 
-.rowDetail {
-    display: grid;
-    grid-template-columns: 180px 300px 70px 104px 100px 50px 40px;
-    align-items: center;
+.detail {
+    grid-template-columns: 280px 300px 70px 100px 120px 60px 50px;
     width: 1000px;
-    column-gap: 20px;
-    padding: 0 15px;
-    border-bottom: 1px solid gray;
 }
 
 .total {
     position: relative;
     font-weight: bold;
     height: 40px;
-}
-
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-    padding: 10px 15px;
 }
 
 .estado {

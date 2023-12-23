@@ -4,7 +4,7 @@
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix" v-if="appStore.state.userExpenses">
-            <div class="rowDetail encabezado">
+            <div class="fila detail encabezado">
                 <SortColumn class="central" col="ownerNames" label="Propietarios" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amout" label="Importe" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="interest" label="Interes" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
@@ -16,7 +16,7 @@
             </div>
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
-                    <div class="rowDetail">
+                    <div class="fila detail">
                         <div class="texto">{{ item.ownerNames }}</div>
                         <div class="precio">{{ item.amount.toFixed(1) }}</div>
                         <div class="precio">{{ item.interest.toFixed(1) }}</div>
@@ -118,15 +118,12 @@ const evalStatus = (item) => {
     overflow: auto;
 }
 
-.rowDetail {
-    display: grid;
+.detail {
     grid-template-columns: 260px 100px 70px 100px 100px 50px 40px 40px;
-    align-items: center;
     width: 940px;
     height: 40px px;
     column-gap: 20px;
     padding: 0px 15px;
-    border-bottom: 1px solid gray;
 }
 
 .total {

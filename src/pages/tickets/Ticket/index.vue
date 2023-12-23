@@ -90,10 +90,7 @@
         </ModalPanel>
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
-        <!--<div class="viewFrame" v-if="showTicket">
-            <q-icon name="close" class="btnClose" @click="onCloseTicket" />
-            <img :src="evalImage()" class="ticketImage" />
-        </div>-->
+        <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
     </div>
 </template>
 
@@ -104,8 +101,10 @@ import ModalPanel from 'src/components/ModalPanel.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import ReceiptsTerra from 'src/components/ReceiptFormTerra.vue'
+import ViewAttachment from 'src/components/ViewAttachment.vue'
 import { ui } from 'fwk-q-ui'
 
+const refViewAtt = ref()
 const refAttachment = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
@@ -117,7 +116,6 @@ const localUnit = ref()
 const owners = ref()
 const exp = ref({})
 const attFile = ref()
-const showTicket = ref(false)
 const tk = reactive({
     date: moment().format('DD-MM-YYYY'),
     amount: 0,
@@ -205,10 +203,15 @@ const onFechaOKClick = () => {
         ? dtPicker.selectedDate
         : tk.date
 }
+const onAttachment = (o) => {
+    console.log('attach from viewAttachment:', o)
+    attFile.value = o
+}
 const viewTicket = async () => {
     console.log('attFile.value:', attFile.value)
     console.log('attachmentUrl:', tk.attachmentUrl)
-    showTicket.value = true
+    const att = (attFile.value) ? attFile.value : tk.attachmentUrl
+    refViewAtt.value.show(att)
 }
 const attachTicket = () => {
     refAttachment.value.click()
@@ -219,6 +222,7 @@ const onUploadAttachment = async (e) => {
 }
 const onClose = () => {
     showForm.value = false
+    attFile.value = undefined
 }
 const show = async (t) => {
     showForm.value = true
@@ -229,15 +233,6 @@ const show = async (t) => {
     }
 }
 
-// const onCloseTicket = () => {
-//    showTicket.value = false
-// }
-// const evalImage = () => {
-//    let imgSrc
-//    if (attFile.value) { imgSrc = URL.createObjectURL(attFile.value) }
-//    if (tk.attachmentUrl) { imgSrc = tk.attachmentUrl }
-//    return imgSrc
-// }
 defineExpose({ show })
 </script>
 
@@ -250,30 +245,6 @@ defineExpose({ show })
 .grdPayOps {
     display: grid;
     margin-top: 20px;
-}
-
-.viewFrame {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    right: 0;
-    left: 0;
-    z-index: 11000;
-    background-color: lightcyan;
-}
-
-.btnClose {
-    position: absolute;
-    right: 10px;
-    top: 10px;
-    font-size: 40px;
-}
-
-.ticketImage {
-    height: 100%;
-    object-fit: cover;
-    display: grid;
-    margin: auto;
 }
 
 .userForm {
