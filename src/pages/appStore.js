@@ -103,8 +103,7 @@ const set = {
     },
     detailsByExp (o) {
         console.log('store set.detailsByExp:', o)
-        const sorted = sortArray(o, 'concept', 1)
-        state.detailsByExp = sorted
+        state.detailsByExp = o
     },
     userExpenses (o) {
         console.log('store set.userExpenses:', o)
@@ -395,17 +394,12 @@ const actions = {
     },
     unsubscribeListeners (key) {
         console.log('store unsubscribeListeners:', key)
-        // if (!key) {
-        //    Object.keys(state.unsubListeners).forEach(k => state.unsubListeners[k]())
-        //    state.unsubListeners = {}
-        // } else {
-        //    const unsub = state.unsubListeners[key]
-        //    if (unsub) {
-        //        unsub()
-        //        delete state.unsubListeners[key]
-        //        console.log('store set.unsubListeners:', state.unsubListeners)
-        //    }
-        // }
+        const unsub = state.unsubListeners[key]
+        if (unsub) {
+            unsub()
+            delete state.unsubListeners[key]
+            console.log('store set.unsubListeners:', state.unsubListeners)
+        }
     },
     evalExpName (expId) {
         const year = expId.substr(0, 2)
@@ -414,20 +408,6 @@ const actions = {
         const expName = `${month} 20${year}`
         console.log('expId:', expId, 'expName:', expName)
         return expName
-    },
-    async moveData () {
-        // const cfg = await fb.getDocument('settings', 'terranostra')
-        // await fb.setDocument('tn', cfg, 'settings')
-
-        // const col = 'timeLogs'
-        // const dbPath = `settings/terranostra/${col}`
-        // console.log('dbPath:', dbPath)
-        // const res = await fb.getCollection(dbPath)
-        // console.log('res:', res.length)
-        // for (const o of res) {
-        //    const moved = await fb.setDocument(col, o, o.id)
-        //    console.log('id:', o.id)
-        // }
     },
     async getSettings () {
         console.log('store getSettings')
@@ -459,6 +439,20 @@ const actions = {
     async subscribeToFCM () {
         const vapidKey = 'BP6nPflTuZhSgdqiyDaPMLxYy3o2gvcMM_oUl1NFP-CkMIgnAiXfOKeOhrNbjhCUOKVNEosPR4U9j2t_NSLhjy4'
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
+    },
+    async moveData () {
+        // const cfg = await fb.getDocument('settings', 'terranostra')
+        // await fb.setDocument('tn', cfg, 'settings')
+
+        // const col = 'timeLogs'
+        // const dbPath = `settings/terranostra/${col}`
+        // console.log('dbPath:', dbPath)
+        // const res = await fb.getCollection(dbPath)
+        // console.log('res:', res.length)
+        // for (const o of res) {
+        //    const moved = await fb.setDocument(col, o, o.id)
+        //    console.log('id:', o.id)
+        // }
     }
 }
 

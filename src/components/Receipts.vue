@@ -1,14 +1,14 @@
 <template>
     <div class="grdComps">
         <div class="rowComp encabezado">
-            <div class="centro">Fecha</div>
-            <div class="importe">Importe</div>
-            <div class="centro">Ver</div>
-            <div class="centro">Válido</div>
+            <SortColumn class="texto" col="date" label="Fecha" :sortMethod="sortReceipts" :activeCol="activeCol" />
+            <SortColumn class="precio" col="amount" label="Importe" :sortMethod="sortReceipts" :activeCol="activeCol" />
+            <div class="central">Ver</div>
+            <SortColumn class="central" col="isValid" label="Válido" :sortMethod="sortReceipts" :activeCol="activeCol" />
         </div>
         <div v-if="userReceipts">
-            <div v-for="(cp) in userReceipts" :key="cp" class="rowComp">
-                <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
+            <div v-for="(cp) in receipts" :key="cp" class="rowComp">
+                <div class="centro">{{ moment(cp.date).format('DD/MM/YYYY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
                 <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />
@@ -29,6 +29,7 @@ import moment from 'moment'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Validation from 'src/components/Validation.vue'
+import SortColumn from 'src/components/SortColumn.vue'
 
 console.log('Receipts CONSTRUCTOR')
 
@@ -42,10 +43,13 @@ const props = defineProps({
     }
 })
 
+const activeCol = ref()
 const refReceiptForm = ref()
+const receipts = ref()
 
 onMounted(async () => {
     console.log('Receipts onMounted')
+    receipts.value = [...props.userReceipts]
 })
 onUnmounted(() => {
     console.log('Receipts onUnmounted')
@@ -59,6 +63,19 @@ const viewComp = (cp) => {
 const toggleValidation = (cp) => {
     console.log('toggleValidation:', cp)
     emit('onCheck', cp)
+}
+const sortReceipts = (field, dir) => {
+    const arr = sortArray(receipts.value, field, dir)
+    receipts.value = arr
+    activeCol.value = field
+}
+const sortArray = (arr, key, dir) => {
+    const res = arr.sort((a, b) => {
+        if (a[key] > b[key]) return 1 * dir
+        if (a[key] < b[key]) return -1 * dir
+        return 0
+    })
+    return res
 }
 
 watch(() => props.userExpense, (newVal) => {

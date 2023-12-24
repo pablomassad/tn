@@ -8,7 +8,7 @@
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Ver</div>
-                <div class="celda central">Estado</div>
+                <SortColumn class="celda texto" col="status" label="Estado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
@@ -19,7 +19,7 @@
                     <div class="celda precio">{{ tk.paid.toFixed(1) }}</div>
                     <div class="celda precio">{{ tk.balance.toFixed(1) }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
-                    <StatusLed class="central" :status="evalStatus(tk)" />
+                    <StatusLed class="celda central" :status="evalStatus(tk)" />
                     <div class="celda texto">{{ tk.referrer }}</div>
                 </div>
             </div>

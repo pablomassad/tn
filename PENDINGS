@@ -12,6 +12,9 @@
 👍 Sacar boton de agregar detalle una vez distribuida la expensas
 
 
+⏰ Receipts: Usar ViewAttachment component
+⏰ Corregir fechas en todos los documentos para que se guarden como timestamp (y convertir con moment para la visualizacion)
+
 ADMIN:
 ⏰ Exportacion y bajada a PDF
 ⏰ Copia automatica de items ordinarios a proxima expensas

@@ -23,7 +23,7 @@
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Descargar</div>
                 <div class="celda central">Comprobantes</div>
-                <div class="celda central">Estado</div>
+                <SortColumn class="celda central" col="status" label="Estado" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="celda central" col="isValid" label="Válido" :sortMethod="appStore.actions.userExpenses.sort" :activeCol="appStore.state.activeCol" />
             </div>
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">

@@ -4,26 +4,32 @@
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix" v-if="appStore.state.userExpenses">
-            <div class="fila detail encabezado">
-                <SortColumn class="central" col="ownerNames" label="Propietarios" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="precio" col="amout" label="Importe" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="precio" col="interest" label="Interes" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
-                <div class="central">Detalle</div>
-                <div class="centro">Estado</div>
-                <SortColumn class="central" col="isValid" label="Válido" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+            <div class="fila monitor encabezado">
+                <SortColumn class="celda central" col="ownerNames" label="Propietarios" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastTotal" label="Ult.Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastPaid" label="Ult.Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="precio" col="lastBalance" label="Ult.Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="celda precio" col="amout" label="Importe" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="celda precio" col="interest" label="Interes" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="celda precio" col="paid" label="Pagado" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="celda precio" col="balance" label="Saldo" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <div class="celda central">Detalle</div>
+                <SortColumn class="celda central" col="status" label="Estado" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="celda central" col="isValid" label="Válido" :sortMethod="appStore.actions.admin.sortUserExpenses" :activeCol="appStore.state.activeCol" />
             </div>
             <div class="expensesList">
                 <div v-for="item in appStore.state.userExpenses" :key="item">
-                    <div class="fila detail">
-                        <div class="texto">{{ item.ownerNames }}</div>
-                        <div class="precio">{{ item.amount.toFixed(1) }}</div>
-                        <div class="precio">{{ item.interest.toFixed(1) }}</div>
-                        <div class="precio">{{ item.paid.toFixed(1) }}</div>
-                        <div class="precio">{{ item.balance.toFixed(1) }}</div>
+                    <div class="fila monitor">
+                        <div class="celda texto">{{ item.ownerNames }}</div>
+                        <div class="celda precio">{{ item.lastTotal?.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.interest.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
                         <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
-                        <StatusLed :status="evalStatus(item)" />
+                        <StatusLed class="celda central" :status="evalStatus(item)" />
                         <Validation :isValid="item.isValid" />
                     </div>
                     <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selUserReceipts" @onCheck="toggleValidation" />
@@ -103,40 +109,30 @@ const evalStatus = (item) => {
     margin-top: 20px;
 }
 
+.detailsList {
+    height: calc(100vh - 420px);
+    overflow: auto;
+}
+
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 940px;
+    max-width: 1200px;
     margin: auto;
     margin-top: 20px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
 }
 
-.detailsList {
-    height: calc(100vh - 420px);
-    overflow: auto;
-}
-
-.detail {
-    grid-template-columns: 260px 100px 70px 100px 100px 50px 40px 40px;
-    width: 940px;
-    height: 40px px;
-    column-gap: 20px;
-    padding: 0px 15px;
+.monitor {
+    grid-template-columns: 270px 80px 90px 100px 100px 80px 100px 100px 80px 60px 60px;
+    width: 1200px;
 }
 
 .total {
     position: relative;
     font-weight: bold;
     height: 40px;
-}
-
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-    padding: 10px 15px;
 }
 
 .estado {

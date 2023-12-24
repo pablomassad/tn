@@ -16,32 +16,32 @@
             <div class="detailsList">
                 <div v-for="item in appStore.state.detailsByExp" :key="item">
                     <div class="fila detail">
-                        <div class="texto">{{ item.concept }}</div>
-                        <div class="texto">{{ item.description }}</div>
+                        <div class="celda texto">{{ item.concept }}</div>
+                        <div class="celda texto">{{ item.description }}</div>
                         <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
                         <div class="celda central">{{ item.date }}</div>
-                        <div class="texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
+                        <div class="celda texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                         <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />
                     </div>
                 </div>
             </div>
             <div class="fila detail total" style="background-color: rgb(182, 255, 250) !important">
-                <div class="texto">TOTAL exp.ordinarias</div>
+                <div class="celda texto">TOTAL Ordinarias</div>
                 <div></div>
                 <!--<div class="precio">{{ sumOrdinarias()?.toFixed(1) }}</div>-->
-                <div class="precio">{{ appStore.state.selExpense.totalOrdinary.toFixed(1) }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.totalOrdinary.toFixed(1) }}</div>
                 <div></div>
                 <!--<div class="precio">{{ expOrdinariaLote?.toFixed(1) }}</div>-->
-                <div class="precio">{{ appStore.state.selExpense.amountOrdinary.toFixed(1) }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.amountOrdinary.toFixed(1) }}</div>
             </div>
             <div class="fila detail total" style="background-color: rgb(251, 255, 196) !important">
-                <div class="texto">TOTAL exp.extraordinarias</div>
+                <div class="celda texto">TOTAL Extraordinarias</div>
                 <div></div>
                 <!--<div class="precio">{{ expExtraordinarias.toFixed(1) }}</div>-->
-                <div class="precio">{{ appStore.state.selExpense.totalExtraordinary.toFixed(1) }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.totalExtraordinary.toFixed(1) }}</div>
                 <div></div>
-                <div class="precio">
+                <div class="celda precio">
                     <!--{{ Number(expExtraLote)?.toFixed(1) }}-->
                     {{ appStore.state.selExpense.amountExtraordinary.toFixed(1) }}
                     <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope" v-if="!appStore.state.selExpense.deployed">
@@ -54,13 +54,13 @@
                 </div>
             </div>
             <div class="fila detail total" style="background-color: rgb(202, 202, 202) !important">
-                <div class="texto">TOTAL Expensas</div>
+                <div class="celda texto">TOTAL Expensas</div>
                 <div></div>
                 <!--<div class="precio">{{ (sumOrdinarias() + expExtraordinarias)?.toFixed(1) }}</div>-->
-                <div class="precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
                 <div></div>
                 <!--<div class="precio">{{ (Number(expOrdinariaLote) + Number(expExtraLote))?.toFixed(1) }}</div>-->
-                <div class="precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.total.toFixed(1) }}</div>
                 <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
             </div>
         </div>

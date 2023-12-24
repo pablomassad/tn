@@ -2,7 +2,7 @@
     <div>
         <div class="matrix">
             <div class="fila admin encabezado">
-                <SortColumn class="texto" col="expName" label="Expensa" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="texto" col="id" label="Expensa" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="lastTotal" label="Ult.Total" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="lastPaid" label="Ult.Pagado" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="lastBalance" label="Ult.Saldo" :sortMethod="appStore.actions.admin.sortExpenses" :activeCol="appStore.state.activeCol" />
@@ -30,7 +30,7 @@
                     <div class="celda precio loteInfo">{{ item.amountOrdinary.toFixed(1) }}</div>
                     <div class="celda precio loteInfo">{{ item.amountExtraordinary.toFixed(1) }}</div>
                     <div class="celda precio loteInfo">{{ item.amount.toFixed(1) }}</div>
-                    <BtnIcon icon="file_download" @click="download(item)" />
+                    <BtnIcon icon="file_download" @click="download(item)" :disabled="!item.deployed" />
                     <BtnIcon icon="edit" @click="gotoDetails(item)" />
                     <BtnIcon icon="groups" @click="gotoMonitor(item)" :disabled="!item.deployed" />
                     <BtnIcon icon="send" @click="distributeExpense(item)" :disabled="!!item.deployed" :pressed="!!item.deployed" />
