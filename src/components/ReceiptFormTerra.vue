@@ -9,7 +9,7 @@
             <template #default>
                 <div class="grdForm">
                     <div class="rowDtCom">
-                        <q-input flat dense clearable v-model="comp.date" label="Fecha de comprobante" @click="selectFecha()" readonly />
+                        <q-input flat dense clearable :model-value="selDate" label="Fecha de comprobante" @click="selectFecha()" readonly />
                         <q-input type="text" v-model="comp.description" filled label="Descripción" class="description" />
                     </div>
                     <div class="rowAmAt">
@@ -28,11 +28,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
-            <div>
-                <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
-            </div>
-        </ModalPanel>
+        <DatePicker ref="refDate" @close="onSelFecha" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
@@ -41,7 +37,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import ModalPanel from 'src/components/ModalPanel.vue'
+import DatePicker from 'src/components/DatePicker.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import { ui } from 'fwk-q-ui'
@@ -55,13 +51,11 @@ const onCancelDialog = ref()
 
 const expName = ref()
 const attFile = ref()
-const showFecha = ref(false)
-const dtPicker = reactive({
-    selectedDate: '',
-    datePickerTitle: ''
-})
+const refDate = ref()
+const selDate = ref()
+
 const emptyComp = {
-    date: moment().format('DD-MM-YYYY'),
+    date: new Date().getTime(),
     amount: 0,
     attachmentUrl: '',
     description: '',
@@ -110,14 +104,11 @@ const viewComp = async () => {
     window.open(comp.attachmentUrl, 'blank')
 }
 const selectFecha = () => {
-    dtPicker.selectedDate = comp.date
-    showFecha.value = true
+    refDate.value.show(comp.date)
 }
-const onFechaOKClick = () => {
-    showFecha.value = false
-    comp.date = dtPicker.selectedDate
-        ? dtPicker.selectedDate
-        : comp.date
+const onSelFecha = (dt) => {
+    comp.date = dt || comp.date
+    selDate.value = moment(dt).format('DD/MM/YY')
 }
 const attachComp = () => {
     refAttachment.value.click()

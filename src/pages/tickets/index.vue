@@ -13,7 +13,7 @@
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="fila ticket">
-                    <div class="celda central">{{ moment(tk.datetime).format('DD/MM/YY HH:mm') }}</div>
+                    <div class="celda central">{{ moment(tk.date).format('DD/MM/YY HH:mm') }}</div>
                     <div class="celda texto">{{ tk.concept }}</div>
                     <div class="celda precio">{{ tk.amount.toFixed(1) }}</div>
                     <div class="celda precio">{{ tk.paid.toFixed(1) }}</div>

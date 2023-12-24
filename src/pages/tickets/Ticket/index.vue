@@ -9,7 +9,7 @@
             <template #default>
                 <div class="grdForm">
                     <div class="rowConDt">
-                        <q-input flat dense clearable v-model="tk.date" label="Fecha del Ticket" @click="selectFecha()" readonly />
+                        <q-input flat dense clearable v-model="selDate" label="Fecha del Ticket" @click="selectFecha()" readonly />
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
                     </div>
                     <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
@@ -83,11 +83,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
-            <div>
-                <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
-            </div>
-        </ModalPanel>
+        <DatePicker ref="refDate" @close="onSelFecha" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
@@ -97,7 +93,7 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import ModalPanel from 'src/components/ModalPanel.vue'
+import DatePicker from 'src/components/DatePicker.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import ReceiptsTerra from 'src/components/ReceiptFormTerra.vue'
@@ -123,13 +119,11 @@ const tk = reactive({
     paid: 0,
     balance: 0
 })
-const showFecha = ref(false)
-const dtPicker = reactive({
-    selectedDate: '',
-    datePickerTitle: ''
-})
+const refDate = ref()
+const selDate = ref()
+
 const emptyTicket = {
-    date: moment().format('DD-MM-YYYY'),
+    date: new Date().getTime(),
     amount: 0,
     concept: '',
     paid: 0,
@@ -194,14 +188,11 @@ const remove = () => {
     }
 }
 const selectFecha = () => {
-    dtPicker.selectedDate = tk.date
-    showFecha.value = true
+    refDate.value.show(tk.date)
 }
-const onFechaOKClick = () => {
-    showFecha.value = false
-    tk.date = dtPicker.selectedDate
-        ? dtPicker.selectedDate
-        : tk.date
+const onSelFecha = (dt) => {
+    tk.date = dt || tk.date
+    selDate.value = moment(dt).format('DD/MM/YY')
 }
 const onAttachment = (o) => {
     console.log('attach from viewAttachment:', o)
