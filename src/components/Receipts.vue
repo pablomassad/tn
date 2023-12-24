@@ -8,7 +8,7 @@
         </div>
         <div v-if="userReceipts">
             <div v-for="(cp) in receipts" :key="cp" class="rowComp">
-                <div class="centro">{{ moment(cp.date).format('DD/MM/YYYY') }}</div>
+                <div class="centro">{{ moment(cp.date).format('DD/MM/YY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
                 <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />

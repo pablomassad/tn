@@ -19,7 +19,7 @@
                         <div class="celda texto">{{ item.concept }}</div>
                         <div class="celda texto">{{ item.description }}</div>
                         <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
-                        <div class="celda central">{{ item.date }}</div>
+                        <div class="celda central">{{ moment(item.date).format('DD/MM/YY') }}</div>
                         <div class="celda texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                         <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />
@@ -74,6 +74,7 @@ import appStore from 'src/pages/appStore'
 import DetailsForm from './DetailsForm/index.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import SortColumn from 'src/components/SortColumn.vue'
+import moment from 'moment'
 
 const refDetailsForm = ref()
 const expExtraLote = ref(0)

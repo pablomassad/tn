@@ -11,7 +11,7 @@
                     <div class="row3">
                         <q-input type="text" v-model="detail.concept" label="Concepto" />
                         <q-input type="number" v-model="detail.amount" label="Importe pagado" />
-                        <q-input flat dense clearable v-model="detail.date" label="Fecha" @click="selectFecha()" />
+                        <q-input flat dense clearable v-model:model-value="selDate" label="Fecha" @click="selectFecha()" readonly style="align-self: end" />
                     </div>
                     <q-input type="text" v-model="detail.description" label="Descripción" />
                     <div class="row4">
@@ -30,11 +30,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <ModalPanel :modalActive="showFecha" @close="onFechaOKClick">
-            <div>
-                <q-date v-model="dtPicker.selectedDate" mask="DD-MM-YYYY" title="Fecha" text-color="white" :locale="appStore.state.myLocale" />
-            </div>
-        </ModalPanel>
+        <DatePicker ref="refDate" @close="onSelFecha" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -42,9 +38,9 @@
 <script setup>
 import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import ModalPanel from 'src/components/ModalPanel.vue'
+import DatePicker from 'src/components/DatePicker.vue'
+import moment from 'moment'
 
 const showForm = ref(false)
 const showConfirm = ref(false)
@@ -52,14 +48,11 @@ const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const showFecha = ref(false)
-const dtPicker = reactive({
-    selectedDate: '',
-    datePickerTitle: ''
-})
+const refDate = ref()
+const selDate = ref()
 
 const emptyDetail = {
-    date: moment().format('DD-MM-YYYY'),
+    date: new Date().getTime(),
     idExp: appStore.state.selExpense.id,
     concept: '',
     description: '',
@@ -101,14 +94,11 @@ const onClose = () => {
     showForm.value = false
 }
 const selectFecha = () => {
-    dtPicker.selectedDate = detail.date
-    showFecha.value = true
+    refDate.value.show(detail.date)
 }
-const onFechaOKClick = () => {
-    showFecha.value = false
-    detail.date = dtPicker.selectedDate
-        ? dtPicker.selectedDate
-        : detail.date
+const onSelFecha = (dt) => {
+    detail.date = dt || detail.date
+    selDate.value = moment(dt).format('DD/MM/YY')
 }
 const show = async (det) => {
     showForm.value = true
@@ -122,7 +112,7 @@ defineExpose({ show })
 <style scoped>
 .row3 {
     display: grid;
-    grid-template-columns: 1fr 1fr 200px;
+    grid-template-columns: 1fr 1fr 90px;
     column-gap: 10px;
 }
 

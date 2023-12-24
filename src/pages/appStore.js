@@ -357,7 +357,7 @@ const actions = {
                     amountOrdinary: 0,
                     totalExtraordinary: 0,
                     amountExtraordinary: 0,
-                    created: moment().format('DD/MM/YY')
+                    created: new Date().getTime()
                 }
                 await fb.setDocument('expenses', o, id)
             }
