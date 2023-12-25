@@ -43,6 +43,7 @@ const selSortCol = () => {
     display: grid;
     align-items: center;
     height: 40px;
+    margin-right: -7px;
 }
 
 .lblArrow {

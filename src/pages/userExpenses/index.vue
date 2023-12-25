@@ -117,7 +117,7 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1200px;
+    max-width: 1260px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -125,8 +125,8 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 }
 
 .expensa {
-    grid-template-columns: 120px 90px 90px 90px 90px 90px 90px 90px 90px 90px 100px 60px 70px;
-    width: 1200px;
+    grid-template-columns: 120px 100px 100px 100px 100px 100px 100px 100px 100px 100px 100px 60px 70px;
+    width: 1260px;
 }
 
 .label {

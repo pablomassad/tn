@@ -125,7 +125,7 @@ const evalStatus = (item) => {
 }
 
 .monitor {
-    grid-template-columns: 270px 80px 90px 100px 100px 80px 100px 100px 80px 60px 60px;
+    grid-template-columns: 270px 100px 100px 100px 100px 80px 100px 100px 80px 60px 60px;
     width: 1200px;
 }
 
