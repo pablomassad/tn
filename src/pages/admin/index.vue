@@ -163,13 +163,6 @@ const distributeExpense = (exp) => {
     justify-self: center;
 }
 
-.total {
-    position: relative;
-    background: lightyellow !important;
-    font-weight: bold;
-    height: 60px;
-}
-
 .addBtn {
     position: fixed;
     right: 10px;

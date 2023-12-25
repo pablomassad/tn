@@ -1,19 +1,19 @@
 <template>
     <div class="grdComps">
-        <div class="rowComp encabezado">
+        <div class="fila receipt encabezado">
             <div class="centro">Fecha</div>
             <div class="importe">Importe</div>
             <div class="importe">Forma de pago</div>
             <div class="centro">Ver</div>
         </div>
         <div v-if="userReceipts">
-            <div v-for="(cp) in userReceipts" :key="cp" class="rowComp">
+            <div v-for="(cp) in userReceipts" :key="cp" class="fila receipt">
                 <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
                 <div class="importe">{{ cp.amount.toFixed(1) }}</div>
                 <div class="centro">{{ cp.payType }}</div>
                 <BtnIcon icon="visibility" @click="viewComp(cp)" />
             </div>
-            <div class="rowComp total">
+            <div class="fila receipt total">
                 <div class="centro">TOTAL</div>
                 <div class="importe">{{ userExpense.paid.toFixed(1) }}</div>
             </div>
@@ -65,41 +65,21 @@ watch(() => props.userExpense, (newVal) => {
 <style scoped>
 .grdComps {
     padding: 20px;
-    position: relative;
     background: lightgray;
+    display: grid;
+    justify-content: center;
 }
 
-.rowComp {
-    display: grid;
+.receipt {
     grid-template-columns: 70px 80px 40px 40px;
-    align-items: center;
     width: 320px;
+    /*display: grid;
+    align-items: center;
     background: white;
     column-gap: 20px;
     padding: 5px 15px;
     border-bottom: 1px solid gray;
-    margin: auto;
-}
-
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
-
-.importe {
-    text-align: right;
-}
-
-.centro {
-    text-align: center;
-}
-
-.total {
-    position: relative;
-    background: lightyellow !important;
-    font-weight: bold;
-    height: 60px;
+    margin: auto;*/
 }
 
 .addBtn {

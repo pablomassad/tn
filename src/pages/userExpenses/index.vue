@@ -42,7 +42,7 @@
                     <StatusLed class="celda central" :status="evalStatus(item)" />
                     <Validation class="celda central" :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selUserReceipts" @onCheck="toggleValidation" />
+                <Receipts v-if="showDetails[item.id] && userReceipts[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="userReceipts[item.id]" @onCheck="toggleValidation" />
             </div>
         </div>
     </div>
@@ -59,6 +59,7 @@ import Validation from 'src/components/Validation.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const showDetails = ref({})
+const userReceipts = ref({})
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
@@ -84,9 +85,7 @@ const download = (uExp) => {
 }
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
-    setTimeout(async () => {
-        await appStore.actions.userExpenses.getReceiptsByExp()
-    }, 100)
+    userReceipts.value[uExp.id] = await appStore.actions.userExpenses.getReceiptsByUserExp()
     showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
 const toggleValidation = async (cp) => {

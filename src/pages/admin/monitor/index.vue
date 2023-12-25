@@ -62,7 +62,7 @@ onUnmounted(() => {
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
     setTimeout(async () => {
-        await appStore.actions.userExpenses.getReceiptsByExp()
+        await appStore.actions.userExpenses.getReceiptsByUserExp()
     }, 100)
     showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
@@ -127,23 +127,6 @@ const evalStatus = (item) => {
 .monitor {
     grid-template-columns: 270px 100px 100px 100px 100px 80px 100px 100px 80px 60px 60px;
     width: 1200px;
-}
-
-.total {
-    position: relative;
-    font-weight: bold;
-    height: 40px;
-}
-
-.estado {
-    justify-self: center;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 1px 1px 1px gray;
-    width: 20px;
-    height: 20px;
-    border: 1px solid;
-
 }
 
 .btnIcon {

@@ -78,7 +78,7 @@ const download = (uExp) => {
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
     setTimeout(async () => {
-        await appStore.actions.userExpenses.getReceiptsByExp()
+        await appStore.actions.userExpenses.getReceiptsByUserExp()
     }, 100)
     showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
@@ -165,24 +165,6 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 .value {
     font-size: 18px;
     color: #555;
-}
-
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-    height: 30px;
-}
-
-.estado {
-    justify-self: center;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 1px 1px 1px gray;
-    width: 20px;
-    height: 20px;
-    border: 1px solid;
-
 }
 
 .btnIcon {

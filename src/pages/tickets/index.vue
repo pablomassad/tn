@@ -85,12 +85,6 @@ const evalStatus = (item) => {
     box-shadow: 1px 1px 5px gray;
 }
 
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
-
 .ticket {
     grid-template-columns: 130px 120px 270px 80px 80px 80px 70px 70px 320px;
     width: 1190px;
@@ -128,13 +122,6 @@ const evalStatus = (item) => {
     text-shadow: none !important;
     padding-top: 1px;
     background-color: rgb(89, 112, 155) !important;
-}
-
-.total {
-    position: relative;
-    background: lightyellow !important;
-    font-weight: bold;
-    height: 60px;
 }
 
 .addBtn {

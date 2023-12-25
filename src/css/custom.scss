@@ -25,8 +25,15 @@
     border-bottom: 1px solid gray;
 }
 
+.total {
+    position: relative;
+    background: lightyellow !important;
+    font-weight: bold;
+    height: 60px;
+}
+
 .encabezado {
-    background-color: lightblue;
+    background-color: lightblue !important;
     font-weight: bold;
     border-radius: 10px 10px 0 0;
 }

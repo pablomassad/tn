@@ -18,7 +18,6 @@ const state = reactive({
     selExpense: undefined,
     expenses: undefined,
     selUserExpense: undefined,
-    selUserReceipts: undefined,
     userExpenses: undefined,
     detailsByExp: undefined,
     expensesByUnit: undefined,
@@ -85,10 +84,6 @@ const set = {
         console.log('store set.selUserExpense:', o)
         state.selUserExpense = o
     },
-    selUserReceipts (o) {
-        console.log('store set.selUserReceipts:', o)
-        state.selUserReceipts = o
-    },
     units (u) {
         console.log('store units:', u)
         state.units = u
@@ -152,10 +147,10 @@ const actions = {
                 set.unsubListeners({ us_expensesByUnit: us })
             }
         },
-        async getReceiptsByExp () {
-            console.log('store getReceiptsByExp: ', state.selUserExpense.id)
+        async getReceiptsByUserExp () {
+            console.log('store getReceiptsByUserExp: ', state.selUserExpense.id)
             const res = await fb.getCollectionFlex('receipts', { field: 'idUsrExp', op: '==', val: state.selUserExpense.id })
-            set.selUserReceipts(res)
+            return res
         },
         async saveComp (comp, file) {
             console.log('store saveComp:', comp)
@@ -218,7 +213,7 @@ const actions = {
             const cp = { ...comp }
             cp.isValid = !cp.isValid
             await fb.setDocument('receipts', cp, cp.id)
-            await actions.userExpenses.getReceiptsByExp()
+            await actions.userExpenses.getReceiptsByUserExp()
             console.log('toggle validation receipt:', cp)
         },
         sort (field, dir) {

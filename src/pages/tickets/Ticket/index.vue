@@ -315,23 +315,6 @@ defineExpose({ show })
     border-bottom: 1px solid gray;
 }
 
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
-
-.estado {
-    justify-self: center;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 1px 1px 1px gray;
-    width: 20px;
-    height: 20px;
-    border: 1px solid;
-
-}
-
 .btnIcon {
     padding: 5px;
     font-size: 20px;

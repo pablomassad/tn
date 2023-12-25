@@ -1,21 +1,21 @@
 <template>
     <div class="grdComps">
-        <div class="rowComp encabezado">
-            <SortColumn class="texto" col="date" label="Fecha" :sortMethod="sortReceipts" :activeCol="activeCol" />
-            <SortColumn class="precio" col="amount" label="Importe" :sortMethod="sortReceipts" :activeCol="activeCol" />
-            <div class="central">Ver</div>
-            <SortColumn class="central" col="isValid" label="Válido" :sortMethod="sortReceipts" :activeCol="activeCol" />
+        <div class="fila receipt encabezado">
+            <SortColumn class="celda central" col="date" label="Fecha" :sortMethod="sortReceipts" :activeCol="activeCol" />
+            <SortColumn class="celda precio" col="amount" label="Importe" :sortMethod="sortReceipts" :activeCol="activeCol" />
+            <div class="celda central">Ver</div>
+            <SortColumn class="celda central" col="isValid" label="Válido" :sortMethod="sortReceipts" :activeCol="activeCol" />
         </div>
         <div v-if="userReceipts">
-            <div v-for="(cp) in receipts" :key="cp" class="rowComp">
-                <div class="centro">{{ moment(cp.date).format('DD/MM/YY') }}</div>
-                <div class="importe">{{ cp.amount.toFixed(1) }}</div>
-                <BtnIcon icon="visibility" @click="viewComp(cp)" />
+            <div v-for="(cp) in receipts" :key="cp" class="fila receipt">
+                <div class="celda central">{{ moment(cp.date).format('DD/MM/YY') }}</div>
+                <div class="celda precio">{{ cp.amount.toFixed(1) }}</div>
+                <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
                 <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />
             </div>
-            <div class="rowComp total">
-                <div class="centro">TOTAL</div>
-                <div class="importe">{{ userExpense.paid.toFixed(1) }}</div>
+            <div class="fila receipt total">
+                <div class="celda central">TOTAL</div>
+                <div class="celda precio">{{ userExpense.paid.toFixed(1) }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import moment from 'moment'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -77,50 +77,21 @@ const sortArray = (arr, key, dir) => {
     })
     return res
 }
-
-watch(() => props.userExpense, (newVal) => {
-    console.log('watch Receipts userExpense:', newVal)
-})
 </script>
 
 <style scoped>
 .grdComps {
     padding: 20px;
-    position: relative;
     background: lightgray;
-}
-
-.rowComp {
     display: grid;
-    grid-template-columns: 70px 80px 40px 40px;
-    align-items: center;
-    width: 320px;
-    background: white;
-    column-gap: 20px;
-    padding: 5px 15px;
-    border-bottom: 1px solid gray;
-    margin: auto;
+    justify-content: center;
 }
 
-.encabezado {
-    background-color: lightblue;
-    font-weight: bold;
-    border-radius: 10px 10px 0 0;
-}
-
-.importe {
-    text-align: right;
-}
-
-.centro {
-    text-align: center;
-}
-
-.total {
-    position: relative;
-    background: lightyellow !important;
-    font-weight: bold;
-    height: 60px;
+.receipt {
+    grid-template-columns: 90px 80px 60px 60px;
+    width: 300px;
+    background-color: white;
+    box-shadow: 1px 1px 4px gray;
 }
 
 .addBtn {

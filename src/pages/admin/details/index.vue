@@ -156,23 +156,6 @@ watch(() => expExtraLote.value, (newVal) => {
     width: 1000px;
 }
 
-.total {
-    position: relative;
-    font-weight: bold;
-    height: 40px;
-}
-
-.estado {
-    justify-self: center;
-    background-color: red;
-    border-radius: 50%;
-    box-shadow: 1px 1px 1px gray;
-    width: 20px;
-    height: 20px;
-    border: 1px solid;
-
-}
-
 .title {
     font-size: 20px;
     font-weight: bold;

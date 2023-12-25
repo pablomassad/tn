@@ -77,7 +77,7 @@ const save = async () => {
         onAcceptDialog.value = async () => {
             await appStore.actions.userExpenses.saveComp(comp, attFile.value)
             showConfirm.value = false
-            await appStore.actions.userExpenses.getReceiptsByExp()
+            await appStore.actions.userExpenses.getReceiptsByUserExp()
             onClose()
         }
         onCancelDialog.value = () => {
