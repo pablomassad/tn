@@ -21,7 +21,7 @@
                         <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
                         <div class="celda central">{{ moment(item.date).format('DD/MM/YY') }}</div>
                         <div class="celda texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
-                        <q-icon class="typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
+                        <q-icon class="celda typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                         <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />
                     </div>
                 </div>
@@ -119,6 +119,7 @@ watch(() => expExtraLote.value, (newVal) => {
     font-size: 20px;
     color: green;
     justify-self: center;
+    align-self: center;
 }
 
 .value {

@@ -9,7 +9,7 @@
             <template #default>
                 <div class="grdForm">
                     <div class="rowConDt">
-                        <q-input flat dense clearable v-model="selDate" label="Fecha del Ticket" @click="selectFecha()" readonly />
+                        <q-input flat dense clearable :model-value="selDate" label="Fecha del ticket" @click="selectFecha()" readonly />
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
                     </div>
                     <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
@@ -38,14 +38,14 @@
                         </div>
                         <q-select v-if="tk.refType === 'PROP' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
                         <div v-if="tk.refType === 'TERRA'" class="subject">TerraNostra S.A.</div>
-                        <q-input type="number" v-model="tk.amount" label="Importe pagado" />
+                        <q-input type="number" v-model="tk.amount" label="Importe a pager" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
                     </div>
                     <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
                         <div></div>
                         <div class="subject">{{ tk.referrer }}</div>
-                        <q-input type="number" v-model="tk.amount" label="Importe pagado" />
+                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
                     </div>
@@ -222,6 +222,7 @@ const show = async (t) => {
     if (o.refType === 'PROP') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
+    selDate.value = t.date
 }
 
 defineExpose({ show })

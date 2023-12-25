@@ -2,6 +2,7 @@
     <div>
         <div class="matrix" v-if="appStore.state.tickets">
             <div class="fila ticket encabezado">
+                <SortColumn class="central" col="idExp" label="Imputación" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="central" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
@@ -13,7 +14,8 @@
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="fila ticket">
-                    <div class="celda central">{{ moment(tk.date).format('DD/MM/YY HH:mm') }}</div>
+                    <div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>
+                    <div class="celda central">{{ moment(tk.date).format('DD/MM/YY') }}</div>
                     <div class="celda texto">{{ tk.concept }}</div>
                     <div class="celda precio">{{ tk.amount.toFixed(1) }}</div>
                     <div class="celda precio">{{ tk.paid.toFixed(1) }}</div>
@@ -76,7 +78,7 @@ const evalStatus = (item) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1090px;
+    max-width: 1190px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -90,8 +92,8 @@ const evalStatus = (item) => {
 }
 
 .ticket {
-    grid-template-columns: 130px 270px 80px 80px 80px 70px 70px 320px;
-    width: 1090px;
+    grid-template-columns: 130px 120px 270px 80px 80px 80px 70px 70px 320px;
+    width: 1190px;
     border-bottom: 1px solid gray;
 }
 

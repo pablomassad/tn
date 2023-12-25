@@ -402,6 +402,7 @@ const actions = {
         }
     },
     evalExpName (expId) {
+        if (!expId) return
         const year = expId.substr(0, 2)
         const monthNum = expId.substr(2, 2)
         const month = state.myLocale.months[monthNum - 1]

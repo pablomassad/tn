@@ -10,10 +10,11 @@
 👍 No funciona Salir de sesion (no vuelve al login)
 👍 Agregar Perfiles en DB
 👍 Sacar boton de agregar detalle una vez distribuida la expensas
+👍 Corregir fechas en todos los documentos para que se guarden como timestamp (y convertir con moment para la visualizacion)
+👍 Ordenamiento por columna en todas las grillas
 
 
 ⏰ Receipts: Usar ViewAttachment component
-⏰ Corregir fechas en todos los documentos para que se guarden como timestamp (y convertir con moment para la visualizacion)
 
 ADMIN:
 ⏰ Exportacion y bajada a PDF
@@ -23,13 +24,12 @@ ADMIN:
 
 USEREXPENSES:
 ⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
-👍 Ordenamiento por columna en todas las grillas
-⏰ UserExpenses: Agregar columnas (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
+⏰ UserExpenses: Agregar binding columnas  (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
 
 
 TICKETS:
 ⏰ Tickets: Si el tk.referrer = TERRA => payType = CASH
- ⏰ Tickets: Si el tk.referrer = PROP => payType = CREDIT
+⏰ Tickets: Si el tk.referrer = PROP => payType = CREDIT
 ⏰ Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
 ⏰ Tickets: Armar formulario contextual al perfil
      (propietario carga por defecto su nombre)
