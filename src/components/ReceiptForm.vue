@@ -29,6 +29,7 @@
             </template>
         </ConfirmDialog>
         <DatePicker ref="refDate" @close="onSelFecha" />
+        <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
@@ -47,9 +48,10 @@ const props = defineProps({
         type: Function
     }
 })
+const refViewAtt = ref()
+const refAttachment = ref()
 
 const refDate = ref()
-const refAttachment = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
@@ -105,16 +107,21 @@ const remove = () => {
         showConfirm.value = false
     }
 }
-const viewComp = async () => {
-    console.log('view comprobante:', comp.attachmentUrl)
-    window.open(comp.attachmentUrl, 'blank')
-}
 const selectFecha = () => {
     refDate.value.show(comp.date)
 }
 const onSelFecha = (dt) => {
     comp.date = dt || comp.date
     selDate.value = moment(dt).format('DD/MM/YY')
+}
+const onAttachment = (o) => {
+    console.log('attach from viewAttachment:', o)
+    attFile.value = o
+}
+const viewComp = async () => {
+    const att = (attFile.value) ? attFile.value : comp.attachmentUrl
+    refViewAtt.value.show(att)
+    // window.open(comp.attachmentUrl, 'blank')
 }
 const attachComp = () => {
     refAttachment.value.click()

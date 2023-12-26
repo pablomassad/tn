@@ -84,9 +84,9 @@
             </template>
         </ConfirmDialog>
         <DatePicker ref="refDate" @close="onSelFecha" />
-        <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
+        <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
     </div>
 </template>
 
@@ -224,7 +224,6 @@ const show = async (t) => {
     }
     selDate.value = t.date
 }
-
 defineExpose({ show })
 </script>
 
