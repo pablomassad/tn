@@ -42,7 +42,7 @@
                     <StatusLed class="celda central" :status="evalStatus(item)" />
                     <Validation class="celda central" :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id] && userReceipts[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="userReceipts[item.id]" @onCheck="toggleValidation" :refreshFn="loadReceiptsByUserExp" />
+                <Receipts v-if="showDetails[item.id]" />
             </div>
         </div>
     </div>
@@ -59,7 +59,6 @@ import Validation from 'src/components/Validation.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const showDetails = ref({})
-const userReceipts = ref({})
 
 onMounted(async () => {
     ui.actions.setTitle('Expensas')
@@ -85,19 +84,9 @@ const download = (uExp) => {
 }
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
-    await loadReceiptsByUserExp()
-    showDetails.value[uExp.id] = true
+    showDetails.value[uExp.id] = !showDetails.value[uExp.id]
 }
-const toggleValidation = async (cp) => {
-    ui.actions.showLoading()
-    await appStore.actions.userExpenses.toggleValidation(cp)
-    ui.actions.hideLoading()
-}
-const loadReceiptsByUserExp = async () => {
-    console.log('loadReceiptsByUserExp()', showDetails.value)
-    showDetails.value[appStore.state.selUserExpense.id] = false
-    userReceipts.value[appStore.state.selUserExpense.id] = await appStore.actions.userExpenses.getReceiptsByUserExp()
-}
+
 watch(() => appStore.state.selUserExpense, (newVal) => {
     console.log('watch selUserExpense:', newVal)
 })

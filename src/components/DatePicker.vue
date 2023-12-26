@@ -3,7 +3,7 @@
         <div v-if="modalActive" class="modal" @click="close">
             <transition name="modal-animation-inner">
                 <div class="modalInner" v-on:click.stop="prevent">
-                    <q-date v-model="dtPicker" :mask="MASK" title="Fecha" text-color="white" :locale="myLocale" />
+                    <q-date v-model="dtPicker" :mask="mask" title="Fecha" text-color="white" :locale="myLocale" />
                     <q-btn style="width: 100%" color="primary" label="Aceptar" @click="accept" />
                 </div>
             </transition>
@@ -16,8 +16,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import moment from 'moment'
 
 const emit = defineEmits(['close'])
+const props = defineProps(['mask'])
 
-const MASK = 'DD/MM/YY'
 const dtPicker = ref()
 const modalActive = ref(false)
 
@@ -46,7 +46,7 @@ onUnmounted(() => {
 const accept = () => {
     console.log('accept event')
     modalActive.value = false
-    const dt = moment(dtPicker.value, MASK).unix() * 1000
+    const dt = moment(dtPicker.value, props.mask).unix() * 1000
     emit('close', dt)
 }
 const close = () => {
@@ -58,7 +58,7 @@ const prevent = (e) => {
     console.log('prevent:', e)
 }
 const show = (initDate) => {
-    dtPicker.value = moment(initDate).format(MASK)
+    dtPicker.value = moment(initDate).format(props.mask)
     modalActive.value = true
 }
 

@@ -28,7 +28,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" />
+        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -41,13 +41,9 @@ import appStore from 'src/pages/appStore'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import { ui } from 'fwk-q-ui'
 import DatePicker from 'src/components/DatePicker.vue'
+import ViewAttachment from 'src/components/ViewAttachment.vue'
 import moment from 'moment'
 
-const props = defineProps({
-    refreshFn: {
-        type: Function
-    }
-})
 const refViewAtt = ref()
 const refAttachment = ref()
 
@@ -85,7 +81,6 @@ const save = async () => {
         onAcceptDialog.value = async () => {
             await appStore.actions.userExpenses.saveComp(comp, attFile.value)
             showConfirm.value = false
-            props.refreshFn()
             onClose()
         }
         onCancelDialog.value = () => {
@@ -112,7 +107,7 @@ const selectFecha = () => {
 }
 const onSelFecha = (dt) => {
     comp.date = dt || comp.date
-    selDate.value = moment(dt).format('DD/MM/YY')
+    selDate.value = moment(dt).format(appStore.state.dateMask)
 }
 const onAttachment = (o) => {
     console.log('attach from viewAttachment:', o)
@@ -133,12 +128,13 @@ const onUploadAttachment = async (e) => {
 const onClose = () => {
     showForm.value = false
 }
-const show = async (name, cp) => {
-    expName.value = name
+const show = async (cp) => {
+    expName.value = appStore.state.selUserExpense.expName
     showForm.value = true
     const o = cp || emptyComp
     Object.assign(comp, o)
     attFile.value = undefined
+    selDate.value = moment(cp.date).format(appStore.state.dateMask)
 }
 defineExpose({ show })
 </script>

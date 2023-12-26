@@ -8,7 +8,7 @@
         </div>
         <div v-if="userReceipts">
             <div v-for="(cp) in userReceipts" :key="cp" class="fila receipt">
-                <div class="celda central">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
+                <div class="celda central">{{ moment(cp.datetime).format(appStore.state.dateMask) }}</div>
                 <div class="celda precio">{{ cp.amount }}</div>
                 <div class="celda texto">{{ cp.payType }}</div>
                 <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
@@ -28,6 +28,7 @@ import { ref, onMounted, onUnmounted, watch } from 'vue'
 import moment from 'moment'
 import ReceiptFormTerra from 'src/components/ReceiptFormTerra.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
+import appStore from 'src/pages/appStore'
 
 console.log('ReceiptsTerra CONSTRUCTOR')
 

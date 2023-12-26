@@ -6,26 +6,28 @@
             <div class="celda central">Ver</div>
             <SortColumn class="celda central" col="isValid" label="Válido" :sortMethod="sortReceipts" :activeCol="activeCol" />
         </div>
-        <div v-if="userReceipts">
+        <div v-if="receipts">
             <div v-for="(cp) in receipts" :key="cp" class="fila receipt">
-                <div class="celda central">{{ moment(cp.date).format('DD/MM/YY') }}</div>
+                <div class="celda central">{{ moment(cp.date).format(appStore.state.dateMask) }}</div>
                 <div class="celda precio">{{ cp.amount }}</div>
                 <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
                 <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />
             </div>
             <div class="fila receipt total">
                 <div class="celda central">TOTAL</div>
-                <div class="celda precio">{{ userExpense.paid }}</div>
+                <div class="celda precio">{{ appStore.state.selUserExpense.paid }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
     </div>
-    <ReceiptForm ref="refReceiptForm" :refreshFn="refreshFn" />
+    <ReceiptForm ref="refReceiptForm" />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ui } from 'fwk-q-ui'
 import moment from 'moment'
+import appStore from 'src/pages/appStore'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import Validation from 'src/components/Validation.vue'
@@ -34,17 +36,6 @@ import SortColumn from 'src/components/SortColumn.vue'
 console.log('Receipts CONSTRUCTOR')
 
 const emit = defineEmits(['onCheck'])
-const props = defineProps({
-    userExpense: {
-        type: Object
-    },
-    userReceipts: {
-        type: Object
-    },
-    refreshFn: {
-        type: Function
-    }
-})
 
 const activeCol = ref()
 const refReceiptForm = ref()
@@ -52,20 +43,22 @@ const receipts = ref()
 
 onMounted(async () => {
     console.log('Receipts onMounted')
-    receipts.value = [...props.userReceipts]
+    receipts.value = await appStore.actions.userExpenses.getReceiptsByUserExp()
 })
 onUnmounted(() => {
     console.log('Receipts onUnmounted')
 })
 const addComp = () => {
-    refReceiptForm.value.show(props.userExpense.expName)
+    refReceiptForm.value.show()
 }
 const viewComp = (cp) => {
-    refReceiptForm.value.show(props.userExpense.expName, cp)
+    refReceiptForm.value.show(cp)
 }
-const toggleValidation = (cp) => {
+const toggleValidation = async (cp) => {
     console.log('toggleValidation:', cp)
-    emit('onCheck', cp)
+    ui.actions.showLoading()
+    await appStore.actions.userExpenses.toggleValidation(cp)
+    ui.actions.hideLoading()
 }
 const sortReceipts = (field, dir) => {
     const arr = sortArray(receipts.value, field, dir)
@@ -80,10 +73,6 @@ const sortArray = (arr, key, dir) => {
     })
     return res
 }
-watch(() => props.userReceipts, (newReceipts) => {
-    console.log('watch Receipts:', newReceipts)
-    receipts.value = [...newReceipts]
-})
 </script>
 
 <style scoped>

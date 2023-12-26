@@ -10,6 +10,7 @@ import { pdfGenerator } from 'src/pages/generator.js'
 fb.initFirebase(ENVIRONMENTS.firebase)
 
 const state = reactive({
+    dateMask: 'DD/MM/YY',
     activeCol: undefined,
     master: true,
     settings: undefined,

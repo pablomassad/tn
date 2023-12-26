@@ -28,7 +28,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" />
+        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
@@ -108,7 +108,7 @@ const selectFecha = () => {
 }
 const onSelFecha = (dt) => {
     comp.date = dt || comp.date
-    selDate.value = moment(dt).format('DD/MM/YY')
+    selDate.value = moment(dt).format(appStore.state.dateMask)
 }
 const attachComp = () => {
     refAttachment.value.click()

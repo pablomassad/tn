@@ -15,7 +15,7 @@
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="fila ticket">
                     <div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>
-                    <div class="celda central">{{ moment(tk.date).format('DD/MM/YY') }}</div>
+                    <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
                     <div class="celda texto">{{ tk.concept }}</div>
                     <div class="celda precio">{{ tk.amount }}</div>
                     <div class="celda precio">{{ tk.paid }}</div>

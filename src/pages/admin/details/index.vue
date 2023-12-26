@@ -19,7 +19,7 @@
                         <div class="celda texto">{{ item.concept }}</div>
                         <div class="celda texto">{{ item.description }}</div>
                         <div class="celda precio">{{ item.amount }}</div>
-                        <div class="celda central">{{ moment(item.date).format('DD/MM/YY') }}</div>
+                        <div class="celda central">{{ moment(item.date).format(appStore.state.dateMask) }}</div>
                         <div class="celda texto" :style="{color: (item.payMode === 'Pendiente') ? 'red' : 'black'}">{{ item.payMode }}</div>
                         <q-icon class="celda typeIcon" :name="(item.isCont === 'Contable') ? 'task_alt' : ''"></q-icon>
                         <BtnIcon icon="edit" @click="editItem(item)" :disabled="!!appStore.state.selExpense.deployed" />

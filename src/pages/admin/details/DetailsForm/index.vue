@@ -30,7 +30,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" />
+        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -98,7 +98,7 @@ const selectFecha = () => {
 }
 const onSelFecha = (dt) => {
     detail.date = dt || detail.date
-    selDate.value = moment(dt).format('DD/MM/YY')
+    selDate.value = moment(dt).format(appStore.state.dateMask)
 }
 const show = async (det) => {
     showForm.value = true
