@@ -29,20 +29,20 @@
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="fila expensa">
                     <div class="celda texto">{{ item.expName }}</div>
-                    <div class="celda precio">{{ item.lastAmount?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.interest.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.credit?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.paid?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastAmount }}</div>
+                    <div class="celda precio">{{ item.lastPaid }}</div>
+                    <div class="celda precio">{{ item.lastBalance }}</div>
+                    <div class="celda precio">{{ item.amount }}</div>
+                    <div class="celda precio">{{ item.interest }}</div>
+                    <div class="celda precio">{{ item.credit }}</div>
+                    <div class="celda precio">{{ item.paid }}</div>
+                    <div class="celda precio">{{ item.balance }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
                     <StatusLed class="celda central" :status="evalStatus(item)" />
                     <Validation class="celda central" :isValid="item.isValid" />
                 </div>
-                <Receipts v-if="showDetails[item.id] && userReceipts[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="userReceipts[item.id]" @onCheck="toggleValidation" />
+                <Receipts v-if="showDetails[item.id] && userReceipts[item.id]" :userExpense="appStore.state.selUserExpense" :userReceipts="userReceipts[item.id]" @onCheck="toggleValidation" :refreshFn="loadReceiptsByUserExp" />
             </div>
         </div>
     </div>
@@ -85,15 +85,19 @@ const download = (uExp) => {
 }
 const toggleReceipts = async (uExp) => {
     appStore.set.selUserExpense(uExp)
-    userReceipts.value[uExp.id] = await appStore.actions.userExpenses.getReceiptsByUserExp()
-    showDetails.value[uExp.id] = !showDetails.value[uExp.id]
+    await loadReceiptsByUserExp()
+    showDetails.value[uExp.id] = true
 }
 const toggleValidation = async (cp) => {
     ui.actions.showLoading()
     await appStore.actions.userExpenses.toggleValidation(cp)
     ui.actions.hideLoading()
 }
-
+const loadReceiptsByUserExp = async () => {
+    console.log('loadReceiptsByUserExp()', showDetails.value)
+    showDetails.value[appStore.state.selUserExpense.id] = false
+    userReceipts.value[appStore.state.selUserExpense.id] = await appStore.actions.userExpenses.getReceiptsByUserExp()
+}
 watch(() => appStore.state.selUserExpense, (newVal) => {
     console.log('watch selUserExpense:', newVal)
 })

@@ -23,7 +23,7 @@ ADMIN:
 
 
 USEREXPENSES:
-⏰ cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
+👍 cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
 ⏰ UserExpenses: Agregar binding columnas  (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
 
 

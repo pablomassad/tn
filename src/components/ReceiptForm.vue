@@ -42,6 +42,12 @@ import { ui } from 'fwk-q-ui'
 import DatePicker from 'src/components/DatePicker.vue'
 import moment from 'moment'
 
+const props = defineProps({
+    refreshFn: {
+        type: Function
+    }
+})
+
 const refDate = ref()
 const refAttachment = ref()
 const showForm = ref(false)
@@ -77,7 +83,7 @@ const save = async () => {
         onAcceptDialog.value = async () => {
             await appStore.actions.userExpenses.saveComp(comp, attFile.value)
             showConfirm.value = false
-            await appStore.actions.userExpenses.getReceiptsByUserExp()
+            props.refreshFn()
             onClose()
         }
         onCancelDialog.value = () => {

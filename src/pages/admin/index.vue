@@ -21,15 +21,15 @@
             <div v-for="(item) in appStore.state.expenses" :key="item">
                 <div class="fila admin">
                     <div class="celda texto">{{ item.expName }}</div>
-                    <div class="celda precio">{{ item.lastTotal?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.total.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
-                    <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
-                    <div class="celda precio loteInfo">{{ item.amountOrdinary.toFixed(1) }}</div>
-                    <div class="celda precio loteInfo">{{ item.amountExtraordinary.toFixed(1) }}</div>
-                    <div class="celda precio loteInfo">{{ item.amount.toFixed(1) }}</div>
+                    <div class="celda precio">{{ item.lastTotal }}</div>
+                    <div class="celda precio">{{ item.lastPaid }}</div>
+                    <div class="celda precio">{{ item.lastBalance }}</div>
+                    <div class="celda precio">{{ item.total }}</div>
+                    <div class="celda precio">{{ item.paid }}</div>
+                    <div class="celda precio">{{ item.balance }}</div>
+                    <div class="celda precio loteInfo">{{ item.amountOrdinary }}</div>
+                    <div class="celda precio loteInfo">{{ item.amountExtraordinary }}</div>
+                    <div class="celda precio loteInfo">{{ item.amount }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" :disabled="!item.deployed" />
                     <BtnIcon icon="edit" @click="gotoDetails(item)" />
                     <BtnIcon icon="groups" @click="gotoMonitor(item)" :disabled="!item.deployed" />

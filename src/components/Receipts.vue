@@ -9,22 +9,22 @@
         <div v-if="userReceipts">
             <div v-for="(cp) in receipts" :key="cp" class="fila receipt">
                 <div class="celda central">{{ moment(cp.date).format('DD/MM/YY') }}</div>
-                <div class="celda precio">{{ cp.amount.toFixed(1) }}</div>
+                <div class="celda precio">{{ cp.amount }}</div>
                 <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
                 <Validation :isValid="cp.isValid" @click="toggleValidation(cp)" />
             </div>
             <div class="fila receipt total">
                 <div class="celda central">TOTAL</div>
-                <div class="celda precio">{{ userExpense.paid.toFixed(1) }}</div>
+                <div class="celda precio">{{ userExpense.paid }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
     </div>
-    <ReceiptForm ref="refReceiptForm" />
+    <ReceiptForm ref="refReceiptForm" :refreshFn="refreshFn" />
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import moment from 'moment'
 import ReceiptForm from 'src/components/ReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -40,6 +40,9 @@ const props = defineProps({
     },
     userReceipts: {
         type: Object
+    },
+    refreshFn: {
+        type: Function
     }
 })
 
@@ -77,6 +80,10 @@ const sortArray = (arr, key, dir) => {
     })
     return res
 }
+watch(() => props.userReceipts, (newReceipts) => {
+    console.log('watch Receipts:', newReceipts)
+    receipts.value = [...newReceipts]
+})
 </script>
 
 <style scoped>

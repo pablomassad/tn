@@ -17,9 +17,9 @@
                     <div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>
                     <div class="celda central">{{ moment(tk.date).format('DD/MM/YY') }}</div>
                     <div class="celda texto">{{ tk.concept }}</div>
-                    <div class="celda precio">{{ tk.amount.toFixed(1) }}</div>
-                    <div class="celda precio">{{ tk.paid.toFixed(1) }}</div>
-                    <div class="celda precio">{{ tk.balance.toFixed(1) }}</div>
+                    <div class="celda precio">{{ tk.amount }}</div>
+                    <div class="celda precio">{{ tk.paid }}</div>
+                    <div class="celda precio">{{ tk.balance }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
                     <StatusLed class="celda central" :status="evalStatus(tk)" />
                     <div class="celda texto">{{ tk.referrer }}</div>
@@ -28,7 +28,7 @@
             <!--<div class="rowTicket total">
                 <div class="central">TOTAL</div>
                 <div></div>
-                <div class="precio">{{ sumTickets(appStore.state.tickets).toFixed(1) }}</div>
+                <div class="precio">{{ sumTickets(appStore.state.tickets) }}</div>
             </div>-->
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>

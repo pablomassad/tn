@@ -26,11 +26,11 @@
             <div v-for="(item) in appStore.state.expensesByUnit" :key="item">
                 <div class="rowExpensa">
                     <div>{{ item.expName }}</div>
-                    <div class="precio">{{ item.amount.toFixed(1) }}</div>
-                    <div class="precio">{{ item.interest.toFixed(1) }}</div>
-                    <div class="precio">{{ item.credit?.toFixed(1) }}</div>
-                    <div class="precio">{{ item.paid?.toFixed(1) }}</div>
-                    <div class="precio">{{ item.balance.toFixed(1) }}</div>
+                    <div class="precio">{{ item.amount }}</div>
+                    <div class="precio">{{ item.interest }}</div>
+                    <div class="precio">{{ item.credit }}</div>
+                    <div class="precio">{{ item.paid }}</div>
+                    <div class="precio">{{ item.balance }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" />
                     <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
                     <StatusLed class="centro" :status="evalStatus(item)" />

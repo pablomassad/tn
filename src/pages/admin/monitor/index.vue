@@ -21,13 +21,13 @@
                 <div v-for="item in appStore.state.userExpenses" :key="item">
                     <div class="fila monitor">
                         <div class="celda texto">{{ item.ownerNames }}</div>
-                        <div class="celda precio">{{ item.lastTotal?.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.lastPaid?.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.lastBalance?.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.amount.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.interest.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.paid.toFixed(1) }}</div>
-                        <div class="celda precio">{{ item.balance.toFixed(1) }}</div>
+                        <div class="celda precio">{{ item.lastTotal }}</div>
+                        <div class="celda precio">{{ item.lastPaid }}</div>
+                        <div class="celda precio">{{ item.lastBalance }}</div>
+                        <div class="celda precio">{{ item.amount }}</div>
+                        <div class="celda precio">{{ item.interest }}</div>
+                        <div class="celda precio">{{ item.paid }}</div>
+                        <div class="celda precio">{{ item.balance }}</div>
                         <BtnIcon icon="upload_file" @click="toggleReceipts(item)" />
                         <StatusLed class="celda central" :status="evalStatus(item)" />
                         <Validation :isValid="item.isValid" />

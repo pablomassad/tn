@@ -1,25 +1,24 @@
 <template>
     <div class="grdComps">
         <div class="fila receipt encabezado">
-            <div class="centro">Fecha</div>
-            <div class="importe">Importe</div>
-            <div class="importe">Forma de pago</div>
-            <div class="centro">Ver</div>
+            <div class="celda central">Fecha</div>
+            <div class="celda precio">Importe</div>
+            <div class="celda texto">Forma de pago</div>
+            <div class="celda central">Ver</div>
         </div>
         <div v-if="userReceipts">
             <div v-for="(cp) in userReceipts" :key="cp" class="fila receipt">
-                <div class="centro">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
-                <div class="importe">{{ cp.amount.toFixed(1) }}</div>
-                <div class="centro">{{ cp.payType }}</div>
-                <BtnIcon icon="visibility" @click="viewComp(cp)" />
+                <div class="celda central">{{ moment(cp.datetime).format('DD/MM/YY') }}</div>
+                <div class="celda precio">{{ cp.amount }}</div>
+                <div class="celda texto">{{ cp.payType }}</div>
+                <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
             </div>
             <div class="fila receipt total">
-                <div class="centro">TOTAL</div>
-                <div class="importe">{{ userExpense.paid.toFixed(1) }}</div>
+                <div class="celda central">TOTAL</div>
+                <div class="celda precio">{{ userExpense.paid }}</div>
             </div>
         </div>
         <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
-
     </div>
     <ReceiptFormTerra ref="refReceiptFormTerra" />
 </template>
