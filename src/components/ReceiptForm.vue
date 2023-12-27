@@ -28,7 +28,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" mask="appStore.state.dateMask" />
+        <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -39,7 +39,7 @@
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { ui } from 'fwk-q-ui'
 import appStore from 'src/pages/appStore'
-import DatePicker from 'src/components/DatePicker.vue'
+import DatePicker from 'fwk-q-datepicker'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import ViewAttachment from 'src/components/ViewAttachment.vue'
 import moment from 'moment'

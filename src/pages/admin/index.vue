@@ -132,7 +132,6 @@ const distributeExpense = (exp) => {
 <style scoped>
 .combo {
     margin: 16px;
-    z-index: 40000;
 }
 
 .matrix {

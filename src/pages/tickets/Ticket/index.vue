@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="formDialog" bg-color="white">
+        <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="≈" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
                     {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket
@@ -74,6 +74,7 @@
                     </div>-->
                     <ReceiptsTerra />
                 </div>
+                <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
             </template>
             <template #footer>
                 <div class="btnContainer">
@@ -83,7 +84,6 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
@@ -91,9 +91,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
-import DatePicker from 'src/components/DatePicker.vue'
+import DatePicker from 'fwk-q-datepicker'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import ReceiptsTerra from 'src/components/ReceiptsTerra.vue'
@@ -135,8 +135,11 @@ const emptyTicket = {
 }
 
 onMounted(async () => {
-    console.log('TICKET onMounted')
+    console.log('TICKET selected onMounted')
     if (!appStore.state.units) { await appStore.actions.getUnits() }
+})
+onUnmounted(() => {
+    console.log('TICKET selected onUnmounted')
 })
 const filterFn = (val, update) => {
     if (val === '') {

@@ -51,8 +51,8 @@ defineExpose({ show })
     bottom: 0;
     right: 0;
     left: 0;
-    z-index: 11000;
     background-color: lightcyan;
+    z-index: 6001;
 }
 
 .btnClose {

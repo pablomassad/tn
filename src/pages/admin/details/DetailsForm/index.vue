@@ -30,7 +30,7 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
+        <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -39,7 +39,7 @@
 import { ref, onMounted, reactive } from 'vue'
 import appStore from 'src/pages/appStore'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import DatePicker from 'src/components/DatePicker.vue'
+import DatePicker from 'fwk-q-datepicker'
 import moment from 'moment'
 
 const showForm = ref(false)

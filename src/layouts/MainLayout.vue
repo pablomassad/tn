@@ -99,7 +99,7 @@ const logout = () => {
     width: 100px;
     height: 76px;
     overflow: hidden;
-    z-index: 10000;
+    z-index: 6000;
 }
 
 .logo {

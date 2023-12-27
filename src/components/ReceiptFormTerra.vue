@@ -18,6 +18,7 @@
                         <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
                     </div>
                 </div>
+                <DatePicker ref="refDateTerra" @close="onSelFecha" :mask="appStore.state.dateMask" id="dtPickerTerra" />
             </template>
             <template #footer>
                 <div class="btnContainer">
@@ -27,7 +28,6 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" mask="appStore.state.dateMask" />
         <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -38,7 +38,7 @@
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
 import { ui } from 'fwk-q-ui'
 import appStore from 'src/pages/appStore'
-import DatePicker from 'src/components/DatePicker.vue'
+import DatePicker from 'fwk-q-datepicker'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import ViewAttachment from 'src/components/ViewAttachment.vue'
 import moment from 'moment'
@@ -46,7 +46,7 @@ import moment from 'moment'
 const refViewAtt = ref()
 const refAttachment = ref()
 
-const refDate = ref()
+const refDateTerra = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
@@ -101,7 +101,7 @@ const remove = () => {
     }
 }
 const selectFecha = () => {
-    refDate.value.show(comp.date)
+    refDateTerra.value.show(comp.date)
 }
 const onSelFecha = (dt) => {
     comp.date = dt || comp.date
@@ -131,7 +131,7 @@ const show = async (cp) => {
     const o = cp || emptyComp
     Object.assign(comp, o)
     attFile.value = undefined
-    selDate.value = moment(cp.date).format(appStore.state.dateMask)
+    selDate.value = moment(comp.date).format(appStore.state.dateMask)
 }
 defineExpose({ show })
 </script>
@@ -155,8 +155,10 @@ defineExpose({ show })
 }
 
 .rowAmAt {
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    align-items: center;
+    grid-template-columns: 200px 1fr 150px;
+    column-gap: 10px;
 }
 
 .btnContainer {

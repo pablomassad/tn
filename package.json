@@ -46,6 +46,7 @@
         "fwk-q-barcode": "0.0.12",
         "fwk-q-cardlist": "0.0.23",
         "fwk-q-confirmdialog": "0.0.19",
+        "fwk-q-datepicker": "^0.0.5",
         "fwk-q-expansion": "0.0.40",
         "fwk-q-firebase": "0.1.49",
         "fwk-q-firebase-messaging": "0.0.10",
