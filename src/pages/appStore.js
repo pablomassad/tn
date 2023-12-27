@@ -155,7 +155,7 @@ const actions = {
         },
         async getReceiptsByUserExp () {
             console.log('store getReceiptsByUserExp: ', state.selUserExpense.id)
-            const res = await fb.getCollectionFlex('receipts', { field: 'idUsrExp', op: '==', val: state.selUserExpense.id })
+            const res = await fb.getCollectionFlex('userExpenseReceipts', { field: 'idUsrExp', op: '==', val: state.selUserExpense.id })
             return res
         },
         async saveComp (comp, file) {
@@ -173,7 +173,7 @@ const actions = {
 
                 let id = comp.id
                 if (!comp.id) id = new Date().getTime().toString()
-                await fb.setDocument('receipts', comp, id)
+                await fb.setDocument('userExpenseReceipts', comp, id)
 
                 // await fb.transaction(async (transaction) => {
                 //    let id = comp.id
@@ -181,7 +181,7 @@ const actions = {
 
                 //    // LECTURAS PRIMERO
                 //    let origAmount = 0
-                //    const compRef = fb.getDocumentRef('receipts', id)
+                //    const compRef = fb.getDocumentRef('userExpenseReceipts', id)
                 //    if (comp.id) { // Modificacion de comp
                 //        const compSnapshot = await transaction.get(compRef)
                 //        origAmount = compSnapshot.data().amount
@@ -212,13 +212,13 @@ const actions = {
         async removeComp (comp) {
             console.log('store removeComp:', comp.id)
             ui.actions.showLoading()
-            await fb.deleteDocument('receipts', comp.id)
+            await fb.deleteDocument('userExpenseReceipts', comp.id)
             ui.actions.hideLoading()
         },
         async toggleValidation (comp) {
             const cp = { ...comp }
             cp.isValid = !cp.isValid
-            await fb.setDocument('receipts', cp, cp.id)
+            await fb.setDocument('userExpenseReceipts', cp, cp.id)
             await actions.userExpenses.getReceiptsByUserExp()
             console.log('toggle validation receipt:', cp)
         },
@@ -271,6 +271,28 @@ const actions = {
             const id = tk.id || tk.datetime.toString()
             await fb.setDocument('tickets', tk, id)
             ui.actions.hideLoading()
+        },
+        async saveReceipt (comp, file) {
+            console.log('store ticket.saveReceipt', comp)
+            try {
+                ui.actions.showLoading()
+                if (file) {
+                    const folder = `expenses/attachments/${state.selUnit.id}/${state.selTicket.id}/${file.name}`
+                    console.log('sto folder:', folder)
+                    const url = await fb.uploadFile(file, folder)
+                    comp.attachmentUrl = url
+                }
+                comp.idTicket = state.selTicket.id
+                comp.amount = Number(comp.amount)
+
+                let id = comp.id
+                if (!comp.id) id = new Date().getTime().toString()
+                await fb.setDocument('ticketReceipts', comp, id)
+                ui.actions.hideLoading()
+            } catch (e) {
+                ui.actions.notify('Ha ocurrido un error al guardar el comprobante')
+                console.log('Error transaction:', e)
+            }
         },
         async remove (tk) {
             console.log('store removeTicket:', tk.id)

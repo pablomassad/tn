@@ -49,29 +49,6 @@
                         <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
                         <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
                     </div>
-                    <!--<div class="grdPayOps">
-                        <q-btn-toggle v-model="tk.payType" push rounded toggle-color="primary" :options="[
-                            {value: 'CREDIT', slot: 'one'},
-                            {value: 'CASH', slot: 'two'}
-                        ]" size="md" :style="{marginTop: (!appStore.state.selUnit.role) ? '-90px' : '0px', justifySelf: 'end'}">
-                            <template v-slot:one>
-                                <div class="row items-center no-wrap">
-                                    <div class="text-center">
-                                        A CTA
-                                    </div>
-                                    <q-icon right name="home" />
-                                </div>
-                            </template>
-                            <template v-slot:two>
-                                <div class="row items-center no-wrap">
-                                    <div class="text-center">
-                                        EFVO
-                                    </div>
-                                    <q-icon right name="attach_money" />
-                                </div>
-                            </template>
-                        </q-btn-toggle>
-                    </div>-->
                     <ReceiptsTerra />
                 </div>
                 <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
@@ -96,7 +73,7 @@ import appStore from 'src/pages/appStore'
 import DatePicker from 'fwk-q-datepicker'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import ReceiptsTerra from 'src/components/ReceiptsTerra.vue'
+import ReceiptsTerra from './ReceiptsTerra.vue'
 import ViewAttachment from 'src/components/ViewAttachment.vue'
 import { ui } from 'fwk-q-ui'
 

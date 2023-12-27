@@ -32,7 +32,7 @@
             </div>-->
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
-        <Ticket ref="refTicket" />
+        <TicketForm ref="refTicket" />
     </div>
 </template>
 
@@ -43,7 +43,7 @@ import moment from 'moment'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import { ui } from 'fwk-q-ui'
-import Ticket from './Ticket/index.vue'
+import TicketForm from './TicketForm.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const refTicket = ref()

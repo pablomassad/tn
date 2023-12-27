@@ -61,8 +61,7 @@ const emptyComp = {
     amount: 0,
     attachmentUrl: '',
     description: '',
-    payMode: '',
-    checked: false
+    payMode: ''
 }
 const comp = reactive(Object.assign({}, emptyComp))
 
@@ -77,7 +76,7 @@ const save = async () => {
         showConfirm.value = true
         confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
         onAcceptDialog.value = async () => {
-            await appStore.actions.userExpenses.saveComp(comp, attFile.value)
+            await appStore.actions.tickets.saveReceipt(comp, attFile.value)
             showConfirm.value = false
             onClose()
         }

@@ -6,8 +6,8 @@
             <SortColumn class="celda central" col="payType" label="Forma de pago" :sortMethod="sortReceipts" :activeCol="activeCol" />
             <div class="celda central">Ver</div>
         </div>
-        <div v-if="receipts">
-            <div v-for="(cp) in receipts" :key="cp" class="fila receipt">
+        <div v-if="ticketReceipts">
+            <div v-for="(cp) in ticketReceipts" :key="cp" class="fila receipt">
                 <div class="celda central">{{ moment(cp.datetime).format(appStore.state.dateMask) }}</div>
                 <div class="celda precio">{{ cp.amount }}</div>
                 <div class="celda central">{{ cp.payType }}</div>
@@ -27,7 +27,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import moment from 'moment'
 import appStore from 'src/pages/appStore'
-import ReceiptFormTerra from 'src/components/ReceiptFormTerra.vue'
+import ReceiptFormTerra from './ReceiptFormTerra.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
@@ -37,11 +37,11 @@ const emit = defineEmits(['onCheck'])
 
 const activeCol = ref()
 const refReceiptFormTerra = ref()
-const receipts = ref()
+const ticketReceipts = ref()
 
 onMounted(async () => {
     console.log('ReceiptsTerra onMounted')
-    receipts.value = await appStore.actions.tickets.getReceiptsByTicket()
+    ticketReceipts.value = await appStore.actions.tickets.getReceiptsByTicket()
 })
 onUnmounted(() => {
     console.log('ReceiptsTerra onUnmounted')
@@ -53,8 +53,8 @@ const viewComp = (cp) => {
     refReceiptFormTerra.value.show(cp)
 }
 const sortReceipts = (field, dir) => {
-    const arr = sortArray(receipts.value, field, dir)
-    receipts.value = arr
+    const arr = sortArray(ticketReceipts.value, field, dir)
+    ticketReceipts.value = arr
     activeCol.value = field
 }
 const sortArray = (arr, key, dir) => {
