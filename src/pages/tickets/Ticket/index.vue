@@ -72,7 +72,7 @@
                             </template>
                         </q-btn-toggle>
                     </div>-->
-                    <ReceiptsTerra :userExpense="appStore.state.selUserExpense" :userReceipts="appStore.state.selTicketReceipts" />
+                    <ReceiptsTerra />
                 </div>
             </template>
             <template #footer>
@@ -96,7 +96,7 @@ import appStore from 'src/pages/appStore'
 import DatePicker from 'src/components/DatePicker.vue'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import ReceiptsTerra from 'src/components/ReceiptFormTerra.vue'
+import ReceiptsTerra from 'src/components/ReceiptsTerra.vue'
 import ViewAttachment from 'src/components/ViewAttachment.vue'
 import { ui } from 'fwk-q-ui'
 
@@ -222,7 +222,7 @@ const show = async (t) => {
     if (o.refType === 'PROP') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
-    selDate.value = t.date
+    selDate.value = moment(t.date).format(appStore.state.dateMask)
 }
 defineExpose({ show })
 </script>

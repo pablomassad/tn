@@ -59,6 +59,7 @@ const addTicket = () => {
     refTicket.value.show()
 }
 const viewTicket = async (tk) => {
+    appStore.set.selTicket(tk)
     refTicket.value.show(tk)
 }
 const evalStatus = (item) => {

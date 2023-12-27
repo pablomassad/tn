@@ -3,7 +3,6 @@
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" bg-color="white">
             <template #header>
                 <div class="dialogTitle">
-                    Expensa {{ expName }}
                 </div>
             </template>
             <template #default>
@@ -14,7 +13,7 @@
                     </div>
                     <div class="rowAmAt">
                         <q-input type="number" v-model="comp.amount" label="Importe pagado" />
-                        <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
+                        <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="comp.payMode" class="combo" outlined></q-select>
                         <q-btn v-if="!attFile && !comp.attachmentUrl" glossy color="primary" icon="attachment" @click="attachComp">Adjuntar comprobante</q-btn>
                         <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
                     </div>
@@ -28,7 +27,8 @@
                 </div>
             </template>
         </ConfirmDialog>
-        <DatePicker ref="refDate" @close="onSelFecha" mask="DD/MM/YY" />
+        <DatePicker ref="refDate" @close="onSelFecha" mask="appStore.state.dateMask" />
+        <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
         <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
@@ -36,22 +36,24 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, reactive } from 'vue'
+import { ui } from 'fwk-q-ui'
 import appStore from 'src/pages/appStore'
 import DatePicker from 'src/components/DatePicker.vue'
-import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import { ui } from 'fwk-q-ui'
+import ViewAttachment from 'src/components/ViewAttachment.vue'
+import moment from 'moment'
 
+const refViewAtt = ref()
 const refAttachment = ref()
+
+const refDate = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
 const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
-const expName = ref()
 const attFile = ref()
-const refDate = ref()
 const selDate = ref()
 
 const emptyComp = {
@@ -59,16 +61,16 @@ const emptyComp = {
     amount: 0,
     attachmentUrl: '',
     description: '',
-    payRef: '',
+    payMode: '',
     checked: false
 }
 const comp = reactive(Object.assign({}, emptyComp))
 
 onMounted(async () => {
-    console.log('ReceiptForm onMounted')
+    console.log('ReceiptFormTerra onMounted')
 })
 onUnmounted(() => {
-    console.log('ReceiptForm onUnmounted')
+    console.log('ReceiptFormTerra onUnmounted')
 })
 const save = async () => {
     if (comp.attachmentUrl || attFile.value) {
@@ -77,7 +79,6 @@ const save = async () => {
         onAcceptDialog.value = async () => {
             await appStore.actions.userExpenses.saveComp(comp, attFile.value)
             showConfirm.value = false
-            await appStore.actions.userExpenses.getReceiptsByUserExp()
             onClose()
         }
         onCancelDialog.value = () => {
@@ -99,16 +100,21 @@ const remove = () => {
         showConfirm.value = false
     }
 }
-const viewComp = async () => {
-    console.log('view comprobante:', comp.attachmentUrl)
-    window.open(comp.attachmentUrl, 'blank')
-}
 const selectFecha = () => {
     refDate.value.show(comp.date)
 }
 const onSelFecha = (dt) => {
     comp.date = dt || comp.date
     selDate.value = moment(dt).format(appStore.state.dateMask)
+}
+const onAttachment = (o) => {
+    console.log('attach from viewAttachment:', o)
+    attFile.value = o
+}
+const viewComp = async () => {
+    const att = (attFile.value) ? attFile.value : comp.attachmentUrl
+    refViewAtt.value.show(att)
+    // window.open(comp.attachmentUrl, 'blank')
 }
 const attachComp = () => {
     refAttachment.value.click()
@@ -120,12 +126,12 @@ const onUploadAttachment = async (e) => {
 const onClose = () => {
     showForm.value = false
 }
-const show = async (name, cp) => {
-    expName.value = name
+const show = async (cp) => {
     showForm.value = true
     const o = cp || emptyComp
     Object.assign(comp, o)
     attFile.value = undefined
+    selDate.value = moment(cp.date).format(appStore.state.dateMask)
 }
 defineExpose({ show })
 </script>

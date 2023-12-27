@@ -23,6 +23,7 @@ const state = reactive({
     detailsByExp: undefined,
     expensesByUnit: undefined,
     pendingTickets: undefined,
+    selTicket: undefined,
     tickets: undefined,
     unsubListeners: {},
     payModes: ['Pendiente', 'Efectivo', 'Transferencia', 'Debito Auto', 'Cheque'],
@@ -120,6 +121,10 @@ const set = {
             const fndExp = exps.find(x => x.id === state.selUserExpense.id)
             set.selUserExpense(fndExp)
         }
+    },
+    selTicket (tk) {
+        console.log('store selTicket:', tk)
+        state.selTicket = tk
     },
     tickets (tks) {
         console.log('store tickets:', tks)
@@ -246,6 +251,11 @@ const actions = {
             const tks = await fb.getCollection(path)
             console.log('store getTicketByUnit:', tks)
             return tks
+        },
+        async getReceiptsByTicket () {
+            console.log('store ticket.getReceiptsByTicket:', state.selTicket)
+            const arr = []
+            return arr
         },
         async save (tk, file) {
             console.log('store saveTicket:', tk)
