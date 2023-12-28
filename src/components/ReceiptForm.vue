@@ -15,8 +15,7 @@
                     <div class="rowAmAt">
                         <q-input type="number" v-model="comp.amount" label="Importe pagado" />
                         <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
-                        <q-btn v-if="!attFile && !comp.attachmentUrl" glossy color="primary" icon="attachment" @click="attachComp">Adjuntar comprobante</q-btn>
-                        <q-btn v-if="attFile || comp.attachmentUrl" glossy color="primary" icon="visibility" @click="viewComp">Ver comprobante</q-btn>
+                        <Attachment :src="comp.attachmentUrl" @onAttach="onAttach" />
                     </div>
                 </div>
             </template>
@@ -29,8 +28,6 @@
             </template>
         </ConfirmDialog>
         <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
-        <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
-        <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
@@ -41,11 +38,8 @@ import { ui } from 'fwk-q-ui'
 import appStore from 'src/pages/appStore'
 import DatePicker from 'fwk-q-datepicker'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import ViewAttachment from 'src/components/ViewAttachment.vue'
+import Attachment from 'src/components/Attachment.vue'
 import moment from 'moment'
-
-const refViewAtt = ref()
-const refAttachment = ref()
 
 const refDate = ref()
 const showForm = ref(false)
@@ -109,21 +103,9 @@ const onSelFecha = (dt) => {
     comp.date = dt || comp.date
     selDate.value = moment(dt).format(appStore.state.dateMask)
 }
-const onAttachment = (o) => {
-    console.log('attach from viewAttachment:', o)
+const onAttach = (o) => {
+    console.log('attach from Attachment:', o)
     attFile.value = o
-}
-const viewComp = async () => {
-    const att = (attFile.value) ? attFile.value : comp.attachmentUrl
-    refViewAtt.value.show(att)
-    // window.open(comp.attachmentUrl, 'blank')
-}
-const attachComp = () => {
-    refAttachment.value.click()
-}
-const onUploadAttachment = async (e) => {
-    attFile.value = e.target.files[0]
-    refAttachment.value.value = ''
 }
 const onClose = () => {
     showForm.value = false

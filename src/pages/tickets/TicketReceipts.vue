@@ -14,20 +14,20 @@
                 <BtnIcon class="celda central" icon="visibility" @click="viewComp(cp)" />
             </div>
             <div class="fila receipt total">
-                <div class="celda central">TOTAL</div>
+                <div class="celda central">TOTAL pagado</div>
                 <div class="celda precio">{{ appStore.state.selTicket.paid }}</div>
                 <q-btn glossy round color="primary" icon="add" @click="addComp" class="addBtn"></q-btn>
             </div>
         </div>
     </div>
-    <ReceiptFormTerra ref="refReceiptFormTerra" />
+    <TicketReceiptForm ref="refTicketReceiptForm" />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import moment from 'moment'
 import appStore from 'src/pages/appStore'
-import ReceiptFormTerra from './ReceiptFormTerra.vue'
+import TicketReceiptForm from './TicketReceiptForm.vue'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
@@ -36,7 +36,7 @@ console.log('ReceiptsTerra CONSTRUCTOR')
 const emit = defineEmits(['onCheck'])
 
 const activeCol = ref()
-const refReceiptFormTerra = ref()
+const refTicketReceiptForm = ref()
 const ticketReceipts = ref()
 
 onMounted(async () => {
@@ -47,10 +47,10 @@ onUnmounted(() => {
     console.log('ReceiptsTerra onUnmounted')
 })
 const addComp = () => {
-    refReceiptFormTerra.value.show()
+    refTicketReceiptForm.value.show()
 }
 const viewComp = (cp) => {
-    refReceiptFormTerra.value.show(cp)
+    refTicketReceiptForm.value.show(cp)
 }
 const sortReceipts = (field, dir) => {
     const arr = sortArray(ticketReceipts.value, field, dir)
@@ -76,8 +76,8 @@ const sortArray = (arr, key, dir) => {
 }
 
 .receipt {
-    grid-template-columns: 80px 90px 130px 60px;
-    width: 360px;
+    grid-template-columns: 100px 90px 130px 60px;
+    width: 380px;
     background-color: white;
     box-shadow: 1px 1px 4px gray;
 }

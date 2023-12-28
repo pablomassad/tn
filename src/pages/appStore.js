@@ -253,18 +253,24 @@ const actions = {
             return tks
         },
         async getReceiptsByTicket () {
-            console.log('store ticket.getReceiptsByTicket:', state.selTicket)
-            const arr = []
-            return arr
+            const path = 'ticketReceipts'
+            const tks = await fb.getCollectionFlex(path, { field: 'idTicket', val: state.selTicket.id })
+            console.log('store ticket.getReceiptsByTicket', tks)
+            return tks
         },
-        async save (tk, file) {
-            console.log('store saveTicket:', tk)
+        async save (tk, file, deleteFlag) {
+            console.log('store tickets.save:', tk)
             ui.actions.showLoading()
             if (file) {
                 const folder = `tickets/attachments/${file.name}`
                 console.log('sto folder:', folder)
                 const url = await fb.uploadFile(file, folder)
                 tk.attachmentUrl = url
+            }
+            if (deleteFlag) {
+                console.log('sto delete attachment:', tk.attachmentUrl)
+                await fb.deleteFile(tk.attachmentUrl)
+                tk.attachmentUrl = undefined
             }
             tk.amount = Number(tk.amount)
             tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000

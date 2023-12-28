@@ -39,17 +39,15 @@
                         <q-select v-if="tk.refType === 'PROP' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
                         <div v-if="tk.refType === 'TERRA'" class="subject">TerraNostra S.A.</div>
                         <q-input type="number" v-model="tk.amount" label="Importe a pager" />
-                        <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
-                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
+                        <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
                     </div>
                     <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
                         <div></div>
                         <div class="subject">{{ tk.referrer }}</div>
                         <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
-                        <q-btn v-if="!attFile && !tk.attachmentUrl" glossy color="primary" icon="attachment" @click="attachTicket">Adjuntar ticket</q-btn>
-                        <q-btn v-if="attFile || tk.attachmentUrl" glossy color="primary" icon="visibility" @click="viewTicket">Mostrar ticket</q-btn>
+                        <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
                     </div>
-                    <ReceiptsTerra />
+                    <TicketReceipts />
                 </div>
                 <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
             </template>
@@ -62,8 +60,6 @@
             </template>
         </ConfirmDialog>
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
-        <ViewAttachment ref="refViewAtt" @onAttach="onAttachment" />
-        <input type="file" ref="refAttachment" @change="onUploadAttachment" style="display:none" />
     </div>
 </template>
 
@@ -73,12 +69,10 @@ import appStore from 'src/pages/appStore'
 import DatePicker from 'fwk-q-datepicker'
 import moment from 'moment'
 import ConfirmDialog from 'fwk-q-confirmdialog'
-import ReceiptsTerra from './ReceiptsTerra.vue'
-import ViewAttachment from 'src/components/ViewAttachment.vue'
+import TicketReceipts from './TicketReceipts.vue'
+import Attachment from 'src/components/Attachment.vue'
 import { ui } from 'fwk-q-ui'
 
-const refViewAtt = ref()
-const refAttachment = ref()
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()
@@ -98,6 +92,7 @@ const tk = reactive({
 })
 const refDate = ref()
 const selDate = ref()
+let deleteFlag = false
 
 const emptyTicket = {
     date: new Date().getTime(),
@@ -131,6 +126,7 @@ const filterFn = (val, update) => {
     })
 }
 const save = async () => {
+    console.log('save ticket')
     showConfirm.value = true
     confirmMessage.value = 'Esta seguro que quiere grabar este ticket?'
     onAcceptDialog.value = async () => {
@@ -146,7 +142,7 @@ const save = async () => {
         } else {
             tk.referrer = 'TerraNostra'
         }
-        await appStore.actions.tickets.save(tk, attFile.value)
+        await appStore.actions.tickets.save(tk, attFile.value, deleteFlag)
         showConfirm.value = false
         onClose()
     }
@@ -174,22 +170,14 @@ const onSelFecha = (dt) => {
     tk.date = dt || tk.date
     selDate.value = moment(dt).format(appStore.state.dateMask)
 }
-const onAttachment = (o) => {
-    console.log('attach from viewAttachment:', o)
+const onAttach = (o) => {
+    console.log('attach from Attachment:', o)
     attFile.value = o
 }
-const viewTicket = async () => {
-    console.log('attFile.value:', attFile.value)
-    console.log('attachmentUrl:', tk.attachmentUrl)
-    const att = (attFile.value) ? attFile.value : tk.attachmentUrl
-    refViewAtt.value.show(att)
-}
-const attachTicket = () => {
-    refAttachment.value.click()
-}
-const onUploadAttachment = async (e) => {
-    attFile.value = e.target.files[0]
-    refAttachment.value.value = ''
+const onDelete = (url) => {
+    console.log('delete from Attachment:', url)
+    attFile.value = undefined
+    deleteFlag = true
 }
 const onClose = () => {
     showForm.value = false
