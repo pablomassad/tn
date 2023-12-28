@@ -254,7 +254,10 @@ const actions = {
         },
         async getReceiptsByTicket () {
             const path = 'ticketReceipts'
-            const tks = await fb.getCollectionFlex(path, { field: 'idTicket', val: state.selTicket.id })
+            let tks = []
+            if (state.selTicket) {
+                tks = await fb.getCollectionFlex(path, { field: 'idTicket', val: state.selTicket.id })
+            }
             console.log('store ticket.getReceiptsByTicket', tks)
             return tks
         },
@@ -270,10 +273,10 @@ const actions = {
             if (deleteFlag) {
                 console.log('sto delete attachment:', tk.attachmentUrl)
                 await fb.deleteFile(tk.attachmentUrl)
-                tk.attachmentUrl = undefined
+                tk.attachmentUrl = ''
             }
             tk.amount = Number(tk.amount)
-            tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YYYY').unix() * 1000
+            tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YY').unix() * 1000
             const id = tk.id || tk.datetime.toString()
             await fb.setDocument('tickets', tk, id)
             ui.actions.hideLoading()

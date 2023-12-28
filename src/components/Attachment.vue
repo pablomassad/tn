@@ -2,11 +2,11 @@
     <div class="grdBtns">
         <q-btn glossy color="primary" icon="attachment" @click="attach" />
         <q-btn glossy color="primary" icon="visibility" @click="showAttachment" :disable="!localUrl" />
+        <q-btn glossy color="red" icon="delete" @click="onDelete" :disable="!localUrl" />
     </div>
     <input type="file" ref="refAttachment" @change="onSelFile" style="display:none" />
     <div class="viewFrame" v-if="showImgFlag">
         <q-btn glossy round color="primary" icon="close" @click="onClose" class="btnClose" />
-        <q-btn glossy round color="red" icon="delete" @click="onDelete" class="btnDelete" />
         <img :src="imgUrl" class="image" />
     </div>
 </template>
@@ -23,7 +23,7 @@ const localUrl = ref()
 const refAttachment = ref()
 
 onMounted(() => {
-    console.log('Attachment onMounted')
+    console.log('Attachment onMounted:', props.src)
     localUrl.value = props.src
 })
 onUnmounted(() => {
@@ -36,10 +36,8 @@ const onDelete = () => {
     showImgFlag.value = false
     if (localUrl.value) {
         localUrl.value = undefined
-        emit('onAttach', undefined)
-    } else {
-        emit('onDelete', localUrl.value)
     }
+    emit('onDelete', undefined)
 }
 const attach = () => {
     refAttachment.value.click()
@@ -71,7 +69,7 @@ const showAttachment = (o) => {
 <style lang="scss">
 .grdBtns {
     display: grid;
-    grid-template-columns: 50px 50px;
+    grid-template-columns: 40px 40px 40px;
     column-gap: 10px;
 }
 
@@ -90,14 +88,6 @@ const showAttachment = (o) => {
     right: 10px;
     top: 10px;
     font-size: 16px;
-}
-
-.btnDelete {
-    position: absolute;
-    bottom: 10px;
-    font-size: 16px;
-    left: 50%;
-    transform: translateX(-50%);
 }
 
 .image {

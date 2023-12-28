@@ -8,9 +8,10 @@
             </template>
             <template #default>
                 <div class="grdForm">
-                    <div class="rowConDt">
+                    <div class="rowConDtPay">
                         <q-input flat dense clearable :model-value="selDate" label="Fecha del ticket" @click="selectFecha()" readonly />
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
+                        <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="tk.payMode" class="combo" outlined></q-select>
                     </div>
                     <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
                         <div>
@@ -38,7 +39,7 @@
                         </div>
                         <q-select v-if="tk.refType === 'PROP' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
                         <div v-if="tk.refType === 'TERRA'" class="subject">TerraNostra S.A.</div>
-                        <q-input type="number" v-model="tk.amount" label="Importe a pager" />
+                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
                         <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
                     </div>
                     <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
@@ -47,7 +48,7 @@
                         <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
                         <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
                     </div>
-                    <TicketReceipts />
+                    <TicketReceipts v-if="appStore.state.selTicket" />
                 </div>
                 <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
             </template>
@@ -84,11 +85,12 @@ const owners = ref()
 const exp = ref({})
 const attFile = ref()
 const tk = reactive({
-    date: moment().format('DD-MM-YYYY'),
+    date: new Date().getTime(),
     amount: 0,
     attachmentUrl: '',
     paid: 0,
-    balance: 0
+    balance: 0,
+    payMode: 'Pendiente'
 })
 const refDate = ref()
 const selDate = ref()
@@ -103,6 +105,7 @@ const emptyTicket = {
     attachmentUrl: '',
     refType: 'TERRA',
     payType: 'CREDIT',
+    payMode: 'Pendiente',
     referrer: appStore.state.selUnit.ownerNames
 }
 
@@ -143,6 +146,7 @@ const save = async () => {
             tk.referrer = 'TerraNostra'
         }
         await appStore.actions.tickets.save(tk, attFile.value, deleteFlag)
+        deleteFlag = false
         showConfirm.value = false
         onClose()
     }
@@ -184,13 +188,15 @@ const onClose = () => {
     attFile.value = undefined
 }
 const show = async (t) => {
-    showForm.value = true
+    tk.id = undefined
     const o = t || emptyTicket // { ...t, ...emptyTicket }
     Object.assign(tk, o)
     if (o.refType === 'PROP') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
-    selDate.value = moment(t.date).format(appStore.state.dateMask)
+    selDate.value = moment(o.date).format(appStore.state.dateMask)
+    showForm.value = true
+    console.log('ticket param:', tk)
 }
 defineExpose({ show })
 </script>
@@ -229,9 +235,9 @@ defineExpose({ show })
     background: #eee;
 }
 
-.rowConDt {
+.rowConDtPay {
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 200px 1fr 200px;
     align-items: end;
     column-gap: 30px;
 }
@@ -239,7 +245,7 @@ defineExpose({ show })
 .rowRefAmAt {
     display: grid;
     align-items: end;
-    grid-template-columns: 200px 1fr 120px 150px;
+    grid-template-columns: 200px 1fr 90px 150px;
     column-gap: 20px;
 }
 

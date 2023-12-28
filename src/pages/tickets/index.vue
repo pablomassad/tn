@@ -9,6 +9,7 @@
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Ver</div>
+                <SortColumn class="texto" col="payMode" label="Forma de pago" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="celda texto" col="status" label="Estado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
             </div>
@@ -21,6 +22,7 @@
                     <div class="celda precio">{{ tk.paid }}</div>
                     <div class="celda precio">{{ tk.balance }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
+                    <div class="celda texto">{{ tk.payMode }}</div>
                     <StatusLed class="celda central" :status="evalStatus(tk)" />
                     <div class="celda texto">{{ tk.referrer }}</div>
                 </div>
@@ -56,6 +58,7 @@ onMounted(async () => {
     appStore.actions.tickets.monitorTickets()
 })
 const addTicket = () => {
+    appStore.set.selTicket(undefined)
     refTicket.value.show()
 }
 const viewTicket = async (tk) => {
@@ -79,7 +82,7 @@ const evalStatus = (item) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1190px;
+    max-width: 1300px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -87,8 +90,8 @@ const evalStatus = (item) => {
 }
 
 .ticket {
-    grid-template-columns: 130px 120px 270px 80px 80px 80px 70px 70px 320px;
-    width: 1190px;
+    grid-template-columns: 130px 120px 270px 80px 80px 80px 70px 110px 70px 320px;
+    width: 1300px;
     border-bottom: 1px solid gray;
 }
 
