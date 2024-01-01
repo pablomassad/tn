@@ -485,18 +485,19 @@ const actions = {
         await fb.saveMessagingDeviceToken(state.document, vapidKey, state.document)
     },
     async moveData () {
-        // const cfg = await fb.getDocument('settings', 'terranostra')
+        // const cfg = await fb.getDocument('tickets', 'terranostra')
         // await fb.setDocument('tn', cfg, 'settings')
 
-        // const col = 'timeLogs'
-        // const dbPath = `settings/terranostra/${col}`
-        // console.log('dbPath:', dbPath)
-        // const res = await fb.getCollection(dbPath)
-        // console.log('res:', res.length)
-        // for (const o of res) {
-        //    const moved = await fb.setDocument(col, o, o.id)
-        //    console.log('id:', o.id)
-        // }
+        const res = await fb.getCollection('tickets')
+        console.log('res:', res.length)
+        for (const o of res) {
+            o.isCont = (o.swContTerra === 'Contable')
+            o.isExtra = (o.swOrdExtra === 'Extraordinaria')
+            delete o.swContTerra
+            delete o.swOrdExtra
+            const moved = await fb.setDocument('tickets', o, o.id, { merge: false })
+            console.log('id:', o.id)
+        }
     }
 }
 

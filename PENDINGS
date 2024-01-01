@@ -33,17 +33,21 @@ TICKETS:
 👍 Tickets: Armar formulario contextual al perfil
      (propietario carga por defecto su nombre)
      (admistrador carga combo propietarios o TERRA)
-⏰ Agregar concepto y forma de pago en el detalle de recibos de tickets
 👍 cambiar Toggles por checkbox (extraordinaria y contable)
 👍 cambiar estilo cancelar
 👍 sacar eliminar y ponerlo en el listado como un icono habilitado unicamente para el que lo pueda ejecutar
 👍 corregir error de sorting (clone)
 👍 componente Attachment dejar clip y x con preview
-⏰ En caso de login de propietario predefinir el gasto con el nombre del propietario (sacar switch)
-⏰ Eliminar forma de pago del ticket (solo van la forma de pago en los recibos)
+👍 En caso de login de propietario predefinir el gasto con el nombre del propietario (sacar switch)
+👍 Eliminar forma de pago del ticket (solo van la forma de pago en los recibos)
 ⏰ Binding de forma de pago en recibos
 👍 Reordenara columnas
 👍 reemplazar check circle por un check comun verde
+⏰ Estilos totales
+⏰ CloudFunction de Tickets y totales de expensas
+⏰ Titulo con Nombre de expensa y año
+
+
 
 
 RESUMENES LIQUIDACION

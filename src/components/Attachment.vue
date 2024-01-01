@@ -1,11 +1,14 @@
 <template >
-    <div class="grd">
+    <div class="grd" :style="{height: h, width: w}">
         <div class="attFrame">
-            <div v-if="!localUrl">
-                <q-icon name="attachment" class="clip"></q-icon>
-                <div class="emptyText" @click="attachShow">{{ emptyLabel }}</div>
+            <div v-if="!localUrl" class="centerClip">
+                <q-icon name="attachment" class="clip pic"></q-icon>
+                <div class="emptyText" @click="attach">{{ emptyLabel }}</div>
             </div>
-            <img v-else :src="imgUrl" class="image" />
+            <div v-else @click="view">
+                <img v-if="imgUrl" :src="imgUrl" class="image" />
+                <q-icon v-else name="picture_as_pdf" class="clip pdf"></q-icon>
+            </div>
         </div>
         <div class="deleteText" @click="onDelete">
             Borrar
@@ -17,19 +20,13 @@
         <q-btn glossy round color="primary" icon="close" @click="onClose" class="btnClose" />
         <img :src="imgUrl" class="image" />
     </div>
-    <!--<div class="grdBtns">
-        <q-btn glossy color="primary" icon="attachment" @click="attach" />
-        <q-btn glossy color="primary" icon="visibility" @click="showAttachment" :disable="!localUrl" />
-        <q-btn glossy color="red" icon="delete" @click="onDelete" :disable="!localUrl" />
-    </div>
--->
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const emit = defineEmits(['onAttach', 'onDelete'])
-const props = defineProps(['src', 'emptyLabel'])
+const props = defineProps(['src', 'emptyLabel', 'h', 'w'])
 
 const showImgFlag = ref(false)
 const imgUrl = ref()
@@ -53,12 +50,11 @@ const onDelete = () => {
     }
     emit('onDelete', undefined)
 }
-const attachShow = () => {
-    if (localUrl.value) {
-        showAttachment()
-    } else {
-        refAttachment.value.click()
-    }
+const attach = () => {
+    refAttachment.value.click()
+}
+const view = () => {
+    showAttachment()
 }
 const onSelFile = async (e) => {
     const o = e.target.files[0]
@@ -68,7 +64,7 @@ const onSelFile = async (e) => {
 }
 const showAttachment = (o) => {
     const tmp = new Image()
-    if (o.name) {
+    if (!localUrl.value && o.name) {
         localUrl.value = URL.createObjectURL(o)
     }
     tmp.src = localUrl.value
@@ -87,22 +83,36 @@ const showAttachment = (o) => {
 <style lang="scss">
 .grd {
     display: grid;
-    grid-template-rows: 1fr 10px;
+    grid-template-rows: 1fr 20px;
+    margin: auto;
 }
 
 .attFrame {
+    display: grid;
     background-color: #dedede;
     box-shadow: inset 1px 1px 5px #b2b2b2;
     border-radius: 20px;
     overflow: hidden;
+    align-items: center;
 }
 
 .clip {
     display: grid;
-    padding-top: 20%;
     color: gray;
-    font-size: 50px;
     margin: auto;
+}
+
+.pic {
+    font-size: 50px;
+}
+
+.pdf {
+    font-size: 80px;
+}
+
+.centerClip {
+    padding-top: 5%;
+
 }
 
 .emptyText {

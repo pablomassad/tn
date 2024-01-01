@@ -11,8 +11,8 @@
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="payMode" label="Forma de pago" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="central" col="swOrdExtra" label="Extra" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="central" col="swContTerra" label="Cont" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="isExtra" label="Extra" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="isCont" label="Cont" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="central" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <div class="celda central">Ver</div>
                 <div class="celda central">Borrar</div>
@@ -28,21 +28,48 @@
                     <div class="celda precio">{{ tk.balance }}</div>
                     <div class="celda texto">{{ tk.payMode }}</div>
                     <div class="celda texto">{{ tk.referrer }}</div>
-                    <q-icon class="celda typeIcon" :name="(tk.swOrdExtra === 'Extraordinaria') ? 'task_alt' : ''"></q-icon>
-                    <q-icon class="celda typeIcon" :name="(tk.swContTerra === 'Contable') ? 'task_alt' : ''"></q-icon>
+                    <q-icon class="celda typeIcon" :name="(tk.isExtra) ? 'task_alt' : ''"></q-icon>
+                    <q-icon class="celda typeIcon" :name="(tk.isCont) ? 'task_alt' : ''"></q-icon>
                     <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
                     <BtnIcon icon="visibility" @click="viewTicket(tk)" />
-                    <q-icon class="celda typeIcon" name="delete" color="grey"></q-icon>
+                    <q-icon class="celda typeIcon" name="delete" color="grey" @click="deleteTicket(tk)"></q-icon>
                 </div>
             </div>
-            <!--<div class="rowTicket total">
-                <div class="central">TOTAL</div>
+            <div class="fila detail total" style="background-color: rgb(182, 255, 250) !important">
+                <div class="celda texto">TOTAL Ordinarias</div>
                 <div></div>
-                <div class="precio">{{ sumTickets(appStore.state.tickets) }}</div>
-            </div>-->
+                <div class="celda precio">{{ appStore.state.selExpense.totalOrdinary }}</div>
+                <div></div>
+                <div class="celda precio">{{ appStore.state.selExpense.amountOrdinary }}</div>
+            </div>
+            <div class="fila detail total" style="background-color: rgb(251, 255, 196) !important">
+                <div class="celda texto">TOTAL Extraordinarias</div>
+                <div></div>
+                <div class="celda precio">{{ appStore.state.selExpense.totalExtraordinary }}</div>
+                <div></div>
+                <div class="celda precio">
+                    {{ appStore.state.selExpense.amountExtraordinary }}
+                    <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope" v-if="!appStore.state.selExpense.deployed">
+                        <q-input type="number" dark color="white" v-model="scope.value" dense autofocus counter @keyup.enter="scope.set">
+                            <template v-slot:append>
+                                <q-icon name="edit" />
+                            </template>
+                        </q-input>
+                    </q-popup-edit>
+                </div>
+            </div>
+            <div class="fila detail total" style="background-color: rgb(202, 202, 202) !important">
+                <div class="celda texto">TOTAL Expensas</div>
+                <div></div>
+                <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
+                <div></div>
+                <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
+                <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
+            </div>
             <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
         <TicketForm ref="refTicket" />
+        <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
     </div>
 </template>
 
@@ -56,7 +83,13 @@ import { ui } from 'fwk-q-ui'
 import TicketForm from './TicketForm.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
+const showConfirm = ref(false)
+const confirmMessage = ref()
+const onAcceptDialog = ref()
+const onCancelDialog = ref()
+
 const refTicket = ref()
+const expLote = ref(0)
 const allSelected = ref(false)
 // const localTickets = ref()
 
@@ -85,6 +118,18 @@ const evalStatus = (item) => {
         }
     }
     return st
+}
+const deleteTicket = async (tk) => {
+    await appStore.actions.tickets.remove(tk)
+}
+const sumTickets = (arr) => {
+    if (!arr) return
+    const total = arr.reduce((sum, o) => {
+        sum = sum + o.paid
+        return sum
+    }, 0)
+    expLote.value = total / 48
+    return total
 }
 
 // const onSelectAll = () => {
@@ -174,6 +219,11 @@ const evalStatus = (item) => {
     left: 200px;
     bottom: 10px;
     font-weight: bold;
+}
+
+.detail {
+    grid-template-columns: 280px 300px 70px 100px 120px 60px 50px;
+    width: 1000px;
 }
 
 .addBtn {
