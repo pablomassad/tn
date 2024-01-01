@@ -23,6 +23,11 @@
                     <div class="rowText">Administración</div>
                 </div>
                 <q-separator />
+                <div class="menuRow" @click="gotoRecurrents()">
+                    <q-icon name="refresh" class="iconMenu" />
+                    <div class="rowText">Gestión de Recurrentes</div>
+                </div>
+                <q-separator />
             </div>
             <div v-if="main.state.isMobile">
                 <div class="menuRow" @click="searchUpdates()">

@@ -12,13 +12,14 @@
 👍 Sacar boton de agregar detalle una vez distribuida la expensas
 👍 Corregir fechas en todos los documentos para que se guarden como timestamp (y convertir con moment para la visualizacion)
 👍 Ordenamiento por columna en todas las grillas
+👍 Receipts: Usar ViewAttachment component
 
 
-⏰ Receipts: Usar ViewAttachment component
+⏰ INTEGRACION CON MERCADO PAGO
+⏰ Cambiar LOGO icon sin fondo en el toolbar
 
 ADMIN:
 ⏰ Exportacion y bajada a PDF
-⏰ Copia automatica de items ordinarios a proxima expensas
 ⏰ Alertas FCM en app Administrativa indicando pagos de expensas
 
 
@@ -28,14 +29,30 @@ USEREXPENSES:
 
 
 TICKETS:
-⏰ Tickets: Si el tk.referrer = TERRA => payType = CASH
-⏰ Tickets: Si el tk.referrer = PROP => payType = CREDIT
-⏰ Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
-⏰ Tickets: Armar formulario contextual al perfil
+👍 Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
+👍 Tickets: Armar formulario contextual al perfil
      (propietario carga por defecto su nombre)
      (admistrador carga combo propietarios o TERRA)
+⏰ Agregar concepto y forma de pago en el detalle de recibos de tickets
+👍 cambiar Toggles por checkbox (extraordinaria y contable)
+👍 cambiar estilo cancelar
+👍 sacar eliminar y ponerlo en el listado como un icono habilitado unicamente para el que lo pueda ejecutar
+👍 corregir error de sorting (clone)
+👍 componente Attachment dejar clip y x con preview
+⏰ En caso de login de propietario predefinir el gasto con el nombre del propietario (sacar switch)
+⏰ Eliminar forma de pago del ticket (solo van la forma de pago en los recibos)
+⏰ Binding de forma de pago en recibos
+👍 Reordenara columnas
+👍 reemplazar check circle por un check comun verde
 
 
 RESUMENES LIQUIDACION
 ⏰ Armar otra expensa PDF de Resumen de liquidacion (de todos)
 ⏰ Agregar opcion al propietario para ver historico de Resumenes de liquidacion
+
+
+
+RECURRENTES:
+⏰ Agregar al menu principar GASTOS RECURRENTES
+⏰ Tabla ABM de Items recurrentes
+⏰ ACTIVO / INICIO-FIN  / MONTO DEF / CONTABLE-TERRA / ORD-EXTRA / FORMA DE PAGO / TERRA-PROP

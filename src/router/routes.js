@@ -5,6 +5,7 @@ import Monitor from 'src/pages/admin/monitor/index.vue'
 import UserExpenses from 'src/pages/userExpenses/index.vue'
 import Reports from 'src/pages/reports/index.vue'
 import Tickets from 'src/pages/tickets/index.vue'
+import Recurrents from 'src/pages/recurrents/index.vue'
 import Login from 'src/pages/login/index.vue'
 
 const routes = [

@@ -1,63 +1,56 @@
 <template>
     <div>
-        <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" class="≈" bg-color="white">
+        <ConfirmDialog :prompt="showForm" @onClose="onClose" class="≈" bg-color="white">
             <template #header>
-                <div class="dialogTitle">
-                    {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket
+                <div class="grdHeader">
+                    <div class="dialogTitle">
+                        {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket
+                    </div>
+                    <q-btn-toggle v-model="tk.refType" push rounded text-color="grey" toggle-color="blue-5" :options="[
+                        {value: 'TERRANOSTRA', slot: 'one'},
+                        {value: 'PROPIETARIO', slot: 'two'}
+                    ]" size="md" class="switch">
+                        <template v-slot:one>
+                            <div class="row items-center no-wrap">
+                                <div class="switchText">
+                                    TERRANOSTRA
+                                </div>
+                                <!--<q-icon right name="home" />-->
+                            </div>
+                        </template>
+                        <template v-slot:two>
+                            <div class="row items-center no-wrap">
+                                <div class="switchText">
+                                    PROPIETARIO
+                                </div>
+                                <!--<q-icon right name="person" />-->
+                            </div>
+                        </template>
+                    </q-btn-toggle>
+                    <q-icon name="close" @click="onClose" size="md" style="justify-self: right;"></q-icon>
                 </div>
             </template>
             <template #default>
-                <div class="grdForm">
-                    <div class="rowConDtPay">
-                        <q-input flat dense clearable :model-value="selDate" label="Fecha del ticket" @click="selectFecha()" readonly />
+                <div class="grdFrame">
+                    <div class="grdForm">
                         <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
+                        <q-select v-if="tk.refType === 'PROPIETARIO' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
+                        <div v-if="tk.refType === 'TERRANOSTRA'" class="subject">TerraNostra S.A.</div>
+                        <div v-if="!appStore.state.selUnit.role" class="subject">{{ tk.referrer }}</div>
+                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
                         <q-select :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="tk.payMode" class="combo" outlined></q-select>
+                        <q-checkbox v-model="tk.swOrdExtra" label="Extraordinaria" color="blue-5"></q-checkbox>
+                        <!--<q-toggle v-model="tk.swOrdExtra" checked-icon="star" color="green" unchecked-icon="description" :label="tk.swOrdExtra" false-value="Ordinaria" true-value="Extraordinaria" size="lg" />-->
+                        <q-checkbox v-model="tk.swContTerra" label="Contable" color="blue-5"></q-checkbox>
+                        <!--<q-toggle v-model="tk.swContTerra" checked-icon="account_balance" color="blue" unchecked-icon="attach_money" :label="tk.swContTerra" false-value="Terra" true-value="Contable" size="lg" />-->
                     </div>
-                    <div class="rowRefAmAt" v-if="appStore.state.selUnit.role === 'admin'">
-                        <div>
-                            <q-btn-toggle v-model="tk.refType" push rounded toggle-color="primary" :options="[
-                                {value: 'TERRA', slot: 'one'},
-                                {value: 'PROP', slot: 'two'}
-                            ]" size="md">
-                                <template v-slot:one>
-                                    <div class="row items-center no-wrap">
-                                        <div class="text-center">
-                                            TERRA
-                                        </div>
-                                        <q-icon right name="home" />
-                                    </div>
-                                </template>
-                                <template v-slot:two>
-                                    <div class="row items-center no-wrap">
-                                        <div class="text-center">
-                                            PROP
-                                        </div>
-                                        <q-icon right name="person" />
-                                    </div>
-                                </template>
-                            </q-btn-toggle>
-                        </div>
-                        <q-select v-if="tk.refType === 'PROP' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
-                        <div v-if="tk.refType === 'TERRA'" class="subject">TerraNostra S.A.</div>
-                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
-                        <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
-                    </div>
-                    <div class="rowRefAmAt" v-if="!appStore.state.selUnit.role">
-                        <div></div>
-                        <div class="subject">{{ tk.referrer }}</div>
-                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
-                        <Attachment :src="tk.attachmentUrl" @onAttach="onAttach" @onDelete="onDelete" />
-                    </div>
-                    <TicketReceipts v-if="appStore.state.selTicket" />
+                    <Attachment :src="tk.attachmentUrl" emptyLabel="Adjunte el comprobante" @onAttach="onAttach" @onDelete="onDelete" />
                 </div>
+                <!--<TicketReceipts v-if="appStore.state.selTicket" />-->
                 <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
             </template>
             <template #footer>
-                <div class="btnContainer">
-                    <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
-                    <q-btn glossy color="red" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
-                    <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
-                </div>
+                <q-btn glossy color="primary" class="footerBtns" @click="save">Guardar</q-btn>
             </template>
         </ConfirmDialog>
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -90,7 +83,9 @@ const tk = reactive({
     attachmentUrl: '',
     paid: 0,
     balance: 0,
-    payMode: 'Pendiente'
+    payMode: 'Pendiente',
+    swContTerra: 'Contable',
+    swOrdExtra: 'Ordinaria'
 })
 const refDate = ref()
 const selDate = ref()
@@ -103,10 +98,12 @@ const emptyTicket = {
     paid: 0,
     balance: 0,
     attachmentUrl: '',
-    refType: 'TERRA',
+    refType: 'TERRANOSTRA',
     payType: 'CREDIT',
     payMode: 'Pendiente',
-    referrer: appStore.state.selUnit.ownerNames
+    referrer: appStore.state.selUnit.ownerNames,
+    swContTerra: 'Contable',
+    swOrdExtra: 'Ordinaria'
 }
 
 onMounted(async () => {
@@ -136,7 +133,7 @@ const save = async () => {
         if (!tk.amount) ui.actions.notify('El importe es obligatorio', 'error')
         if (!tk.concept) ui.actions.notify('El concepto es obligatorio', 'error')
         if (!tk.date) ui.actions.notify('La fecha es obligatoria', 'error')
-        if (tk.refType === 'PROP') {
+        if (tk.refType === 'PROPIETARIO') {
             if (!localUnit.value) {
                 ui.actions.notify('Debe seleccionar un propietario o cambiar de tipo', 'error')
             } else {
@@ -191,7 +188,7 @@ const show = async (t) => {
     tk.id = undefined
     const o = t || emptyTicket // { ...t, ...emptyTicket }
     Object.assign(tk, o)
-    if (o.refType === 'PROP') {
+    if (o.refType === 'PROPIETARIO') {
         localUnit.value = appStore.state.units.find(x => x.ownerNames === o.referrer)
     }
     selDate.value = moment(o.date).format(appStore.state.dateMask)
@@ -202,6 +199,34 @@ defineExpose({ show })
 </script>
 
 <style scoped>
+.grdHeader {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    align-items: center;
+    margin: 0 20px;
+}
+
+.dialogTitle {
+    font-size: 20px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.switch {
+    justify-self: center;
+    align-self: center;
+}
+
+.switchText {
+    text-align: center;
+    font-weight: bold;
+}
+
+.footerBtns {
+    right: 25px;
+    margin-bottom: 10px;
+}
+
 .subject {
     padding-left: 10px;
     font-size: 20px;
@@ -225,27 +250,48 @@ defineExpose({ show })
     max-width: 720px;
 }
 
-.grdForm {
+.grdFrame {
     display: grid;
+    grid-template-columns: 3fr 1fr;
     row-gap: 10px;
-    margin: 20px;
+    column-gap: 20px;
+    margin: 0 20px;
     padding: 26px;
     border-radius: 10px;
     box-shadow: inset 1px 1px 3px gray;
     background: #eee;
 }
 
+.grdForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    row-gap: 10px;
+    column-gap: 20px;
+}
+
 .rowConDtPay {
     display: grid;
-    grid-template-columns: 200px 1fr 200px;
+    margin: 5px 0;
+    grid-template-columns: 290px 1fr 100px;
     align-items: end;
     column-gap: 30px;
 }
 
-.rowRefAmAt {
+.row3 {
     display: grid;
+    margin: 5px 0;
     align-items: end;
-    grid-template-columns: 200px 1fr 90px 150px;
+    justify-items: center;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 20px;
+}
+
+.row4 {
+    display: grid;
+    margin: 5px 0;
+    align-items: end;
+    grid-template-columns: 300px 90px 1fr 150px;
     column-gap: 20px;
 }
 
@@ -303,12 +349,6 @@ defineExpose({ show })
     width: 30px;
     height: 30px;
     margin: 5px;
-}
-
-.dialogTitle {
-    font-size: 25px;
-    text-align: center;
-    font-weight: bold;
 }
 
 .btn:active {

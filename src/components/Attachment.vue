@@ -1,21 +1,35 @@
 <template >
-    <div class="grdBtns">
-        <q-btn glossy color="primary" icon="attachment" @click="attach" />
-        <q-btn glossy color="primary" icon="visibility" @click="showAttachment" :disable="!localUrl" />
-        <q-btn glossy color="red" icon="delete" @click="onDelete" :disable="!localUrl" />
+    <div class="grd">
+        <div class="attFrame">
+            <div v-if="!localUrl">
+                <q-icon name="attachment" class="clip"></q-icon>
+                <div class="emptyText" @click="attachShow">{{ emptyLabel }}</div>
+            </div>
+            <img v-else :src="imgUrl" class="image" />
+        </div>
+        <div class="deleteText" @click="onDelete">
+            Borrar
+        </div>
     </div>
+
     <input type="file" ref="refAttachment" @change="onSelFile" style="display:none" />
     <div class="viewFrame" v-if="showImgFlag">
         <q-btn glossy round color="primary" icon="close" @click="onClose" class="btnClose" />
         <img :src="imgUrl" class="image" />
     </div>
+    <!--<div class="grdBtns">
+        <q-btn glossy color="primary" icon="attachment" @click="attach" />
+        <q-btn glossy color="primary" icon="visibility" @click="showAttachment" :disable="!localUrl" />
+        <q-btn glossy color="red" icon="delete" @click="onDelete" :disable="!localUrl" />
+    </div>
+-->
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
 const emit = defineEmits(['onAttach', 'onDelete'])
-const props = defineProps(['src'])
+const props = defineProps(['src', 'emptyLabel'])
 
 const showImgFlag = ref(false)
 const imgUrl = ref()
@@ -39,8 +53,12 @@ const onDelete = () => {
     }
     emit('onDelete', undefined)
 }
-const attach = () => {
-    refAttachment.value.click()
+const attachShow = () => {
+    if (localUrl.value) {
+        showAttachment()
+    } else {
+        refAttachment.value.click()
+    }
 }
 const onSelFile = async (e) => {
     const o = e.target.files[0]
@@ -67,6 +85,41 @@ const showAttachment = (o) => {
 </script >
 
 <style lang="scss">
+.grd {
+    display: grid;
+    grid-template-rows: 1fr 10px;
+}
+
+.attFrame {
+    background-color: #dedede;
+    box-shadow: inset 1px 1px 5px #b2b2b2;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.clip {
+    display: grid;
+    padding-top: 20%;
+    color: gray;
+    font-size: 50px;
+    margin: auto;
+}
+
+.emptyText {
+    color: gray;
+    text-shadow: 1px 1px 1px white;
+    text-align: center;
+    font-size: 20px;
+}
+
+.deleteText {
+    text-decoration: underline;
+    font-size: 16px;
+    color: #7b7b7b;
+    font-weight: bold;
+    text-align: right;
+}
+
 .grdBtns {
     display: grid;
     grid-template-columns: 40px 40px 40px;

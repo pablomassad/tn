@@ -2,29 +2,37 @@
     <div>
         <div class="matrix" v-if="appStore.state.tickets">
             <div class="fila ticket encabezado">
-                <SortColumn class="central" col="idExp" label="Imputación" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="central" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <!--<q-checkbox size="sm" v-model="allSelected" @update:model-value="onSelectAll" />-->
+                <!--<SortColumn class="central" col="idExp" label="Imputación" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />-->
+                <SortColumn class="celda central" col="status" label="Estado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="concept" label="Concepto" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="amount" label="Importe" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="paid" label="Pagado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="precio" col="balance" label="Saldo" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <div class="celda central">Ver</div>
                 <SortColumn class="texto" col="payMode" label="Forma de pago" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
-                <SortColumn class="celda texto" col="status" label="Estado" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
                 <SortColumn class="texto" col="referrer" label="Referente" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="swOrdExtra" label="Extra" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="swContTerra" label="Cont" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <SortColumn class="central" col="datetime" label="Fecha" :sortMethod="appStore.actions.tickets.sort" :activeCol="appStore.state.activeCol" />
+                <div class="celda central">Ver</div>
+                <div class="celda central">Borrar</div>
             </div>
             <div v-for="(tk) in appStore.state.tickets" :key="tk">
                 <div class="fila ticket">
-                    <div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>
-                    <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
+                    <!--<q-checkbox size="sm" v-model="tk.selected" />-->
+                    <!--<div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>-->
+                    <StatusLed class="celda central" :status="evalStatus(tk)" />
                     <div class="celda texto">{{ tk.concept }}</div>
                     <div class="celda precio">{{ tk.amount }}</div>
                     <div class="celda precio">{{ tk.paid }}</div>
                     <div class="celda precio">{{ tk.balance }}</div>
-                    <BtnIcon icon="visibility" @click="viewTicket(tk)" />
                     <div class="celda texto">{{ tk.payMode }}</div>
-                    <StatusLed class="celda central" :status="evalStatus(tk)" />
                     <div class="celda texto">{{ tk.referrer }}</div>
+                    <q-icon class="celda typeIcon" :name="(tk.swOrdExtra === 'Extraordinaria') ? 'task_alt' : ''"></q-icon>
+                    <q-icon class="celda typeIcon" :name="(tk.swContTerra === 'Contable') ? 'task_alt' : ''"></q-icon>
+                    <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
+                    <BtnIcon icon="visibility" @click="viewTicket(tk)" />
+                    <q-icon class="celda typeIcon" name="delete" color="grey"></q-icon>
                 </div>
             </div>
             <!--<div class="rowTicket total">
@@ -39,7 +47,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
 import moment from 'moment'
 import BtnIcon from 'src/components/BtnIcon.vue'
@@ -49,12 +57,15 @@ import TicketForm from './TicketForm.vue'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const refTicket = ref()
+const allSelected = ref(false)
+// const localTickets = ref()
 
 console.log('Tickets CONSTRUCTOR ################')
 
 onMounted(async () => {
     console.log('Tickets onMounted')
     ui.actions.setTitle('Gastos')
+    appStore.actions.admin.getExpenses()
     appStore.actions.tickets.monitorTickets()
 })
 const addTicket = () => {
@@ -76,13 +87,36 @@ const evalStatus = (item) => {
     return st
 }
 
+// const onSelectAll = () => {
+//    localTickets.value = localTickets.value.map(x => {
+//        x.selected = allSelected.value
+//        return x
+//    })
+//    console.log('tickets:', localTickets.value)
+// }
+// watch(() => appStore.state.tickets, (newTickets) => {
+//    console.log('watch tickets:', newTickets)
+//    localTickets.value = JSON.parse(JSON.stringify(newTickets))
+//    localTickets.value = localTickets.value.map(x => {
+//        x.selected = x.selected || false
+//        return x
+//    })
+// })
+
 </script>
 
 <style scoped>
+.typeIcon {
+    font-size: 20px;
+    color: green;
+    justify-self: center;
+    align-self: center;
+}
+
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1300px;
+    max-width: 1390px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -90,8 +124,8 @@ const evalStatus = (item) => {
 }
 
 .ticket {
-    grid-template-columns: 130px 120px 270px 80px 80px 80px 70px 110px 70px 320px;
-    width: 1300px;
+    grid-template-columns: 80px 270px 80px 80px 80px 110px 320px 70px 80px 110px 50px 50px;
+    width: 1390px;
     border-bottom: 1px solid gray;
 }
 
@@ -128,9 +162,23 @@ const evalStatus = (item) => {
     background-color: rgb(89, 112, 155) !important;
 }
 
+.assignBtn {
+    position: fixed;
+    left: 10px;
+    bottom: 10px;
+    font-weight: bold;
+}
+
+.unassignBtn {
+    position: fixed;
+    left: 200px;
+    bottom: 10px;
+    font-weight: bold;
+}
+
 .addBtn {
-    position: absolute;
-    right: 5px;
-    bottom: 5px;
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
 }
 </style>

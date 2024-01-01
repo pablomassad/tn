@@ -352,6 +352,12 @@ const actions = {
                 set.unsubListeners({ us_userExpenses: us })
             }
         },
+        async getExpenses () {
+            const exps = await fb.getCollection('expenses')
+            console.log('store getExpenses:', exps)
+            set.expenses(exps)
+            set.selExpense(exps[exps.length - 1])
+        },
         async getPendingTickets () {
             const path = 'tickets'
             const tks = await fb.getCollectionFlex(path, { field: 'checked', val: false })

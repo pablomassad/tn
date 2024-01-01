@@ -1,6 +1,6 @@
 <template >
     <div class="btnFrame">
-        <div class="btn" :class="{'btnPressed': !!pressed, 'btnDisabled': disabled}" @click="emit('click')">
+        <div class="btn" :class="{'btnPressed': !!pressed, 'btnDisabled': disabled}" @click="emit('click')" :style="{background: bgColor}">
             <q-icon :name="icon" class="btnIcon"></q-icon>
         </div>
         <div class="panelDisabled" v-if="disabled"></div>
@@ -21,6 +21,10 @@ const props = defineProps({
     pressed: {
         type: Boolean,
         default: false
+    },
+    bgColor: {
+        type: String,
+        default: 'primary'
     }
 })
 </script >
