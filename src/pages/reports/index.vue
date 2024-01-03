@@ -211,13 +211,6 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
     background-color: green;
 }
 
-.title {
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px white;
-    text-align: center;
-}
-
 .cardList {
     border-right: none;
     max-width: 600px;

@@ -4,8 +4,8 @@
             <q-toolbar>
                 <q-icon v-show="!(isInitPage && isRoot)" name="arrow_back_ios" @click="onBack" style="padding-top: 10px;" />
                 <q-toolbar-title :class="`title ${main.state.mockmode ? 'mockModeOn' : ''}`">
-                    <slot name="title">
-                        <div @click="showInfo" v-touch-swipe.mouse.right="setMockMode" class="text-h6 title">{{ ui.state.title }}</div>
+                    <slot name="mainTitle">
+                        <div @click="showInfo" v-touch-swipe.mouse.right="setMockMode" class="text-h4 ">{{ ui.state.title }}</div>
                     </slot>
                 </q-toolbar-title>
                 <q-avatar color="grey" class="avatarInitials">
@@ -174,6 +174,7 @@ const setMockMode = () => {
     color: $toolbox-primary;
 }
 
+/*
 .title {
     text-align: center;
     font-weight: bold;
@@ -181,7 +182,7 @@ const setMockMode = () => {
     display: flex;
     padding-top: 4px;
     font-size: 30px;
-}
+}*/
 
 .mockModeOn {
     color: #aaa;

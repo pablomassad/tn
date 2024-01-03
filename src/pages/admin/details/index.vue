@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="title">
+        <div class="mainTitle">
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix">
@@ -127,15 +127,6 @@ watch(() => expExtraLote.value, (newVal) => {
     color: #555;
 }
 
-.title {
-    font-size: 20px;
-    text-shadow: 1px 1px 1px white;
-    font-weight: bold;
-    display: grid;
-    justify-content: center;
-    margin-top: 20px;
-}
-
 .matrix {
     position: relative;
     background-color: white;
@@ -154,13 +145,6 @@ watch(() => expExtraLote.value, (newVal) => {
 .detail {
     grid-template-columns: 280px 300px 70px 100px 120px 60px 50px;
     width: 1000px;
-}
-
-.title {
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px white;
-    text-align: center;
 }
 
 .addBtn {

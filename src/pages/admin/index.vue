@@ -105,7 +105,7 @@ const download = async (exp) => {
 }
 const gotoDetails = (exp) => {
     appStore.set.selExpense(exp)
-    router.push('/admin/details')
+    router.push('/admin/tickets')
 }
 const gotoMonitor = (exp) => {
     appStore.set.selExpense(exp)

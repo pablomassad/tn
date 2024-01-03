@@ -7,11 +7,6 @@
                 <div class="rowText">Expensas</div>
             </div>
             <q-separator />
-            <div class="menuRow" @click="gotoTickets()">
-                <q-icon name="request_quote" class="iconMenu" />
-                <div class="rowText">Gastos</div>
-            </div>
-            <q-separator />
             <div class="menuRow" @click="gotoReports()">
                 <q-icon name="checklist" class="iconMenu" />
                 <div class="rowText">Resumenes Liquidación</div>

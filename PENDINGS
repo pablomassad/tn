@@ -40,12 +40,13 @@ TICKETS:
 👍 componente Attachment dejar clip y x con preview
 👍 En caso de login de propietario predefinir el gasto con el nombre del propietario (sacar switch)
 👍 Eliminar forma de pago del ticket (solo van la forma de pago en los recibos)
-⏰ Binding de forma de pago en recibos
 👍 Reordenara columnas
 👍 reemplazar check circle por un check comun verde
+⏰ Cuando cambio de pendiente a alguna forma de pago se paga el ticket
 ⏰ Estilos totales
 ⏰ CloudFunction de Tickets y totales de expensas
 ⏰ Titulo con Nombre de expensa y año
+⏰ Los tickets reemplazan integramente al Details! (borrar tabla) y se acceden desde la pagina de seleccion de expensas
 
 
 

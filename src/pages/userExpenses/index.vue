@@ -138,11 +138,4 @@ watch(() => appStore.state.selUserExpense, (newVal) => {
 .pagado {
     background-color: green;
 }
-
-.title {
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px white;
-    text-align: center;
-}
 </style>

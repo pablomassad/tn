@@ -1,5 +1,8 @@
 <template>
     <div>
+        <div class="mainTitle">
+            Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
+        </div>
         <div class="matrix" v-if="appStore.state.tickets">
             <div class="fila ticket encabezado">
                 <!--<q-checkbox size="sm" v-model="allSelected" @update:model-value="onSelectAll" />-->
@@ -17,36 +20,38 @@
                 <div class="celda central">Ver</div>
                 <div class="celda central">Borrar</div>
             </div>
-            <div v-for="(tk) in appStore.state.tickets" :key="tk">
-                <div class="fila ticket">
-                    <!--<q-checkbox size="sm" v-model="tk.selected" />-->
-                    <!--<div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>-->
-                    <StatusLed class="celda central" :status="evalStatus(tk)" />
-                    <div class="celda texto">{{ tk.concept }}</div>
-                    <div class="celda precio">{{ tk.amount }}</div>
-                    <div class="celda precio">{{ tk.paid }}</div>
-                    <div class="celda precio">{{ tk.balance }}</div>
-                    <div class="celda texto">{{ tk.payMode }}</div>
-                    <div class="celda texto">{{ tk.referrer }}</div>
-                    <q-icon class="celda typeIcon" :name="(tk.isExtra) ? 'task_alt' : ''"></q-icon>
-                    <q-icon class="celda typeIcon" :name="(tk.isCont) ? 'task_alt' : ''"></q-icon>
-                    <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
-                    <BtnIcon icon="visibility" @click="viewTicket(tk)" />
-                    <q-icon class="celda typeIcon" name="delete" color="grey" @click="deleteTicket(tk)"></q-icon>
+            <div class="detailsList">
+                <div v-for="(tk) in appStore.state.tickets" :key="tk">
+                    <div class="fila ticket">
+                        <!--<q-checkbox size="sm" v-model="tk.selected" />-->
+                        <!--<div class="celda central">{{ appStore.actions.evalExpName(tk.idExp) }}</div>-->
+                        <StatusLed class="celda central" :status="evalStatus(tk)" />
+                        <div class="celda texto">{{ tk.concept }}</div>
+                        <div class="celda precio">{{ tk.amount }}</div>
+                        <div class="celda precio">{{ tk.paid }}</div>
+                        <div class="celda precio">{{ tk.balance }}</div>
+                        <div class="celda texto">{{ tk.payMode }}</div>
+                        <div class="celda texto">{{ tk.referrer }}</div>
+                        <q-icon class="celda typeIcon" :name="(tk.isExtra) ? 'task_alt' : ''"></q-icon>
+                        <q-icon class="celda typeIcon" :name="(tk.isCont) ? 'task_alt' : ''"></q-icon>
+                        <div class="celda central">{{ moment(tk.date).format(appStore.state.dateMask) }}</div>
+                        <BtnIcon icon="visibility" @click="viewTicket(tk)" />
+                        <q-icon class="celda typeIcon" name="delete" color="grey" @click="deleteTicket(tk)"></q-icon>
+                    </div>
                 </div>
             </div>
-            <div class="fila detail total" style="background-color: rgb(182, 255, 250) !important">
+            <div class="fila ticket total" style="background-color: rgb(182, 255, 250) !important">
+                <div></div>
                 <div class="celda texto">TOTAL Ordinarias</div>
                 <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.totalOrdinary }}</div>
-                <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.amountOrdinary }}</div>
             </div>
-            <div class="fila detail total" style="background-color: rgb(251, 255, 196) !important">
+            <div class="fila ticket total" style="background-color: rgb(251, 255, 196) !important">
+                <div></div>
                 <div class="celda texto">TOTAL Extraordinarias</div>
                 <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.totalExtraordinary }}</div>
-                <div></div>
                 <div class="celda precio">
                     {{ appStore.state.selExpense.amountExtraordinary }}
                     <q-popup-edit v-model="expExtraLote" class="bg-green text-black" v-slot="scope" v-if="!appStore.state.selExpense.deployed">
@@ -58,15 +63,14 @@
                     </q-popup-edit>
                 </div>
             </div>
-            <div class="fila detail total" style="background-color: rgb(202, 202, 202) !important">
+            <div class="fila ticket total" style="background-color: rgb(202, 202, 202) !important">
+                <div></div>
                 <div class="celda texto">TOTAL Expensas</div>
                 <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
-                <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
-                <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="createItem" class="addBtn"></q-btn>
+                <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="addTicket" class="addBtn" size="lg"></q-btn>
             </div>
-            <q-btn glossy round color="primary" icon="add" @click="addTicket" class="addBtn"></q-btn>
         </div>
         <TicketForm ref="refTicket" />
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -151,6 +155,15 @@ const sumTickets = (arr) => {
 </script>
 
 <style scoped>
+.titlex {
+    font-size: 20px;
+    text-shadow: 1px 1px 1px white;
+    font-weight: bold;
+    display: grid;
+    justify-content: center;
+    margin-top: 20px;
+}
+
 .typeIcon {
     font-size: 20px;
     color: green;
@@ -163,7 +176,7 @@ const sumTickets = (arr) => {
     background-color: white;
     max-width: 1390px;
     margin: auto;
-    margin-top: 50px;
+    margin-top: 20px;
     border-radius: 10px;
     box-shadow: 1px 1px 5px gray;
 }
@@ -172,6 +185,11 @@ const sumTickets = (arr) => {
     grid-template-columns: 80px 270px 80px 80px 80px 110px 320px 70px 80px 110px 50px 50px;
     width: 1390px;
     border-bottom: 1px solid gray;
+}
+
+.detail {
+    grid-template-columns: 280px 300px 70px 100px 120px 60px 50px;
+    width: 1390px;
 }
 
 .status {
@@ -221,14 +239,14 @@ const sumTickets = (arr) => {
     font-weight: bold;
 }
 
-.detail {
-    grid-template-columns: 280px 300px 70px 100px 120px 60px 50px;
-    width: 1000px;
+.detailsList {
+    height: calc(100vh - 370px);
+    overflow: auto;
 }
 
 .addBtn {
     position: fixed;
-    right: 25px;
-    bottom: 25px;
+    right: 20px;
+    bottom: 20px;
 }
 </style>

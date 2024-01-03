@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="title">
+        <div class="mainTitle">
             Expensa {{ appStore.actions.evalExpName(appStore.state.selExpense.id) }}
         </div>
         <div class="matrix" v-if="appStore.state.userExpenses">
@@ -100,15 +100,6 @@ const evalStatus = (item) => {
     color: #555;
 }
 
-.title {
-    font-size: 20px;
-    text-shadow: 1px 1px 1px white;
-    font-weight: bold;
-    display: grid;
-    justify-content: center;
-    margin-top: 20px;
-}
-
 .detailsList {
     height: calc(100vh - 420px);
     overflow: auto;
@@ -148,13 +139,6 @@ const evalStatus = (item) => {
 
 .btn:active {
     box-shadow: none;
-}
-
-.title {
-    font-size: 20px;
-    font-weight: bold;
-    text-shadow: 1px 1px 1px white;
-    text-align: center;
 }
 
 .addBtn {
