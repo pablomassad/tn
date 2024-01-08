@@ -8,6 +8,7 @@ import pdfSrv from 'fwk-pdf'
 import { pdfGenerator } from 'src/pages/generator.js'
 
 fb.initFirebase(ENVIRONMENTS.firebase)
+pdfSrv.init()
 
 const state = reactive({
     dateMask: 'DD/MM/YY',
@@ -97,6 +98,10 @@ const set = {
             return e
         })
         state.expenses = exps
+        if (state.selExpense) {
+            const fndExp = exps.find(x => x.id === state.selExpense.id)
+            set.selExpense(fndExp)
+        }
     },
     detailsByExp (o) {
         console.log('store set.detailsByExp:', o)
@@ -158,7 +163,7 @@ const actions = {
             const res = await fb.getCollectionFlex('userExpenseReceipts', { field: 'idUsrExp', op: '==', val: state.selUserExpense.id })
             return res
         },
-        async saveComp (comp, file) {
+        async saveComp (comp, file, deleteFlag) {
             console.log('store saveComp:', comp)
             try {
                 ui.actions.showLoading()
@@ -167,6 +172,11 @@ const actions = {
                     console.log('sto folder:', folder)
                     const url = await fb.uploadFile(file, folder)
                     comp.attachmentUrl = url
+                }
+                if (deleteFlag) {
+                    console.log('sto delete attachment:', comp.attachmentUrl)
+                    await fb.deleteFile(comp.attachmentUrl)
+                    comp.attachmentUrl = ''
                 }
                 comp.idUsrExp = state.selUserExpense.id
                 comp.amount = Number(comp.amount)
@@ -277,6 +287,7 @@ const actions = {
             }
             tk.amount = Number(tk.amount)
             tk.datetime = new Date().getTime() // moment(comp.date, 'DD-MM-YY').unix() * 1000
+            tk.idExp = state.selExpense.id
             const id = tk.id || tk.datetime.toString()
             await fb.setDocument('tickets', tk, id)
             ui.actions.hideLoading()
@@ -365,13 +376,21 @@ const actions = {
             set.pendingTickets(tks)
         },
         async generateExpense () {
-            const pdfDefinition = definePDF(state.detailsByExp)
-            const base64 = await pdfSrv.generate(pdfDefinition)
-            const file = base64ToFile(base64, `ExpensaTN_${state.selExpense.id}.pdf`)
-            const folder = `expenses/${file.name}`
-            console.log('sto folder:', folder)
-            const url = await fb.uploadFile(file, folder)
-            return url
+            // const pdfDefinition = await definePDF(state.detailsByExp)
+            const pdfDefinition = {
+                content: [
+                    { text: 'Hola Mundo' }
+                ]
+            }
+            const pdf = pdfSrv.generatePdf(pdfDefinition)
+            pdf.open()
+            // const base64 = await pdfSrv.generate(pdfDefinition)
+            // console.log('base64 pdf:', base64)
+            // const file = base64ToFile(base64, `ExpensaTN_${state.selExpense.id}.pdf`)
+            // const folder = `expenses/${file.name}`
+            // console.log('sto folder:', folder)
+            // const url = await fb.uploadFile(file, folder)
+            // return url
         },
         async updateExpense (o) {
             console.log('store updateExpense:', o)
@@ -516,7 +535,7 @@ function sortArray (arr, key, dir) {
     return res
 }
 async function definePDF (definition) {
-    return pdfGenerator
+    return { content: [{ text: 'Hola Mundo' }] } // pdfGenerator
 }
 function base64ToFile (base64, filename) {
     const binaryString = window.atob(base64)

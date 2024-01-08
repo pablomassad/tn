@@ -42,7 +42,7 @@
         "fwk-content-provider": "0.0.16",
         "fwk-events": "0.0.4",
         "fwk-indexdb": "0.0.44",
-        "fwk-pdf": "^0.0.5",
+        "fwk-pdf": "^0.0.7",
         "fwk-q-barcode": "0.0.12",
         "fwk-q-cardlist": "0.0.23",
         "fwk-q-confirmdialog": "0.0.19",

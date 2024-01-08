@@ -2,29 +2,27 @@
     <div>
         <ConfirmDialog :prompt="showForm" noPersistant @onClose="onClose" bg-color="white">
             <template #header>
-                <div class="dialogTitle">
-                    Expensa {{ expName }}
+                <div class="grdHeader">
+                    <div class="dialogTitle">
+                        {{ comp.id ? 'Edición de ' : 'Nuevo ' }}Comprobante
+                    </div>
+                    <div></div>
+                    <q-icon name="close" @click="onClose" size="md" style="justify-self: right;"></q-icon>
                 </div>
             </template>
             <template #default>
-                <div class="grdForm">
-                    <div class="rowDtCom">
+                <div class="grdFrame">
+                    <div class="grdForm">
                         <q-input flat dense clearable :model-value="selDate" label="Fecha de comprobante" @click="selectFecha()" readonly />
-                        <q-input type="text" v-model="comp.description" filled label="Descripción" class="description" />
-                    </div>
-                    <div class="rowAmAt">
+                        <q-input type="text" v-model="comp.description" label="Descripción" class="description" />
                         <q-input type="number" v-model="comp.amount" label="Importe pagado" />
                         <q-input type="number" v-model="comp.payRef" label="Nro.comprobante de pago" />
-                        <Attachment :src="comp.attachmentUrl" @onAttach="onAttach" />
                     </div>
+                    <Attachment :src="comp.attachmentUrl" emptyLabel="Adjunte el comprobante" @onAttach="onAttach" @onDelete="onDelete" h="200px" w="200px" />
                 </div>
             </template>
             <template #footer>
-                <div class="btnContainer">
-                    <q-btn glossy color="primary" icon="highlight_off" class="footerBtns" @click="onClose">Cancelar</q-btn>
-                    <q-btn glossy color="red" icon="delete" class="footerBtns" @click="remove">Eliminar</q-btn>
-                    <q-btn glossy color="primary" icon="check" class="footerBtns" @click="save">Aceptar</q-btn>
-                </div>
+                <q-btn glossy color="primary" class="footerBtns" @click="save">Guardar</q-btn>
             </template>
         </ConfirmDialog>
         <DatePicker ref="refDate" @close="onSelFecha" :mask="appStore.state.dateMask" />
@@ -40,6 +38,8 @@ import DatePicker from 'fwk-q-datepicker'
 import ConfirmDialog from 'fwk-q-confirmdialog'
 import Attachment from 'src/components/Attachment.vue'
 import moment from 'moment'
+
+let deleteFlag = false
 
 const refDate = ref()
 const showForm = ref(false)
@@ -73,7 +73,8 @@ const save = async () => {
         showConfirm.value = true
         confirmMessage.value = 'Esta seguro que quiere grabar este comprobante?'
         onAcceptDialog.value = async () => {
-            await appStore.actions.userExpenses.saveComp(comp, attFile.value)
+            await appStore.actions.userExpenses.saveComp(comp, attFile.value, deleteFlag)
+            deleteFlag = false
             showConfirm.value = false
             onClose()
         }
@@ -107,6 +108,11 @@ const onAttach = (o) => {
     console.log('attach from Attachment:', o)
     attFile.value = o
 }
+const onDelete = (url) => {
+    console.log('delete from Attachment:', url)
+    attFile.value = undefined
+    deleteFlag = true
+}
 const onClose = () => {
     showForm.value = false
 }
@@ -116,38 +122,42 @@ const show = async (cp) => {
     const o = cp || emptyComp
     Object.assign(comp, o)
     attFile.value = undefined
-    selDate.value = moment(cp.date).format(appStore.state.dateMask)
+    selDate.value = moment(o.date).format(appStore.state.dateMask)
 }
 defineExpose({ show })
 </script>
 
 <style scoped>
-.grdForm {
+.grdFrame {
     display: grid;
+    grid-template-columns: 2fr 1fr;
     row-gap: 10px;
-    margin: 20px;
-    padding: 26px;
+    column-gap: 20px;
+    margin: 0 20px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: inset 1px 1px 3px gray;
     background: #eee;
 }
 
-.rowDtCom {
+.grdForm {
     display: grid;
-    align-items: baseline;
+    grid-template-columns: 1fr;
+    align-items: center;
+    row-gap: 10px;
     column-gap: 20px;
-    grid-template-columns: 150px 1fr;
 }
 
-.rowAmAt {
-    display: flex;
-    justify-content: space-between;
+.grdHeader {
+    display: grid;
+    grid-template-columns: 240px 1fr 200px;
+    align-items: center;
+    margin: 0 20px;
 }
 
-.btnContainer {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
+.footerBtns {
+    right: 25px;
+    margin-bottom: 10px;
 }
 
 .btn {
@@ -162,7 +172,7 @@ defineExpose({ show })
 
 .dialogTitle {
     font-size: 25px;
-    text-align: center;
+    text-align: left;
     font-weight: bold;
 }
 </style>

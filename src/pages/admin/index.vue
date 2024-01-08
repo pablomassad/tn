@@ -31,7 +31,7 @@
                     <div class="celda precio loteInfo">{{ item.amountExtraordinary }}</div>
                     <div class="celda precio loteInfo">{{ item.amount }}</div>
                     <BtnIcon icon="file_download" @click="download(item)" :disabled="!item.deployed" />
-                    <BtnIcon icon="edit" @click="gotoDetails(item)" />
+                    <BtnIcon icon="edit" @click="gotoTickets(item)" />
                     <BtnIcon icon="groups" @click="gotoMonitor(item)" :disabled="!item.deployed" />
                     <BtnIcon icon="send" @click="distributeExpense(item)" :disabled="!!item.deployed" :pressed="!!item.deployed" />
                     <StatusLed class="celda centro" :status="item.status" />
@@ -81,7 +81,7 @@ onMounted(async () => {
     appStore.actions.admin.monitorExpenses()
 })
 onUnmounted(() => {
-    appStore.actions.unsubscribeListeners('us_expenses')
+    // appStore.actions.unsubscribeListeners('us_expenses')
 })
 const onSelYear = async (e) => {
     console.log(e.id)
@@ -103,7 +103,7 @@ const download = async (exp) => {
     appStore.set.selExpense(exp)
     appStore.actions.admin.downloadExpense()
 }
-const gotoDetails = (exp) => {
+const gotoTickets = (exp) => {
     appStore.set.selExpense(exp)
     router.push('/admin/tickets')
 }

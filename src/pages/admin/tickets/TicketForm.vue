@@ -1,6 +1,6 @@
 <template>
     <div>
-        <ConfirmDialog :prompt="showForm" @onClose="onClose" bg-color="white" w="700px">
+        <ConfirmDialog :prompt="showForm" @onClose="onClose" bg-color="white">
             <template #header>
                 <div class="grdHeader">
                     <div class="dialogTitle">
@@ -144,6 +144,11 @@ const save = async () => {
             }
         } else {
             tk.referrer = 'TerraNostra'
+        }
+        if (tk.payMode !== 'Pendiente') {
+            tk.paid = tk.amount
+        } else {
+            tk.paid = 0
         }
         await appStore.actions.tickets.save(tk, attFile.value, deleteFlag)
         deleteFlag = false

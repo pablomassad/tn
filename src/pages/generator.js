@@ -6,7 +6,7 @@ import { imagesGenerator } from 'src/shared/images'
 export const pdfGenerator = (data) => {
     console.log('PDF expense generator:', data)
     const accesories = ''
-    const installedEquipments = data.installedEquipments.map(item => item.value)
+    const installedEquipments = [] // data.installedEquipments.map(item => item.value)
     const accesoryPrices = [] // toRaw([...main.state.payload.precios])
 
     return new Promise(resolve => {

@@ -68,7 +68,7 @@
                 <div class="celda texto">TOTAL Expensas</div>
                 <div></div>
                 <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
-                <div class="celda precio">{{ appStore.state.selExpense.total }}</div>
+                <div class="celda precio">{{ appStore.state.selExpense.amount }}</div>
                 <q-btn v-if="!appStore.state.selExpense.deployed" glossy round color="primary" icon="add" @click="addTicket" class="addBtn" size="lg"></q-btn>
             </div>
         </div>
@@ -80,11 +80,13 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import appStore from 'src/pages/appStore'
+import ConfirmDialog from 'fwk-q-confirmdialog'
 import moment from 'moment'
 import BtnIcon from 'src/components/BtnIcon.vue'
 import StatusLed from 'src/components/StatusLed.vue'
 import { ui } from 'fwk-q-ui'
 import TicketForm from './TicketForm.vue'
+import { log } from 'pdfmake/build/pdfmake'
 import SortColumn from 'src/components/SortColumn.vue'
 
 const showConfirm = ref(false)
@@ -93,16 +95,14 @@ const onAcceptDialog = ref()
 const onCancelDialog = ref()
 
 const refTicket = ref()
-const expLote = ref(0)
-const allSelected = ref(false)
-// const localTickets = ref()
+const expExtraLote = ref(0)
+// const allSelected = ref(false)
 
 console.log('Tickets CONSTRUCTOR ################')
 
 onMounted(async () => {
     console.log('Tickets onMounted')
     ui.actions.setTitle('Gastos')
-    appStore.actions.admin.getExpenses()
     appStore.actions.tickets.monitorTickets()
 })
 const addTicket = () => {
@@ -128,11 +128,22 @@ const deleteTicket = async (tk) => {
 }
 const sumTickets = (arr) => {
     if (!arr) return
+    let totalOrdinary = 0
+    let totalExtra = 0
     const total = arr.reduce((sum, o) => {
         sum = sum + o.paid
+        if (o.isExtra) {
+            totalExtra = totalExtra + o.paid
+        } else {
+            totalOrdinary = totalOrdinary + o.paid
+        }
         return sum
     }, 0)
-    expLote.value = total / 48
+    console.log('TOTAL paid tickets:', total)
+    console.log('TOTAL ordinary:', totalOrdinary)
+    console.log('TOTAL lote ordinary:', totalOrdinary / 48)
+    console.log('TOTAL Extra:', totalExtra)
+    console.log('TOTAL lote Extra:', totalExtra / 48)
     return total
 }
 
@@ -152,6 +163,13 @@ const sumTickets = (arr) => {
 //    })
 // })
 
+watch(() => expExtraLote.value, (newVal) => {
+    if (!appStore.state.selExpense?.deployed) {
+        const num = Number(newVal)
+        console.log('watch expExtraLote:', num)
+        appStore.actions.admin.updateExpense({ amountExtraordinary: num, totalExtraordinary: num * 48 })
+    }
+})
 </script>
 
 <style scoped>

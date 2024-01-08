@@ -1,6 +1,5 @@
 import { main } from 'fwk-q-main'
 import Admin from 'src/pages/admin/index.vue'
-import Details from 'src/pages/admin/details/index.vue'
 import Monitor from 'src/pages/admin/monitor/index.vue'
 import UserExpenses from 'src/pages/userExpenses/index.vue'
 import Reports from 'src/pages/reports/index.vue'
@@ -14,7 +13,6 @@ const routes = [
         component: () => import('layouts/MainLayout.vue'),
         children: [
             { path: '/admin', component: Admin },
-            { path: '/admin/details', component: Details },
             { path: '/admin/tickets', component: Tickets },
             { path: '/admin/monitor', component: Monitor },
             { path: '/reports', component: Reports },

@@ -26,7 +26,8 @@ ADMIN:
 USEREXPENSES:
 👍 cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
 ⏰ UserExpenses: Agregar binding columnas  (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
-
+👍 Corregir attachment component
+👍 mismo UX que form de Tickets
 
 TICKETS:
 👍 Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura
@@ -42,11 +43,14 @@ TICKETS:
 👍 Eliminar forma de pago del ticket (solo van la forma de pago en los recibos)
 👍 Reordenara columnas
 👍 reemplazar check circle por un check comun verde
-⏰ Cuando cambio de pendiente a alguna forma de pago se paga el ticket
-⏰ Estilos totales
-⏰ CloudFunction de Tickets y totales de expensas
-⏰ Titulo con Nombre de expensa y año
-⏰ Los tickets reemplazan integramente al Details! (borrar tabla) y se acceden desde la pagina de seleccion de expensas
+👍 Estilos totales
+👍 CloudFunction de Tickets y totales de expensas
+👍 Titulo con Nombre de expensa y año
+👍 Los tickets reemplazan integramente al Details! (borrar tabla) y se acceden desde la pagina de seleccion de expensas
+⏰ Cuando cambio de pendiente a alguna forma de pago se paga el ticket (suma se actualiza)
+⏰ Cuando creo un nuevo ticket como administrador debe empezar como Terranostra y el texto TERRANOSTRA y no el propietario
+⏰ Agregar input de monto de expensa extraordinaria
+⏰ Agregar inputs de Estado de saldo efvo+bancario
 
 
 
