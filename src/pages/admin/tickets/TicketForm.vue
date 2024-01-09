@@ -4,13 +4,13 @@
             <template #header>
                 <div class="grdHeader">
                     <div class="dialogTitle">
-                        {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket
+                        {{ tk.id ? 'Edición de ' : 'Nuevo ' }}Ticket {{ expDeployed ? '(lectura solamente)' : '' }}
                     </div>
                     <div class="switch">
                         <q-btn-toggle v-if="isAdmin" v-model="tk.refType" push rounded text-color="grey" toggle-color="blue-5" :options="[
                             {value: 'TERRANOSTRA', slot: 'one'},
                             {value: 'PROPIETARIO', slot: 'two'}
-                        ]" size="md">
+                        ]" size="md" :disable="expDeployed">
                             <template v-slot:one>
                                 <div class="row items-center no-wrap">
                                     <div class="switchText">
@@ -34,20 +34,20 @@
             <template #default>
                 <div class="grdFrame">
                     <div class="grdForm">
-                        <q-input type="text" v-model="tk.concept" label="Ingrese concepto" />
+                        <q-input type="text" v-model="tk.concept" label="Ingrese concepto" :disable="expDeployed" />
                         <div v-if="isAdmin">
-                            <q-select v-if="tk.refType === 'PROPIETARIO' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners"></q-select>
-                            <q-input v-if="tk.refType === 'TERRANOSTRA'" type="text" v-model="tk.referrer" label="Referente" />
+                            <q-select v-if="tk.refType === 'PROPIETARIO' && appStore.state.units" filled bg-color="white" :options="owners" behavior="menu" label="Seleccione referente propietario" autocomplete use-input input-debounce="0" @filter="filterFn" v-model="localUnit" option-label="ownerNames" option-value="id" class="tnOwners" :disable="expDeployed"></q-select>
+                            <q-input v-if="tk.refType === 'TERRANOSTRA'" type="text" v-model="tk.referrer" label="Referente" :disable="expDeployed" readonly />
                         </div>
-                        <q-input v-else type="text" v-model="tk.referrer" label="Referente" :disable="!isAdmin" />
-                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" />
+                        <q-input v-else type="text" v-model="tk.referrer" label="Referente" :disable="!isAdmin || expDeployed" readonly />
+                        <q-input type="number" v-model="tk.amount" label="Importe a pagar" :disable="expDeployed" />
                         <div>
-                            <q-select v-if="isAdmin" :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="tk.payMode" class="combo" outlined></q-select>
+                            <q-select v-if="isAdmin" :options="appStore.state.payModes" behavior="menu" label="Forma de pago" v-model="tk.payMode" class="combo" outlined :disable="expDeployed"></q-select>
                             <q-input v-else type="text" v-model="tk.payMode" label="Forma de pago" disable />
                         </div>
                         <div class="flexChecks">
-                            <q-checkbox v-model="tk.isExtra" label="Extraordinaria" color="blue-5" :disable="!isAdmin"></q-checkbox>
-                            <q-checkbox v-model="tk.isCont" label="Contable" color="blue-5" :disable="!isAdmin"></q-checkbox>
+                            <q-checkbox v-model="tk.isExtra" label="Extraordinaria" color="blue-5" :disable="!isAdmin || expDeployed"></q-checkbox>
+                            <q-checkbox v-model="tk.isCont" label="Contable" color="blue-5" :disable="!isAdmin || expDeployed"></q-checkbox>
                         </div>
                     </div>
                     <div class="grdAtt">
@@ -57,7 +57,7 @@
                 </div>
             </template>
             <template #footer>
-                <q-btn glossy color="primary" class="footerBtns" @click="save">Guardar</q-btn>
+                <q-btn glossy color="primary" class="footerBtns" @click="save" :disable="expDeployed">Guardar</q-btn>
             </template>
         </ConfirmDialog>
         <ConfirmDialog :prompt="showConfirm" :message="confirmMessage" :onCancel="onCancelDialog" :onAccept="onAcceptDialog" />
@@ -80,7 +80,6 @@ const onCancelDialog = ref()
 
 const localUnit = ref()
 const owners = ref()
-const exp = ref({})
 const attFile = ref()
 const tk = reactive({
     date: new Date().getTime(),
@@ -90,9 +89,11 @@ const tk = reactive({
     balance: 0,
     payMode: 'Pendiente',
     isCont: true,
-    isExtra: false
+    isExtra: false,
+    refType: isAdmin.value ? 'TERRANOSTRA' : 'PROPIETARIO'
 })
 let deleteFlag = false
+const expDeployed = ref(!!appStore.state.selExpense.deployed)
 
 const emptyTicket = {
     date: new Date().getTime(),
@@ -104,7 +105,7 @@ const emptyTicket = {
     refType: 'TERRANOSTRA',
     payType: 'CREDIT',
     payMode: 'Pendiente',
-    referrer: appStore.state.selUnit.ownerNames,
+    referrer: 'Terranostra', // appStore.state.selUnit.ownerNames,
     isCont: true,
     isExtra: false
 }
@@ -145,6 +146,7 @@ const save = async () => {
         } else {
             tk.referrer = 'TerraNostra'
         }
+        tk.amount = Number(tk.amount)
         if (tk.payMode !== 'Pendiente') {
             tk.paid = tk.amount
         } else {

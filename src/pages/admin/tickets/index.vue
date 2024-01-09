@@ -96,7 +96,7 @@ const onCancelDialog = ref()
 
 const refTicket = ref()
 const expExtraLote = ref(0)
-// const allSelected = ref(false)
+const expDeployed = ref(!!appStore.state.selExpense.deployed)
 
 console.log('Tickets CONSTRUCTOR ################')
 
@@ -124,29 +124,40 @@ const evalStatus = (item) => {
     return st
 }
 const deleteTicket = async (tk) => {
-    await appStore.actions.tickets.remove(tk)
-}
-const sumTickets = (arr) => {
-    if (!arr) return
-    let totalOrdinary = 0
-    let totalExtra = 0
-    const total = arr.reduce((sum, o) => {
-        sum = sum + o.paid
-        if (o.isExtra) {
-            totalExtra = totalExtra + o.paid
-        } else {
-            totalOrdinary = totalOrdinary + o.paid
+    if (expDeployed.value) {
+        ui.actions.notify('No es posible eliminar un ticket de una expensa ya cerrada.', 'error')
+    } else {
+        showConfirm.value = true
+        confirmMessage.value = 'Esta seguro que quiere eliminar este ticket?'
+        onAcceptDialog.value = async () => {
+            await appStore.actions.tickets.remove(tk)
+            showConfirm.value = false
         }
-        return sum
-    }, 0)
-    console.log('TOTAL paid tickets:', total)
-    console.log('TOTAL ordinary:', totalOrdinary)
-    console.log('TOTAL lote ordinary:', totalOrdinary / 48)
-    console.log('TOTAL Extra:', totalExtra)
-    console.log('TOTAL lote Extra:', totalExtra / 48)
-    return total
+        onCancelDialog.value = () => {
+            showConfirm.value = false
+        }
+    }
 }
-
+// const sumTickets = (arr) => {
+//    if (!arr) return
+//    let totalOrdinary = 0
+//    let totalExtra = 0
+//    const total = arr.reduce((sum, o) => {
+//        sum = sum + o.paid
+//        if (o.isExtra) {
+//            totalExtra = totalExtra + o.paid
+//        } else {
+//            totalOrdinary = totalOrdinary + o.paid
+//        }
+//        return sum
+//    }, 0)
+//    console.log('TOTAL paid tickets:', total)
+//    console.log('TOTAL ordinary:', totalOrdinary)
+//    console.log('TOTAL lote ordinary:', totalOrdinary / 48)
+//    console.log('TOTAL Extra:', totalExtra)
+//    console.log('TOTAL lote Extra:', totalExtra / 48)
+//    return total
+// }
 // const onSelectAll = () => {
 //    localTickets.value = localTickets.value.map(x => {
 //        x.selected = allSelected.value
@@ -259,7 +270,7 @@ watch(() => expExtraLote.value, (newVal) => {
 
 .detailsList {
     height: calc(100vh - 370px);
-    overflow: auto;
+    overflow-y: auto;
 }
 
 .addBtn {

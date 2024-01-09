@@ -242,7 +242,7 @@ const actions = {
         async monitorTickets () {
             console.log('store monitorTickets')
             if (!state.unsubListeners.us_tickets) {
-                const colRef = fb.getCollectionRef('tickets')
+                const colRef = fb.getCollectionRefQuery('tickets', [{ field: 'idExp', op: '==', val: state.selExpense.id }])
                 const us = fb.onSnapshot(colRef, (querySnapshot) => {
                     const docs = querySnapshot.docs
                     const tks = docs.map(doc => ({ id: doc.id, ...doc.data() }))
@@ -250,17 +250,6 @@ const actions = {
                 })
                 set.unsubListeners({ us_tickets: us })
             }
-        },
-        async getTickets () {
-            console.log('store getTickets')
-            const res = await fb.getCollection('tickets')
-            set.tickets(res)
-        },
-        async getTicketsByUnit () {
-            const path = 'tickets'
-            const tks = await fb.getCollection(path)
-            console.log('store getTicketByUnit:', tks)
-            return tks
         },
         async getReceiptsByTicket () {
             const path = 'ticketReceipts'

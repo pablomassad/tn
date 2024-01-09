@@ -203,6 +203,7 @@ const setMockMode = () => {
     .frameLayout {
         //background: -webkit-radial-gradient(#fff, #737373 115%) !important;
         background: #e0e6ef;
+        overflow: hidden;
     }
 }
 
@@ -210,6 +211,7 @@ const setMockMode = () => {
     .frameLayout {
         //background: -webkit-radial-gradient(#fff, #737373 115%) !important;
         background: #0a0a0a;
+        overflow: hidden;
     }
 }
 </style>

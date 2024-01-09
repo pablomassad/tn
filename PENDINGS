@@ -51,6 +51,7 @@ TICKETS:
 ⏰ Cuando creo un nuevo ticket como administrador debe empezar como Terranostra y el texto TERRANOSTRA y no el propietario
 ⏰ Agregar input de monto de expensa extraordinaria
 ⏰ Agregar inputs de Estado de saldo efvo+bancario
+👍 NO permitir modificar tickets una vez enviada la expensa
 
 
 
