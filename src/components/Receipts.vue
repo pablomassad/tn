@@ -56,9 +56,11 @@ const viewComp = (cp) => {
 }
 const toggleValidation = async (cp) => {
     console.log('toggleValidation:', cp)
-    ui.actions.showLoading()
-    await appStore.actions.userExpenses.toggleValidation(cp)
-    ui.actions.hideLoading()
+    if (appStore.state.selUnit.role === 'admin') {
+        ui.actions.showLoading()
+        await appStore.actions.userExpenses.toggleValidation(cp)
+        ui.actions.hideLoading()
+    }
 }
 const sortReceipts = (field, dir) => {
     const arr = sortArray(receipts.value, field, dir)

@@ -71,7 +71,7 @@ import ConfirmDialog from 'fwk-q-confirmdialog'
 import Attachment from 'src/components/Attachment.vue'
 import { ui } from 'fwk-q-ui'
 
-const isAdmin = ref(!!appStore.state.selUnit.role)
+const isAdmin = ref(appStore.state.selUnit.role === 'admin')
 const showForm = ref(false)
 const showConfirm = ref(false)
 const confirmMessage = ref()

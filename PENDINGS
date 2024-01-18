@@ -17,6 +17,8 @@
 
 ⏰ INTEGRACION CON MERCADO PAGO
 ⏰ Cambiar LOGO icon sin fondo en el toolbar
+⏰ Como propietario debe ir directo a la pagina de UserExpenses
+
 
 ADMIN:
 ⏰ Exportacion y bajada a PDF
@@ -25,9 +27,12 @@ ADMIN:
 
 USEREXPENSES:
 👍 cuando modifico el monto de un recibo la userExpense se actualiza bien, pero no la SUMA que debe coincidir con el campo PAID del userExpense seleccionado
-⏰ UserExpenses: Agregar binding columnas  (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
 👍 Corregir attachment component
 👍 mismo UX que form de Tickets
+👍 El check no debe estar habilitado para el propietario (solo admin)
+⏰ UserExpenses: Agregar binding columnas  (expensa anterior / su pago / ultimo saldo ) antes del importe de expensas
+⏰ No actualiza el comprobante recien ingresado en el listado, ni el monto pagado en la expensa
+⏰ No se deberia ver la expensa que no salio (enero 2024)
 
 TICKETS:
 👍 Tickets: Agregar subida de comprobante/s bancarios o recibos para cancelar Factura

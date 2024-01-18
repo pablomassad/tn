@@ -32,7 +32,8 @@ watch(() => main.state.info, async (newVal, oldVal) => {
     if (!appStore.state.selUnit) {
         router.push('/login')
     } else {
-        router.push(newVal.tool)
+        const path = (appStore.state.selUnit.role === 'admin') ? '/admin' : '/userExpenses'
+        router.push(path)
     }
 })
 </script>

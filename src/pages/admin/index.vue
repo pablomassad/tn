@@ -137,7 +137,7 @@ const distributeExpense = (exp) => {
 .matrix {
     position: relative;
     background-color: white;
-    max-width: 1300px;
+    max-width: 1440px;
     margin: auto;
     margin-top: 50px;
     border-radius: 10px;
@@ -146,7 +146,8 @@ const distributeExpense = (exp) => {
 
 .admin {
     grid-template-columns: 130px 80px 90px 100px 80px 90px 100px 90px 120px 90px 80px 60px 60px 60px 60px;
-    width: 1300px;
+    width: 1440px;
+    column-gap: 10px;
 }
 
 .lote {
